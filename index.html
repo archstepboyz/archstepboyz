@@ -12,18 +12,18 @@
 
 <style>
   body {
-    /* background: #e2e1eb; */  /* Fallback */
-    /* background: linear-gradient(to right, #24243e, #302b63, #d0cee0); */
+    background-color: white;
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     display: flex;
-    justify-content: center;
-    align-items: center;
     min-height: 100vh;
     margin: 0;
     color: white;
 
+    align-items: center;
+
     flex-direction: column; /* Stack header and table */
     padding-top: 50px; /* Space for the header */
+    padding-bottom: 50px;
 
     zoom: 0.75; /* fits better on mobile */
   }
@@ -31,11 +31,13 @@
   /* --- BRAND HEADER --- */
   .Header {
     display: flex;
-    align-items: center;
     gap: 25px;
     margin-bottom: 30px;
-    /* Add a subtle animation on load */
     animation: fadeInDown 0.8s ease-out;
+
+    justify-content: center;
+    flex-wrap: wrap; 
+    text-align: center;
   }
 
   .Header__Logo {
@@ -43,7 +45,6 @@
     height: 90px;
     border-radius: 50%;
     object-fit: cover;
-    /* Thick white border + shadow for 'sticker' effect */
     border: 5px solid #ffffff;
     box-shadow: 0 10px 20px rgba(0,0,0,0.15);
   }
@@ -55,20 +56,19 @@
   }
 
   .Header__Title {
-    font-family: 'Fugaz One', cursive; /* The eccentric font */
+    font-family: 'Fugaz One', cursive;
     font-size: 48px;
     line-height: 1;
     margin: 0;
     color: #2d3436;
     letter-spacing: -1px;
-    /* Text shadow for depth */
     text-shadow: 2px 2px 0px rgba(255,255,255,1); 
   }
 
   .Header__Subtitle {
     font-family: 'Fugaz One', cursive;
     font-size: 24px;
-    color: #e17055; /* Matches the PCT column color */
+    color: #e17055;
     text-transform: uppercase;
     letter-spacing: 4px;
     margin-top: 5px;
@@ -81,17 +81,17 @@
   }
 
   .table-container {
+    min-width: 0;
+    margin: 0 auto;
+    
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
-
+  
   .Table {
-    width: 90%;
-    max-width: 1000px;
-    border-collapse: separate; /* Required for border-radius to work on tables */
+    border-collapse: separate;
     border-spacing: 0;
     border-radius: 20px;
-    overflow: hidden;
     box-shadow: 0 15px 25px rgba(0,0,0,0.5);
     background: rgba(255, 255, 255, 0.05); /* Glass effect */
     backdrop-filter: blur(10px);
@@ -308,13 +308,13 @@
 </head>
 <body>
 
-  <div class="Header">
-    <img src="https://pbs.twimg.com/profile_images/1887582914608607232/zdmOHy16_400x400.jpg" alt="Logo" class="Header__Logo">
-    <div class="Header__Text">
-      <h1 class="Header__Title">ArchStepBoyz</h1>
-      <span class="Header__Subtitle">Index</span>
-    </div>
-  </div>
+<div class="Header">
+<img src="https://pbs.twimg.com/profile_images/1887582914608607232/zdmOHy16_400x400.jpg" alt="Logo" class="Header__Logo">
+<div class="Header__Text">
+  <h1 class="Header__Title">ArchStepBoyz</h1>
+  <span class="Header__Subtitle">Index</span>
+</div>
+</div>
 
 <div class="table-container">
 <table>
