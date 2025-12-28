@@ -338,16 +338,9 @@
 
   /* --- CSS FILTERS FOR TOP 3 (Magic Transformation) --- */
 
-  /* Rank #1: The Golden Filter */
   .rank-1 .bball-rank {
-    /* Sepia: Turns it brownish
-       Saturate: Pumps up the intensity
-       Hue-Rotate: Shifts brown to gold
-       Brightness: Makes it shine 
-    */
     filter: sepia(100%) saturate(300%) hue-rotate(10deg) brightness(1.1);
     
-    /* Animation */
     animation: goldenPulse 2s infinite;
     width: 27px; 
     height: 27px;
@@ -361,17 +354,12 @@
     100% { transform: scale(1); box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
   }
 
-
-  /* Rank #2: The Silver Filter */
   .rank-2 .bball-rank {
-    /* Grayscale removes all orange, Brightness makes it silver */
     filter: grayscale(100%) brightness(1.2) contrast(1.2);
     box-shadow: 0 0 15px rgba(192, 192, 192, 0.4);
   }
 
-  /* Rank #3: The Bronze Filter */
   .rank-3 .bball-rank {
-    /* Sepia + Hue Rotate shifts orange to deep bronze/copper */
     filter: sepia(180%) saturate(180%) hue-rotate(-30deg) brightness(0.75);
     box-shadow: 0 0 15px rgba(205, 127, 50, 0.7);
   }
@@ -470,6 +458,100 @@
     margin-right: 10px;
     border: 2px solid white;
   }
+
+  /* COMMENTS */
+  /* Indicator if cell HAS comments */
+  .Table__TD.has-comments::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    background: #e52e71;
+    border-radius: 50%;
+    box-shadow: 0 0 5px #e52e71;
+  }
+  
+  .Drawer {
+    position: fixed;
+    top: 0;
+    right: -400px; /* Hidden by default */
+    width: 350px;
+    height: 133vh;
+    background: #ffffff;
+    backdrop-filter: blur(20px);
+    border-left: 1px solid rgba(255,255,255,0.1);
+    transition: right 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+
+    box-shadow: -5px 0 30px rgba(0,0,0,0.1); /* Soft shadow on the left */
+  }
+
+  .Drawer.open { right: 0; }
+
+  .Drawer__Header {
+    padding: 20px;
+    background: linear-gradient(90deg, #ff8a00, #e52e71);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .Drawer__Title { font-size: 16px; font-weight: bold; margin: 0; }
+  .Drawer__Close { background: none; border: none; color: white; cursor: pointer; font-size: 18px; }
+
+  .Drawer__Content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+  }
+
+  .Drawer__Footer {
+    padding: 20px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    background: rgba(0,0,0,0.2);
+  }
+
+  /* Comment Styling */
+  .Comment-Item { margin-bottom: 20px; animation: fadeIn 0.3s ease; }
+  .Comment-Box { 
+    background: #f1f2f6; 
+    padding: 10px; 
+    border-radius: 10px; 
+    font-size: 14px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  .Comment-User { font-weight: bold; color: #ff8a00; font-size: 12px; margin-bottom: 5px; display: block; }
+  .Comment-Text { color: #ddd; margin: 0; }
+  
+  .Reply-Btn {
+    background: none; border: none; color: rgba(255,255,255,0.5);
+    font-size: 11px; cursor: pointer; margin-top: 5px;
+  }
+  .Reply-Btn:hover { color: white; text-decoration: underline; }
+
+  /* Replies Styling */
+  .Reply-List { margin-left: 20px; margin-top: 10px; padding-left: 10px; border-left: 2px solid rgba(255,255,255,0.1); }
+  
+  /* Inputs */
+  .Input-Group { display: flex; gap: 10px; }
+  .Input-Field {
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 10px;
+    border-radius: 5px;
+    color: white;
+  }
+  .Input-Field:focus { outline: none; border-color: #e52e71; }
+  .Send-Btn {
+    background: #e52e71; border: none; padding: 0 15px;
+    border-radius: 5px; color: white; cursor: pointer;
+  }
+  .Send-Btn:hover { background: #ff8a00; }
 
 </style>
 </head>
@@ -689,6 +771,28 @@
 </tbody>
 </table>
 </div>
+
+<div class="Drawer" id="commentDrawer">
+  <div class="Drawer__Header">
+    <h3 class="Drawer__Title">Cell Comments</h3>
+    <button class="Drawer__Close" onclick="closeDrawer()"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  
+  <div class="Drawer__Content" id="drawerContent">
+    <div style="text-align:center; color: rgba(255,255,255,0.3); margin-top: 50px;">
+      <i class="fa-regular fa-comments" style="font-size: 30px; margin-bottom:10px;"></i><br>
+      No comments yet.<br>Start the discussion!
+    </div>
+  </div>
+
+  <div class="Drawer__Footer">
+    <div class="Input-Group">
+      <input type="text" id="newCommentInput" class="Input-Field" placeholder="Type a comment...">
+      <button class="Send-Btn" onclick="submitComment()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
+  </div>
+</div>
+
 </body>
 <script>
       const CONFERENCES = ['ACC', 'Big 12', 'Big East', 'Big Ten', 'SEC', 'Mid-Major'];
@@ -707,20 +811,15 @@
             body: data == null ? null : JSON.stringify(data) 
           });
 
-          // Handle HTTP errors (e.g., 404 Not Found, 500 Server Error)
           if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
 
-          // Assuming the server responds with JSON, parse it
           const responseData = await response.json();
-          console.log('Success:', responseData);
           return responseData;
 
       } catch (error) {
-        // Handle network errors or errors thrown in the 'try' block
         console.error('Fetch error:', error);
-        // You can re-throw the error or return a default value as needed
         throw error;
       }
     }
@@ -738,7 +837,7 @@
       
       // We inject the name and id into the template string below
         const htmlString = `
-      <td class="Table__TD">
+      <td class="Table__TD" data-cell-id="${team.conf}-${team.conf_pos-1}">
         <div class="team-link flex items-centerclr-gray-03 mascot-row mascot-row">
           <span class="pr4 TeamLink__Logo">
             <a class="AnchorLink" tabindex="0" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/${team.id}" target="_blank" rel="noopener noreferrer">
@@ -763,8 +862,6 @@
       </td>
       `;
 
-        console.log(item.childElementCount);
-        console.log(team.conf);
         while(item.childElementCount-1 < team.conf && team.conf != 999 && item.childElementCount < 15) {
           item.insertAdjacentHTML('beforeend', placeholderHtmlString);
         }
@@ -787,6 +884,18 @@
           row.classList.add('row-enter');
         }, 300 + (index * 100)); // Start rows 300ms in, then cascade
       }); 
+    const cells = document.querySelectorAll('.Table__TD');
+    
+    cells.forEach(cell => {
+      // Check if cell has initial comments to show the dot indicator
+      const cellId = cell.getAttribute('data-cell-id');
+      if(commentsDB[cellId] && commentsDB[cellId].length > 0) {
+        cell.classList.add('has-comments');
+      }
+
+      // Add click listener
+      cell.addEventListener('click', () => openDrawer(cell));
+    });
     }));
 
       const gridBtn = document.getElementById('gridViewBtn');
@@ -807,5 +916,139 @@
 
       gridBtn.addEventListener('click', switchToGrid);
       listBtn.addEventListener('click', switchToList);
+
+
+  // --- 1. STATE MANAGEMENT ---
+  // Store comments in memory (reset on refresh). 
+  // Structure: { 'cell-id': [ {id, user, text, replies: []} ] }
+  const commentsDB = {
+    '0-0': [ // Example pre-loaded comment
+      { id: 1, user: 'Admin', text: 'Please double check the colors on this project.', replies: [
+          { id: 2, user: 'Jane Doe', text: 'Will do, updating shortly.' }
+        ] 
+      }
+    ]
+  };
+
+  let currentCellId = null;
+
+  // --- 3. DRAWER LOGIC ---
+  function openDrawer(cell) {
+
+    if(event.target.closest('a')) return;
+
+    currentCellId = cell.getAttribute('data-cell-id');
+    const cellContent = cell.innerText;
+    
+    // Update Header
+    document.querySelector('.Drawer__Title').innerText = `Comments on "${cellContent}"`;
+    
+    // Open UI
+    document.getElementById('commentDrawer').classList.add('open');
+    
+    // Render Comments
+    renderComments();
+  }
+
+  function closeDrawer() {
+    document.getElementById('commentDrawer').classList.remove('open');
+    currentCellId = null;
+  }
+
+  // --- 4. RENDER LOGIC ---
+  function renderComments() {
+    const container = document.getElementById('drawerContent');
+    const comments = commentsDB[currentCellId] || [];
+    
+    if (comments.length === 0) {
+      container.innerHTML = `
+        <div style="text-align:center; color: rgba(255,255,255,0.3); margin-top: 50px;">
+          <i class="fa-regular fa-comments" style="font-size: 30px; margin-bottom:10px;"></i><br>
+          No comments yet.<br>Start the discussion!
+        </div>`;
+      return;
+    }
+
+    let html = '';
+    comments.forEach(comment => {
+      html += `
+        <div class="Comment-Item">
+          <div class="Comment-Box">
+            <span class="Comment-User">${comment.user}</span>
+            <p class="Comment-Text">${comment.text}</p>
+            <button class="Reply-Btn" onclick="enableReply(${comment.id})">Reply</button>
+            
+            <div id="reply-input-${comment.id}" class="Input-Group" style="display:none; margin-top:10px;">
+              <input type="text" id="reply-text-${comment.id}" class="Input-Field" placeholder="Reply..." style="font-size: 12px; padding: 5px;">
+              <button class="Send-Btn" onclick="submitReply(${comment.id})" style="padding: 2px 10px; font-size: 12px;">Send</button>
+            </div>
+          </div>
+          
+          <div class="Reply-List">
+            ${comment.replies.map(reply => `
+              <div class="Comment-Box" style="margin-top: 10px; background: rgba(255,255,255,0.03);">
+                <span class="Comment-User" style="color: #2ed573">${reply.user}</span>
+                <p class="Comment-Text">${reply.text}</p>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  // --- 5. INTERACTION LOGIC ---
+  
+  // Submit a top-level comment
+  function submitComment() {
+    const input = document.getElementById('newCommentInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    if (!commentsDB[currentCellId]) commentsDB[currentCellId] = [];
+
+    commentsDB[currentCellId].push({
+      id: Date.now(),
+      user: 'You', // In a real app, this would be the logged-in user
+      text: text,
+      replies: []
+    });
+
+    input.value = '';
+    updateCellIndicator();
+    renderComments();
+  }
+
+  // Show the reply input field for a specific comment
+  function enableReply(commentId) {
+    const el = document.getElementById(`reply-input-${commentId}`);
+    el.style.display = 'flex';
+  }
+
+  // Submit a reply to a comment
+  function submitReply(parentId) {
+    const input = document.getElementById(`reply-text-${parentId}`);
+    const text = input.value.trim();
+    if (!text) return;
+
+    const parentComment = commentsDB[currentCellId].find(c => c.id === parentId);
+    if (parentComment) {
+      parentComment.replies.push({
+        id: Date.now(),
+        user: 'You',
+        text: text
+      });
+    }
+
+    renderComments();
+  }
+
+  // Helper: Show the pink dot on the cell if comments exist
+  function updateCellIndicator() {
+    const cell = document.querySelector(`.Table__TD[data-cell-id="${currentCellId}"]`);
+    if (cell) cell.classList.add('has-comments');
+  }
   </script>
 </html>
