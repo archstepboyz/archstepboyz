@@ -226,8 +226,43 @@
     border: 1px solid rgba(255, 138, 0, 0.5);
   }
 
+  /* Header starts invisible and slightly above */
   .Table__THEAD {
+    opacity: 0;
+    transform: translateY(-20px);
+    /* No transition property here, let animation handle it */
     background: linear-gradient(90deg, #ff8a00, #e52e71);
+  }
+
+  /* Rows start invisible and slightly below */
+  .Table__TBODY .Table__TR {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+
+  /* --- 2. ANIMATIONS --- */
+
+  /* Header Animation: Smooth Slide Down */
+  @keyframes headerSlide {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Row Animation: Elastic Pop */
+  @keyframes rowPop {
+    0% { opacity: 0; transform: translateY(40px) scale(0.9); }
+    60% { opacity: 1; transform: translateY(-10px) scale(1.02); } /* The "Pop" */
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* --- 3. ACTIVE CLASSES (Added by JS) --- */
+  
+  .header-enter {
+    animation: headerSlide 0.6s cubic-bezier(0.215, 0.610, 0.355, 1.000) forwards;
+  }
+
+  .row-enter {
+    animation: rowPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
   }
 
   .Table__TH {
@@ -471,9 +506,9 @@
 </div>
 
 <div class="table-container">
-<table>
+<table id="CONF_TABLE">
 <thead class="Table__THEAD">
-  <tr class="Table__TR Table__TR--sm Table__even" data-idx="2" style="height: auto;">
+  <tr class="Table__TR Table__TR--sm Table__even" data-idx="0" style="height: auto;">
     <th class="Table__TH rank-cell">
       <div></div>
     </th>
@@ -539,1369 +574,111 @@
 </thead>
 <tbody class="Table__TBODY">
   <!-- 1  -->
-  <tr class="Table__TR Table__TR--sm Table__even rank-1" data-idx="2" style="height: auto;">
+  <tr class="Table__TR Table__TR--sm Table__even rank-1" data-idx="1" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">1</div>
     </td>
-    <!-- Duke  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:150" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/150" target="_blank" rel="noopener noreferrer">
-            <img alt="DUKE" class="Image Logo Logo__sm" title="DUKE" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/150.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#6</div>
-        </div>
-      </div>
-    </td>
-    <!-- Arizona  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:150" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/12" target="_blank" rel="noopener noreferrer">
-        <img alt="ARIZ" class="Image Logo Logo__sm" title="ARIZ" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/12.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-up">
-            <i>&#9650;</i>1
-          </div>
-          <div class="ovr-tag">#1</div>
-        </div>
-      </div>
-    </td>
-    <!-- UConn  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:150" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/41" target="_blank" rel="noopener noreferrer">
-        <img alt="CONN" class="Image Logo Logo__sm" title="CONN" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/41.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#4</div>
-        </div>
-      </div>
-    </td>
-    <!-- Michigan  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:153" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/130" target="_blank" rel="noopener noreferrer">
-        <img alt="MICH" class="Image Logo Logo__sm" title="MICH" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/130.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-down">
-            <i>&#9660;</i>1
-          </div>
-          <div class="ovr-tag">#2</div>
-        </div>
-      </div>
-    </td>
-    <!-- Alabama  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/333" target="_blank" rel="noopener noreferrer">
-        <img alt="ALA" class="Image Logo Logo__sm" title="ALA" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/333.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#14</div>
-        </div>
-      </div>
-    </td>
-    <!-- Gonzaga  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2250" target="_blank" rel="noopener noreferrer">
-        <img alt="GONZ" class="Image Logo Logo__sm" title="GONZ" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2250.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#7</div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 2  -->
-  <tr class="filled Table__TR Table__TR--sm Table__even rank-2" data-idx="1" style="height: auto;">
+  <tr class="Table__TR Table__TR--sm Table__even rank-2" data-idx="2" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">2</div>
     </td>
-    <!-- UNC  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:153" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/153" target="_blank" rel="noopener noreferrer">
-        <img alt="UNC" class="Image Logo Logo__sm" title="UNC" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/153.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#12</div>
-        </div>
-      </div>
-    </td>
-    <!-- Iowa St  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:153" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/66" target="_blank" rel="noopener noreferrer">
-        <img alt="ISU" class="Image Logo Logo__sm" title="ISU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/66.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#3</div>
-        </div>
-      </div>
-    </td>
-    <!-- St. John's  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:228" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2599" target="_blank" rel="noopener noreferrer">
-        <img alt="SJU" class="Image Logo Logo__sm" title="SJU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2599.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Michigan State  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:152" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/127" target="_blank" rel="noopener noreferrer">
-        <img alt="MSU" class="Image Logo Logo__sm" title="MSU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/127.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#9</div>
-        </div>
-      </div>
-    </td>
-    <!-- Tennessee  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2633" target="_blank" rel="noopener noreferrer">
-        <img alt="TENN" class="Image Logo Logo__sm" title="TENN" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2633.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#19</div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 3  -->
-  <tr class="Table__TR Table__TR--sm Table__even rank-3" data-idx="6" style="height: auto;">
+  <tr class="Table__TR Table__TR--sm Table__even rank-3" data-idx="3" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">3</div>
     </td>
-    <!-- Louisville  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:97" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/97" target="_blank" rel="noopener noreferrer">
-        <img alt="LOU" class="Image Logo Logo__sm" title="LOU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/97.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#16</div>
-        </div>
-      </div>
-    </td>
-    <!-- Houston  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:97" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/248" target="_blank" rel="noopener noreferrer">
-        <img alt="HOU" class="Image Logo Logo__sm" title="HOU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/248.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#8</div>
-        </div>
-      </div>
-    </td>
-    <!-- Villanova  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:97" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/222" target="_blank" rel="noopener noreferrer">
-        <img alt="VILL" class="Image Logo Logo__sm" title="VILL" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/222.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Purdue  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:258" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2509" target="_blank" rel="noopener noreferrer">
-        <img alt="PUR" class="Image Logo Logo__sm" title="PUR" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2509.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#5</div>
-        </div>
-      </div>
-    </td>
-    <!-- Florida  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/57" target="_blank" rel="noopener noreferrer">
-        <img alt="FLA" class="Image Logo Logo__sm" title="FLA" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/57.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#22</div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 4  -->
-  <tr class="Table__TR Table__TR--sm Table__even" data-idx="10" style="height: auto;">
+  <tr class="Table__TR Table__TR--sm Table__even" data-idx="4" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">4</div>
     </td>
-    <!-- NC State  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:152" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/152" target="_blank" rel="noopener noreferrer">
-        <img alt="NCSU" class="Image Logo Logo__sm" title="NCSU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/152.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- BYU  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:152" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/252" target="_blank" rel="noopener noreferrer">
-        <img alt="BYU" class="Image Logo Logo__sm" title="BYU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/252.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#10</div>
-        </div>
-      </div>
-    </td>
-    <!-- Creighton  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:154" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/156" target="_blank" rel="noopener noreferrer">
-        <img alt="CREI" class="Image Logo Logo__sm" title="CREI" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/156.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Nebraska  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:150" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/158" target="_blank" rel="noopener noreferrer">
-        <img alt="NEB" class="Image Logo Logo__sm" title="NEB" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/158.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#13</div>
-        </div>
-      </div>
-    </td>
-    <!-- Arkansas  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/8" target="_blank" rel="noopener noreferrer">
-        <img alt="ARK" class="Image Logo Logo__sm" title="ARK" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/8.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#18</div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 5  -->
-  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="3" style="height: auto;">
+  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="5" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">5</div>
     </td>
-    <!-- Virginia  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:258" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/258" target="_blank" rel="noopener noreferrer">
-        <img alt="UVA" class="Image Logo Logo__sm" title="UVA" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/258.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#21</div>
-        </div>
-      </div>
-    </td>
-    <!-- Texas Tech  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:183" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2641" target="_blank" rel="noopener noreferrer">
-        <img alt="TTU" class="Image Logo Logo__sm" title="TTU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2641.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#15</div>
-        </div>
-      </div>
-    </td>
-    <!-- Butler  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:152" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2086" target="_blank" rel="noopener noreferrer">
-        <img alt="BUT" class="Image Logo Logo__sm" title="BUT" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2086.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- UCLA  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:2567" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/26" target="_blank" rel="noopener noreferrer">
-        <img alt="UCLA" class="Image Logo Logo__sm" title="UCLA" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/26.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Vanderbilt  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/238" target="_blank" rel="noopener noreferrer">
-        <img alt="VAN" class="Image Logo Logo__sm" title="VAN" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/238.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#11</div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 6  -->
-  <tr class="Table__TR Table__TR--sm Table__even" data-idx="0" style="height: auto;">
+  <tr class="Table__TR Table__TR--sm Table__even" data-idx="6" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">6</div>
     </td>
-    <!-- Miami  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:2390" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2390" target="_blank" rel="noopener noreferrer">
-        <img alt="MIA" class="Image Logo Logo__sm" title="MIA" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2390.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Kansas  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:154" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2305" target="_blank" rel="noopener noreferrer">
-        <img alt="KU" class="Image Logo Logo__sm" title="KU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2305.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#17</div>
-        </div>
-      </div>
-    </td>
-    <!-- Seton Hall  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:153" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2550" target="_blank" rel="noopener noreferrer">
-        <img alt="HALL" class="Image Logo Logo__sm" title="HALL" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2550.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Illinois  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:154" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/356" target="_blank" rel="noopener noreferrer">
-        <img alt="ILL" class="Image Logo Logo__sm" title="ILL" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/356.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#20</div>
-        </div>
-      </div>
-    </td>
-    <!-- Auburn  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2" target="_blank" rel="noopener noreferrer">
-        <img alt="AUB" class="Image Logo Logo__sm" title="AUB" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 7  -->
-  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="9" style="height: auto;">
+  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="7" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">7</div>
     </td>
-    <!-- Clemson  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:228" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/228" target="_blank" rel="noopener noreferrer">
-        <img alt="CLEM" class="Image Logo Logo__sm" title="CLEM" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/228.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Kansas State  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:87" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2306" target="_blank" rel="noopener noreferrer">
-        <img alt="KSU" class="Image Logo Logo__sm" title="KSU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2306.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Georgetown  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:25" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/46" target="_blank" rel="noopener noreferrer">
-        <img alt="GTWN" class="Image Logo Logo__sm" title="GTWN" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/46.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Iowa  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:25" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2294" target="_blank" rel="noopener noreferrer">
-        <img alt="IOWA" class="Image Logo Logo__sm" title="IOWA" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2294.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#25</div>
-        </div>
-      </div>
-    </td>
-    <!-- Oklahoma  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/201" target="_blank" rel="noopener noreferrer">
-        <img alt="OU" class="Image Logo Logo__sm" title="OU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/201.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 8  -->
-  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="7" style="height: auto;">
+  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="8" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">8</div>
     </td>
-    <!-- SMU  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:2567" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2567" target="_blank" rel="noopener noreferrer">
-        <img alt="SMU" class="Image Logo Logo__sm" title="SMU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2567.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Baylor  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:2567" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/239" target="_blank" rel="noopener noreferrer">
-        <img alt="BAY" class="Image Logo Logo__sm" title="BAY" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/239.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Providence  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:24" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2507" target="_blank" rel="noopener noreferrer">
-        <img alt="PC" class="Image Logo Logo__sm" title="PC" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2507.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Indiana  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:228" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/84" target="_blank" rel="noopener noreferrer">
-        <img alt="IND" class="Image Logo Logo__sm" title="IND" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/84.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Kentucky  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/96" target="_blank" rel="noopener noreferrer">
-        <img alt="UK" class="Image Logo Logo__sm" title="UK" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/96.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 9  -->
-  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="13" style="height: auto;">
+  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="9" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">9</div>
     </td>
-    <!-- Wake Forest  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:154" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/154" target="_blank" rel="noopener noreferrer">
-        <img alt="WAKE" class="Image Logo Logo__sm" title="WAKE" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/154.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- UCF  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:25" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2116" target="_blank" rel="noopener noreferrer">
-        <img alt="UCF" class="Image Logo Logo__sm" title="UCF" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2116.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Xavier  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:258" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2752" target="_blank" rel="noopener noreferrer">
-        <img alt="XAV" class="Image Logo Logo__sm" title="XAV" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2752.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Ohio State  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:24" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/194" target="_blank" rel="noopener noreferrer">
-        <img alt="OSU" class="Image Logo Logo__sm" title="OSU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/194.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Georgia  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/61" target="_blank" rel="noopener noreferrer">
-        <img alt="UGA" class="Image Logo Logo__sm" title="UGA" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/61.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#23</div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 10  -->
-  <tr class="Table__TR Table__TR--sm Table__even" data-idx="8" style="height: auto;">
+  <tr class="Table__TR Table__TR--sm Table__even" data-idx="10" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">10</div>
     </td>
-    <!-- Cal  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:25" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/25" target="_blank" rel="noopener noreferrer">
-        <img alt="CAL" class="Image Logo Logo__sm" title="CAL" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/25.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- TCU  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:24" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2628" target="_blank" rel="noopener noreferrer">
-        <img alt="TCU" class="Image Logo Logo__sm" title="TCU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2628.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- DePaul  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:2567" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/305" target="_blank" rel="noopener noreferrer">
-        <img alt="DEPL" class="Image Logo Logo__sm" title="DEPL" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/305.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Washington  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:2390" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/264" target="_blank" rel="noopener noreferrer">
-        <img alt="WISC" class="Image Logo Logo__sm" title="WISC" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/264.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Texas  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/251" target="_blank" rel="noopener noreferrer">
-        <img alt="TEX" class="Image Logo Logo__sm" title="TEX" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/251.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 11  -->
-  <tr class="Table__TR Table__TR--sm Table__even" data-idx="12" style="height: auto;">
+  <tr class="Table__TR Table__TR--sm Table__even" data-idx="11" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">11</div>
     </td>
-    <!-- Syracuse  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:183" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/183" target="_blank" rel="noopener noreferrer">
-        <img alt="SYR" class="Image Logo Logo__sm" title="SYR" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/183.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Oklahoma State  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:258" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/197" target="_blank" rel="noopener noreferrer">
-        <img alt="OKST" class="Image Logo Logo__sm" title="OKST" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/197.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Marquette  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:183" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/269" target="_blank" rel="noopener noreferrer">
-        <img alt="MARQ" class="Image Logo Logo__sm" title="MARQ" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/269.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Oregon  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:221" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2483" target="_blank" rel="noopener noreferrer">
-        <img alt="ORE" class="Image Logo Logo__sm" title="ORE" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2483.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- LSU  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/99" target="_blank" rel="noopener noreferrer">
-        <img alt="LSU" class="Image Logo Logo__sm" title="LSU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/99.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 12  -->
-  <tr class="Table__TR Table__TR--sm Table__even" data-idx="4" style="height: auto;">
+  <tr class="Table__TR Table__TR--sm Table__even" data-idx="12" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">12</div>
     </td>
-    <!-- Stanford  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:24" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/24" target="_blank" rel="noopener noreferrer">
-        <img alt="STAN" class="Image Logo Logo__sm" title="STAN" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/24.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Arizona State  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:2390" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/9" target="_blank" rel="noopener noreferrer">
-        <img alt="ASU" class="Image Logo Logo__sm" title="ASU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/9.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- X  -->
-    <td class="Table__TD">
-    </td>
-    <!-- USC  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:97" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/30" target="_blank" rel="noopener noreferrer">
-        <img alt="USC" class="Image Logo Logo__sm" title="USC" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/30.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-          <div class="ovr-tag">#24</div>
-        </div>
-      </div>
-    </td>
-    <!-- Ole Miss  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/145" target="_blank" rel="noopener noreferrer">
-        <img alt="MISS" class="Image Logo Logo__sm" title="MISS" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/145.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 13  -->
-  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="5" style="height: auto;">
+  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="13" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">13</div>
     </td>
-    <!-- Virginia Tech  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:259" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/259" target="_blank" rel="noopener noreferrer">
-        <img alt="VT" class="Image Logo Logo__sm" title="VT" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/259.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- West Virginia  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:259" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/277" target="_blank" rel="noopener noreferrer">
-        <img alt="WVU" class="Image Logo Logo__sm" title="WVU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/277.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- X  -->
-    <td class="Table__TD">
-    </td>
-    <!-- Wisconsin  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:259" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/275" target="_blank" rel="noopener noreferrer">
-        <img alt="WISC" class="Image Logo Logo__sm" title="WISC" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/275.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Mississippi State  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/344" target="_blank" rel="noopener noreferrer">
-        <img alt="MSST" class="Image Logo Logo__sm" title="MSST" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/344.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 14  -->
-  <tr class="is-favorite filled Table__TR Table__TR--sm Table__even" data-idx="11" style="height: auto;">
+  <tr class="is-favorite filled Table__TR Table__TR--sm Table__even" data-idx="14" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">14</div>
     </td>
-    <!-- Notre Dame  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:87" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/87" target="_blank" rel="noopener noreferrer">
-        <img alt="ND" class="Image Logo Logo__sm" title="ND" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/87.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Colorado  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:228" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/38" target="_blank" rel="noopener noreferrer">
-        <img alt="COL" class="Image Logo Logo__sm" title="COL" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/38.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- X  -->
-    <td class="Table__TD">
-    </td>
-    <!-- Maryland  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/120" target="_blank" rel="noopener noreferrer">
-        <img alt="MARY" class="Image Logo Logo__sm" title="MARY" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/120.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Texas A&M  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/245" target="_blank" rel="noopener noreferrer">
-        <img alt="TA&M" class="Image Logo Logo__sm" title="TA&M" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/245.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 15  -->
-  <tr class="Table__TR Table__TR--sm Table__even" data-idx="14" style="height: auto;">
+  <tr class="Table__TR Table__TR--sm Table__even" data-idx="15" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">15</div>
     </td>
-    <!-- Georgia Tech  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:59" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/59" target="_blank" rel="noopener noreferrer">
-        <img alt="GT" class="Image Logo Logo__sm" title="GT" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/59.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Utah  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:59" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/254" target="_blank" rel="noopener noreferrer">
-        <img alt="UTAH" class="Image Logo Logo__sm" title="UTAH" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/254.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- X  -->
-    <td class="Table__TD">
-    </td>
-    <!-- Minnesota  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:59" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/135" target="_blank" rel="noopener noreferrer">
-        <img alt="MINN" class="Image Logo Logo__sm" title="MINN" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/135.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Missouri  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/142" target="_blank" rel="noopener noreferrer">
-        <img alt="MIZZ" class="Image Logo Logo__sm" title="MIZZ" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/142.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 16  -->
-  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="15" style="height: auto;">
+  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="16" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">16</div>
     </td>
-    <!-- Florida State  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/52" target="_blank" rel="noopener noreferrer">
-        <img alt="FSU" class="Image Logo Logo__sm" title="FSU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/52.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- Cincinnati  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2132" target="_blank" rel="noopener noreferrer">
-        <img alt="CIN" class="Image Logo Logo__sm" title="CIN" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2132.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- X  -->
-    <td class="Table__TD">
-    </td>
-    <!-- Northwestern  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:87" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/77" target="_blank" rel="noopener noreferrer">
-        <img alt="NW" class="Image Logo Logo__sm" title="NW" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/77.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- South Carolina  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:52" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/2579" target="_blank" rel="noopener noreferrer">
-        <img alt="SC" class="Image Logo Logo__sm" title="SC" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2579.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
   </tr>
   <!-- 17  -->
-  <tr class="Table__TR Table__TR--sm Table__even" data-idx="16" style="height: auto;">
+  <tr class="Table__TR Table__TR--sm Table__even" data-idx="17" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">17</div>
     </td>
-    <!-- Pitt  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:221" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/221" target="_blank" rel="noopener noreferrer">
-        <img alt="PITT" class="Image Logo Logo__sm" title="PITT" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/221.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- X  -->
-    <td class="Table__TD">
-    </td>
-    <!-- X  -->
-    <td class="Table__TD">
-    </td>
-    <!-- Penn State  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:183" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/213" target="_blank" rel="noopener noreferrer">
-        <img alt="PSU" class="Image Logo Logo__sm" title="PSU" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/213.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- X  -->
-    <td class="Table__TD">
-    </td>
   </tr>
   <!-- 18  -->
-  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="17" style="height: auto;">
+  <tr class="filled Table__TR Table__TR--sm Table__even" data-idx="18" style="height: auto;">
     <td class="Table__TD rank-cell">
       <div class="bball-rank">18</div>
-    </td>
-    <!-- Boston College  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:103" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/103" target="_blank" rel="noopener noreferrer">
-        <img alt="BC" class="Image Logo Logo__sm" title="BC" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/103.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- X  -->
-    <td class="Table__TD">
-    </td>
-    <!-- X  -->
-    <td class="Table__TD">
-    </td>
-    <!-- Rutgers  -->
-    <td class="Table__TD">
-      <div class="team-link flex items-centerclr-gray-03 mascot-row">
-        <span class="pr4 TeamLink__Logo">
-        <a class="AnchorLink" tabindex="0" data-clubhouse-uid="s:40~l:41~t:103" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/164" target="_blank" rel="noopener noreferrer">
-        <img alt="RUTG" class="Image Logo Logo__sm" title="RUTG" data-mptype="image" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/164.png&amp;h=40&amp;w=40">
-        </a>
-        </span>
-        <div class="meta-stack">
-          <div class="trend-tag trend-neutral">
-            <span class="dash-bar"></span>
-          </div>
-        </div>
-      </div>
-    </td>
-    <!-- X  -->
-    <td class="Table__TD">
     </td>
   </tr>
 </tbody>
@@ -1909,6 +686,102 @@
 </div>
 </body>
 <script>
+      const CONFERENCES = ['ACC', 'Big 12', 'Big East', 'Big Ten', 'SEC', 'Mid-Major'];
+      const CONF_TABLE = document.getElementById('CONF_TABLE');
+
+      /* POPULATE TABLE */ 
+      async function apiReq(url, method, data) {
+        try {
+          const response = await fetch(url, {
+            method: method, 
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'sb_publishable_mZVo1bfw-ChB9iCx1V5QwA_UUKrCx8o',
+              'apikey': 'sb_publishable_mZVo1bfw-ChB9iCx1V5QwA_UUKrCx8o',
+            },
+            body: data == null ? null : JSON.stringify(data) 
+          });
+
+          // Handle HTTP errors (e.g., 404 Not Found, 500 Server Error)
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          // Assuming the server responds with JSON, parse it
+          const responseData = await response.json();
+          console.log('Success:', responseData);
+          return responseData;
+
+      } catch (error) {
+        // Handle network errors or errors thrown in the 'try' block
+        console.error('Fetch error:', error);
+        // You can re-throw the error or return a default value as needed
+        throw error;
+      }
+    }
+
+    const placeholderHtmlString = `
+    <!-- X  -->
+    <td class="Table__TD">
+    </td>
+    `
+
+
+    const appendTeamCells = (data) => {
+      data.forEach((team, idx) => {
+      const item = document.querySelector(`tr[data-idx="${team.conf_pos}"]`);
+      
+      // We inject the name and id into the template string below
+        const htmlString = `
+      <td class="Table__TD">
+        <div class="team-link flex items-centerclr-gray-03 mascot-row mascot-row">
+          <span class="pr4 TeamLink__Logo">
+            <a class="AnchorLink" tabindex="0" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/${team.id}" target="_blank" rel="noopener noreferrer">
+              <img 
+                alt="${team.name}" 
+                class="Image Logo Logo__sm" 
+                title="${team.name}" 
+                data-mptype="image" 
+                src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=40&w=40"
+              >
+            </a>
+          </span>
+          <div class="meta-stack">
+            ${team.change > 0 ?
+            '<div class="trend-tag trend-up"><i>&#9650;</i>' + team.change.toString() + '</div>' :
+            team.change < 0 ?
+            '<div class="trend-tag trend-down"><i>&#9660;</i>' + (-1 * team.change).toString() + '</div>' :
+            '<div class="trend-tag trend-neutral"><span class="dash-bar"></span></div>'}
+            ${team.rank != null ? '<div class="ovr-tag">#' + team.rank.toString() + '</div>' : ''}
+          </div>
+        </div>
+      </td>
+      `;
+
+        while(CONFERENCES[item.childElementCount - 1] !== team.conf && item.childElementCount < 15) {
+          item.insertAdjacentHTML('beforeend', placeholderHtmlString);
+        }
+        item.insertAdjacentHTML('beforeend', htmlString);
+      });
+    };
+
+    const apiEndpoint = 'https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Teams';
+    apiReq(apiEndpoint, 'GET').then( (res => {
+      appendTeamCells(res);
+      
+     const header = document.querySelector('.Table__THEAD');
+      setTimeout(() => {
+        header.classList.add('header-enter');
+      }, 100); // 100ms delay before header starts
+
+      const rows = document.querySelectorAll('.Table__TBODY .Table__TR');
+      rows.forEach((row, index) => {
+        setTimeout(() => {
+          row.classList.add('row-enter');
+        }, 300 + (index * 100)); // Start rows 300ms in, then cascade
+      }); 
+    }));
+
       const gridBtn = document.getElementById('gridViewBtn');
       const listBtn = document.getElementById('listViewBtn');
       const mainContent = document.getElementById('MainContent');
