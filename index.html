@@ -16,41 +16,42 @@
     font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     color: white;
     
-    min-height: 100vh;
-    min-width: 0;
-    align-items: center;
+    display: flex;
     flex-direction: column;
-
+    
     margin: 0 auto;
     
     padding-top: 50px;
     padding-bottom: 50px;
 
-    /* display: flex; */
-
-  }
-
-  /* --- BRAND HEADER --- */
-  .Header {
-    margin-bottom: 30px;
-
-    display: flex;
-    flex-wrap: wrap;
-    text-align: center;
-    /*
-    gap: 20px;
-
-    min-width: 0;
-    justify-content: center;
-    */
-
-    left: 0;
-    position: sticky;
-
+    width: max-content;
+    
     zoom: 0.75; /* fits better on mobile */ 
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  /* --- HEADER --- */
+  .Header {
+    display: flex;
+    flex-wrap: wrap;
     
+    text-align: center;
+    /*
+    justify-content: center;
+    align-items: center;
+    */
+    
+    gap: 20px;
+    
+    margin-bottom: 30px;
+    margin-left: auto;
+    margin-right: auto;
+    
+    position: sticky;
+    left: 0;
+    width: max-content;
+
     animation: fadeInDown 0.8s ease-out;
   }
 
@@ -61,7 +62,6 @@
     border: 5px solid #ffffff;
     box-shadow: 0 10px 20px rgba(0,0,0,0.15);
 
-    /* flex-direction: row !important; */
     /* object-fit: cover; */
   }
 
@@ -96,25 +96,26 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  /* --- VIEW TOGGLE BUTTONS --- */
+  /* --- MENU BAR --- */
   .Menu-Options {
     display: flex;
-    align-items: center;
-    /* Pushes title left, toggle right */
+    flex-wrap: wrap;
+    
     justify-content: space-between; 
-    gap: 20px 150px;
+    
+    gap: 20px 20px;
+   
     margin-bottom: 30px;
-    animation: fadeInDown 0.8s ease-out;
-    width: 100%;
-    max-width: 650px;
-
+    margin-left: auto;
+    margin-right: auto;
+    
     position: sticky;
     left: 0;
     width: max-content;
-    flex-wrap: wrap;
+
+    animation: fadeInDown 0.8s ease-out;
   }
 
-  /* --- WEEK SELECTOR --- */
   .Week-Selector {
       background-color: #dfe6e9;
       border-radius: 30px;
@@ -129,7 +130,6 @@
       min-width: 150px;
   }
 
-  /* The actual select input */
   .Week-Select-Input {
       appearance: none; /* Remove default browser styling */
       background: transparent;
@@ -146,7 +146,6 @@
       outline: none;
   }
 
-  /* Custom Arrow Icon Container */
   .Week-Icon {
       pointer-events: none; /* Let clicks pass through to select */
       right: 12px;
@@ -156,7 +155,6 @@
   }
   .Week-Icon svg { width: 12px; height: 12px; fill: #636e72; }
 
-  /* Hover Effects for Week Selector */
   .Week-Selector:hover {
       background-color: #ffffff;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -193,7 +191,6 @@
 
   .Toggle-Btn svg { width: 16px; height: 16px; fill: #636e72; transition: fill 0.3s ease;}
 
-  /* Active State for Toggle */
   .Toggle-Btn.active {
       background-color: #ffffff;
       color: #e17055; /* Burnt orange accent */
@@ -224,6 +221,7 @@
   }
   */
 
+  /* TABLE */
   .table-container {
     min-width: 0;
     margin: 0 auto;
