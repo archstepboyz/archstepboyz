@@ -1408,6 +1408,17 @@
     list.style.display = 'flex';
   }
 
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const view = urlParams.get('view');
+  switch (view) {
+    case 'PBL':
+      switchToList();
+      break;
+    default:
+      switchToGrid();
+  }
+
   gridBtn.addEventListener('click', switchToGrid);
   listBtn.addEventListener('click', switchToList);
 
