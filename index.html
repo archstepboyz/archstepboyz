@@ -20,6 +20,11 @@
     -webkit-font-smoothing: antialiased;
   }
 
+  /* TODO: DELETE */
+  .rm_space_test {
+    padding-right: 10px;
+  }
+
   header {
     padding: 16px 20px 24px 20px; /* Added more bottom padding for breathing room */
     border-bottom: 1px solid #f2f2f7;
@@ -383,7 +388,7 @@
     flex-direction: column;
     flex-wrap: wrap;
 
-    min-width: 50px;
+    min-width: 20px;
     max-width: 600px;
     width: 100vw;
     margin: 0 auto;
@@ -974,7 +979,7 @@
   <div class="View-Toggle">
     <button class="Toggle-Btn active" id="gridViewBtn">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 10h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zM10 4h4v4h-4zm6 0h4v4h-4zM4 4h4v4H4zm6 12h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4z"/></svg>
-      Projections
+      Rank
     </button>
     <button class="Toggle-Btn" id="listViewBtn">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
@@ -1177,6 +1182,17 @@
     <ol class="ranking-list"> 
         <li class="team-row">
             <span class="rank">1</span>
+            <span class="pr4 TeamLink__Logo rm_space_test">
+              <a class="AnchorLink" tabindex="0" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/96" target="_blank" rel="noopener noreferrer">
+                <img 
+                  alt="${team.name}" 
+                  class="Image Logo Logo__sm" 
+                  title="${team.name}" 
+                  data-mptype="image" 
+                  src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/96.png&h=200&w=200"
+                >
+              </a>
+            </span>
             <div class="team-name">Mark Anti-Pope</div>
             <div class="stats-container">
                 <div class="stat-col">
@@ -1192,6 +1208,17 @@
 
         <li class="team-row">
             <span class="rank">2</span>
+            <span class="pr4 TeamLink__Logo rm_space_test">
+              <a class="AnchorLink" tabindex="0" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/152" target="_blank" rel="noopener noreferrer">
+                <img 
+                  alt="${team.name}" 
+                  class="Image Logo Logo__sm" 
+                  title="${team.name}" 
+                  data-mptype="image" 
+                  src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/152.png&h=200&w=200"
+                >
+              </a>
+            </span>
             <div class="team-name">Will Fade</div>
             <div class="stats-container">
                 <div class="stat-col">
