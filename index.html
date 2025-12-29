@@ -102,6 +102,134 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
+/* --- LOGIN BUTTON (HEADER) --- */
+.Login-Trigger {
+  margin-left: auto; /* Pushes button to the far right */
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #636e72;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  height: fit-content;
+  align-self: center;
+}
+
+.Login-Trigger:hover {
+  background: white;
+  color: #e17055;
+}
+
+/* --- CENTERED MODAL --- */
+.Modal-Overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  z-index: 2000; /* Higher than drawer */
+  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.Modal-Overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.Modal-Box {
+  background: white;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 20px;
+  padding: 30px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  transform: scale(0.9);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: #333;
+}
+
+.Modal-Overlay.open .Modal-Box {
+  transform: scale(1);
+}
+
+.Modal-Close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #aaa;
+  cursor: pointer;
+}
+
+.Modal-Header h2 {
+  margin: 0 0 5px 0;
+  color: #e17055;
+  font-family: 'Fugaz One', cursive;
+}
+
+.Modal-Header p {
+  margin: 0 0 20px 0;
+  color: #636e72;
+  font-size: 14px;
+}
+
+.Input-Wrapper {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.Input-Wrapper label {
+  display: block;
+  font-size: 12px;
+  font-weight: bold;
+  color: #636e72;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.Input-Wrapper input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #dfe6e9;
+  border-radius: 8px;
+  font-size: 16px; /* Prevents zoom on mobile */
+  background: #f1f2f6;
+  box-sizing: border-box; /* Keeps padding inside width */
+}
+
+.Submit-Btn {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.Submit-Btn:hover {
+  opacity: 0.9;
+}
+
   /* --- MENU BAR --- */
   .Menu-Options {
     display: flex;
@@ -497,6 +625,7 @@
     height: 100dvh;
     */
 
+    overflow: scroll;
     /* overscroll-behavior: contain; */
     
     transition: right 0.4s cubic-bezier(0.25, 1, 0.5, 1);
@@ -517,10 +646,11 @@
 
   .Drawer__Content {
     flex: 1;
-    overflow-y: auto;
     padding: 20px;
     padding-bottom: 80px;
 
+    thisoverflow-y: auto;
+    overscroll-behavior: contain; 
     -webkit-overflow-scrolling: touch;
   }
 
@@ -539,7 +669,44 @@
     font-size: 14px;
     border: 1px solid rgba(255,255,255,0.05);
   }
+
+  .Comment-Header {
+      display: flex;
+      justify-content: space-between;
+  }
+
   .Comment-User { font-weight: bold; color: #ff8a00; font-size: 11px; margin-bottom: 5px; display: block; }
+
+/* 2. The Delete Button */
+.delete-btn {
+  margin-bottom: 5px;
+  
+  /* Size and Shape */
+  width: 12px;
+  height: 12px;
+  border-radius: 50%; /* Makes it round */
+  border: none;
+  
+  /* Colors */
+  background-color: #ff4d4d;
+  color: white;
+  
+  /* Text Alignment for the 'X' */
+  display: none;
+  align-items: center;
+  justify-content: center;
+  
+  /* Polish */
+  cursor: pointer;
+  font-size: 11px;
+  transition: background 0.2s ease;
+}
+
+/* Hover Effect */
+.delete-btn:hover {
+  background-color: #cc0000;
+}
+  
   .Comment-Text { color: black; font-size: 16px; margin: 0; }
   
   .Reply-Btn {
@@ -608,6 +775,10 @@
       <span class="Header__Subtitle">Index</span>
     </div>
   </div>
+
+  <button class="Login-Trigger" onclick="openLoginModal()">
+    <i class="fa-solid fa-user"></i> Login
+  </button>
 </div>
 
 <div class="Menu-Options">
@@ -838,12 +1009,39 @@
   </div>
 </div>
 
+<div id="loginOverlay" class="Modal-Overlay" onclick="closeLoginModal(event)">
+  <div class="Modal-Box">
+    <button class="Modal-Close" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
+    
+    <div class="Modal-Header">
+      <h2>Admin Login</h2>
+      <p>Enter your credentials to access admin tools.</p>
+    </div>
+
+    <form class="Login-Form" onsubmit="handleLogin(event)">
+      <div class="Input-Wrapper">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="Username" required>
+      </div>
+      
+      <div class="Input-Wrapper">
+        <label>Password</label>
+        <input type="password" id="password" placeholder="Password" required>
+      </div>
+
+      <button type="submit" class="Submit-Btn">Sign In</button>
+    </form>
+  </div>
+</div>
+
 </body>
 <script>
   const CONFERENCES = ['ACC', 'Big 12', 'Big East', 'Big Ten', 'SEC', 'Mid-Major'];
   const CONF_TABLE = document.getElementById('CONF_TABLE');
   const TEAMS_ENDPOINT = 'https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Teams?order=conf.asc,conf_pos.asc';
   const COMMENTS_ENDPOINT = 'https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Comments';
+  let  CACHED_COMMENTS_DB = [];
+  let AUTHED_USER = null;
   
   async function getCityFromIP() {
     try {
@@ -929,6 +1127,8 @@
   };
 
   apiReq(TEAMS_ENDPOINT, 'GET').then( (res) => {
+  apiReq(COMMENTS_ENDPOINT, 'GET').then( (comments) => {
+    CACHED_COMMENTS_DB = comments;
     appendTeamCells(res);
     
     const header = document.querySelector('.Table__THEAD');
@@ -946,13 +1146,12 @@
     const cells = document.querySelectorAll('.Table__TD');
     cells.forEach(cell => {
       const team = cell.getAttribute('data-cell-name');
-      apiReq(COMMENTS_ENDPOINT, 'GET').then( (commentDB) => {
-        if(commentDB?.filter(comment => comment.team === team).length > 0) {
+        if(CACHED_COMMENTS_DB?.filter(comment => comment.team === team).length > 0) {
           cell.classList.add('has-comments');
         }
-      });
       cell.addEventListener('click', () => openDrawer(cell));
     });
+  });
   });
 
   const inputField = document.getElementById('commentInput');
@@ -1015,13 +1214,19 @@
     }, 300); 
   }
 
+  async function fetchComments() {
+    return CACHED_COMMENTS_DB;
+  }
+
   function renderComments() {
     const container = document.getElementById('drawerContent');
     
-    apiReq(COMMENTS_ENDPOINT, 'GET').then( (commentDB) => {
-      const comments = commentDB?.filter(comment => comment.team === currentCellId && comment.reply_to_id == null) ?? [];
+    apiReq(COMMENTS_ENDPOINT, 'GET').then( (comments) => {
+      CACHED_COMMENTS_DB = comments;
+      
+      const main_comments = CACHED_COMMENTS_DB?.filter(comment => comment.team === currentCellId && comment.reply_to_id == null) ?? [];
     
-      if (comments.length === 0) {
+      if (main_comments.length === 0) {
         container.innerHTML = `
           <div style="text-align:center; color: rgba(255,255,255,0.3); margin-top: 50px;">
             <i class="fa-regular fa-comments" style="font-size: 30px; margin-bottom:10px;"></i><br>
@@ -1031,14 +1236,17 @@
       }
 
       let html = '';
-      comments.forEach(comment => {
-        const replies = commentDB?.filter(c => c.reply_to_id == comment.id);
+      main_comments.forEach(comment => {
+        const replies = CACHED_COMMENTS_DB?.filter(c => c.reply_to_id == comment.id);
         html += `
           <div class="Comment-Item">
             <div class="Comment-Box">
-              <span class="Comment-User">${comment.author}</span>
+              <div class="Comment-Header">
+                <span class="Comment-User">${comment.author}</span>
+                <button class="delete-btn" ${AUTHED_USER == null ? '' : 'style="display: flex;"'} aria-label="Delete">&times;</button>
+              </div>
               <p class="Comment-Text">${comment.message}</p>
-              <button class="Reply-Btn" onclick="enableReply(${comment.id})">Reply</button>
+              <button class="Reply-Btn" onclick="toggleReply(${comment.id})">Reply</button>
             
               <div id="reply-input-${comment.id}" class="Input-Group" style="display:none; margin-top:10px;">
                 <input type="text" id="reply-text-${comment.id}" class="Input-Field" placeholder="Reply..." style="font-size: 16px; padding: 5px;">
@@ -1049,7 +1257,11 @@
             <div class="Reply-List">
               ${replies?.map(reply => `
                 <div class="Comment-Box" style="margin-top: 10px; background: rgba(255,255,255,0.03);">
-                  <span class="Comment-User" style="color: #2ed573">${reply.author}</span>
+                  <>${reply.author}</span>
+                  <div class="Comment-Header">
+                    <span class="Comment-User" style="color: #2ed573">${reply.author}</span>
+                    <button class="delete-btn" style="background-color: #05714b; ${AUTHED_USER == null ? '' : 'display: flex;'}" aria-label="Delete" onclick="deleteComment(${reply.id})">&times;</button>
+                  </div>
                   <p class="Comment-Text">${reply.message}</p>
                 </div>
               `).join('')}
@@ -1060,7 +1272,7 @@
 
       container.innerHTML = html;
 
-      comments.forEach(comment => {
+      main_comments.forEach(comment => {
         const inputField = document.getElementById(`reply-input-${comment.id}`);
         const sendButton = document.getElementById(`reply-submit-${comment.id}`);
 
@@ -1094,9 +1306,13 @@
     });
   }
 
-  function enableReply(commentId) {
+  function toggleReply(commentId) {
     const el = document.getElementById(`reply-input-${commentId}`);
-    el.style.display = 'flex';
+    if (el.style.display === 'flex') {
+      el.style.display = 'none';
+    } else {
+      el.style.display = 'flex';
+    }
   }
 
   function submitReply(parentId) {
@@ -1104,8 +1320,7 @@
     const text = input.value.trim();
     if (!text) return;
 
-    apiReq(COMMENTS_ENDPOINT, 'GET').then( (commentDB) => {
-      const parentComment = commentDB.find(c => c.team === currentCellId && c.id === parentId);
+      const parentComment = CACHED_COMMENTS_DB.find(c => c.team === currentCellId && c.id === parentId);
     
       if (parentComment) {
         getCityFromIP().then((str) => {
@@ -1122,8 +1337,108 @@
       } else {
         renderComments();
       }
-    });
   }
+
+  function deleteComment(commentId) {
+      apiReq(COMMENTS_ENDPOINT + '?id=eq.' + commentId, 'DELETE'
+      ).then( () => {
+        updateCellIndicator();
+        renderComments();
+      });
+
+      //TODO: must delete all replies as well
+  }
+
+  /* LOGIN */
+
+function openLoginModal() {
+  // Save scroll position to prevent jump
+  scrollPosition = window.scrollY;
+  
+  const overlay = document.getElementById('loginOverlay');
+  overlay.classList.add('open');
+  
+  // Lock Body (reuses the CSS class we made for the drawer)
+  document.body.classList.add('drawer-open');
+  document.body.style.top = `-${scrollPosition}px`;
+}
+
+function closeLoginModal(event) {
+  // If event is passed (click on overlay), ensure we didn't click inside the box
+  if (event && !event.target.classList.contains('Modal-Overlay')) {
+    return;
+  }
+
+  const overlay = document.getElementById('loginOverlay');
+  overlay.classList.remove('open');
+  
+  // Unlock Body
+  document.body.classList.remove('drawer-open');
+  document.body.style.top = '';
+  window.scrollTo(0, scrollPosition);
+}
+
+/* --- AUTHENTICATION LOGIC --- */
+
+// 1. Define Valid Users
+// You can easily add more objects to this array in the future
+const AUTHORIZED_USERS = [
+  { username: "Admin", password: "Password123" },
+  // { username: "Coach", password: "AnotherPassword" }, 
+];
+
+function handleLogin(event) {
+  event.preventDefault(); // Stop page reload
+  
+  const usernameInput = document.getElementById('username');
+  const passwordInput = document.getElementById('password');
+  
+  const userIn = usernameInput.value;
+  const passIn = passwordInput.value;
+  
+  // 2. Check Credentials
+  // Looks through the array to find a match
+  const validUser = AUTHORIZED_USERS.find(u => u.username === userIn && u.password === passIn);
+
+  if (validUser) {
+    AUTHED_USER = validUser;
+    // --- SUCCESS ---
+    
+    // A. Update the Header Button
+    const loginBtn = document.querySelector('.Login-Trigger');
+    
+    // Change text to Username and Icon to a checkmark
+    loginBtn.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#2ed573"></i> ${validUser.username}`;
+    
+    // Change styling to look like a "Logged In" badge
+    loginBtn.style.cursor = 'default';
+    loginBtn.style.borderColor = '#2ed573'; // Green border
+    loginBtn.style.background = 'rgba(46, 213, 115, 0.1)'; 
+    
+    // Remove the click event so the modal doesn't open again
+    loginBtn.onclick = null;
+    // Optional: If you want to allow Logout, you could change onclick to a logout function instead
+    
+    const deleteCommentBtns = document.querySelectorAll('.delete-btn');
+    deleteCommentBtns.forEach( (btn) => {
+      btn.style.display = 'flex';
+    });
+    
+    // B. Close the modal
+    closeLoginModal();
+    
+    // C. Clear the form (good security practice)
+    usernameInput.value = '';
+    passwordInput.value = '';
+    
+    console.log(`User ${validUser.username} logged in successfully.`);
+
+  } else {
+    // --- FAILURE ---
+    alert("Invalid Credentials. Please try again.");
+    passwordInput.value = ''; // clear just the password
+  }
+}
 
   </script>
 </html>
