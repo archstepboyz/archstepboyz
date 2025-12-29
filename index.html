@@ -1336,7 +1336,7 @@ html += `
              <span class="Comment-User" style="color: #2ed573">
                ${reply.author}
                <span style="font-weight:400; color:#aaa; margin-left:5px;">
-                 (${new Date(comment.created_at).toLocaleString(navigator.language, { dateStyle: 'medium', timeStyle: 'short' })})
+                 (${new Date(reply.created_at).toLocaleString(navigator.language, { dateStyle: 'medium', timeStyle: 'short' })})
                </span>
              </span>
              <button class="delete-btn ${deleteVisibilityClass}" style="background-color: #05714b;" aria-label="Delete" onclick="deleteCommentModal(${reply.id})">&times;</button>
