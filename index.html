@@ -1243,7 +1243,7 @@
             <div class="Comment-Box">
               <div class="Comment-Header">
                 <span class="Comment-User">${comment.author}</span>
-                <button class="delete-btn" ${AUTHED_USER == null ? '' : 'style="display: flex;"'} aria-label="Delete">&times;</button>
+                <button class="delete-btn" ${AUTHED_USER == null ? '' : 'style="display: flex;"'} aria-label="Delete" onclick="deleteCommentModal(${comment.id})">&times;</button>
               </div>
               <p class="Comment-Text">${comment.message}</p>
               <button class="Reply-Btn" onclick="toggleReply(${comment.id})">Reply</button>
@@ -1260,7 +1260,7 @@
                   <>${reply.author}</span>
                   <div class="Comment-Header">
                     <span class="Comment-User" style="color: #2ed573">${reply.author}</span>
-                    <button class="delete-btn" style="background-color: #05714b; ${AUTHED_USER == null ? '' : 'display: flex;'}" aria-label="Delete" onclick="deleteComment(${reply.id})">&times;</button>
+                    <button class="delete-btn" style="background-color: #05714b; ${AUTHED_USER == null ? '' : 'display: flex;'}" aria-label="Delete" onclick="deleteCommentModal(${reply.id})">&times;</button>
                   </div>
                   <p class="Comment-Text">${reply.message}</p>
                 </div>
@@ -1339,14 +1339,25 @@
       }
   }
 
-  function deleteComment(commentId) {
-      apiReq(COMMENTS_ENDPOINT + '?id=eq.' + commentId, 'DELETE'
-      ).then( () => {
-        updateCellIndicator();
-        renderComments();
-      });
+  function deleteCommentModal (commentId) {
+      const first_child_comment = CACHED_COMMENTS_DB.find((c) => c.reply_to_id === commentId);
+      if (first_child_comment == null) {
+        deleteComment(commentId);
+      } else {
+        // TODO: async refreshComments() helper would be nice
+        CACHED_COMMENTS_DB.forEach((c) => {
+          if (c.reply_to_id === commentId) {
+            deleteComment(c.id);
+          }
+        });
+        deleteComment(commentId);
+      }
+      updateCellIndicator();
+      renderComments();
+  }
 
-      //TODO: must delete all replies as well
+  async function deleteComment(commentId) {
+    return apiReq(COMMENTS_ENDPOINT + '?id=eq.' + commentId, 'DELETE');
   }
 
   /* LOGIN */
