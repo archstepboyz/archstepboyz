@@ -706,8 +706,61 @@
 .delete-btn:hover {
   background-color: #cc0000;
 }
+
+.delete-btn.is-visible {
+  display: flex;
+}
   
   .Comment-Text { color: black; font-size: 16px; margin: 0; }
+
+.Comment-Box.is-admin {
+  background: linear-gradient(to right, #fffdfa, #fff0f5); /* Very subtle warm tint */
+  border: 1px solid rgba(229, 46, 113, 0.3); /* Soft pink border */
+  box-shadow: 0 5px 15px rgba(229, 46, 113, 0.15); /* Glowing shadow */
+  position: relative;
+  overflow: hidden; /* Ensures the left strip stays within bounds */
+  transform: scale(1.02); /* Slightly larger to emphasize importance */
+  margin-bottom: 25px; /* Extra space below to let it breathe */
+}
+
+/* The "Pizzazz" Strip on the left */
+.Comment-Box.is-admin::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background: linear-gradient(to bottom, #ff8a00, #e52e71); /* Brand Gradient */
+}
+
+/* The "PINNED" Badge */
+.Admin-Badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  color: white;
+  
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  
+  padding: 3px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  vertical-align: middle;
+  
+  box-shadow: 0 2px 5px rgba(229, 46, 113, 0.4);
+}
+
+/* Optional: A subtle sheen animation on the Admin Box */
+@keyframes sheen {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
   
   .Reply-Btn {
     background: none; border: none; color: rgba(255,255,255,0.5);
@@ -1238,36 +1291,62 @@
       let html = '';
       main_comments.forEach(comment => {
         const replies = CACHED_COMMENTS_DB?.filter(c => c.reply_to_id == comment.id);
-        html += `
-          <div class="Comment-Item">
-            <div class="Comment-Box">
-              <div class="Comment-Header">
-                <span class="Comment-User">${comment.author}</span>
-                <button class="delete-btn" ${AUTHED_USER == null ? '' : 'style="display: flex;"'} aria-label="Delete" onclick="deleteCommentModal(${comment.id})">&times;</button>
-              </div>
-              <p class="Comment-Text">${comment.message}</p>
-              <button class="Reply-Btn" onclick="toggleReply(${comment.id})">Reply</button>
-            
-              <div id="reply-input-${comment.id}" class="Input-Group" style="display:none; margin-top:10px;">
-                <input type="text" id="reply-text-${comment.id}" class="Input-Field" placeholder="Reply..." style="font-size: 16px; padding: 5px;">
-                <button id="reply-submit-${comment.id}" class="Send-Btn" onclick="submitReply(${comment.id})" style="padding: 2px 10px; font-size: 16px;">Send</button>
-              </div>
-            </div>
-          
-            <div class="Reply-List">
-              ${replies?.map(reply => `
-                <div class="Comment-Box" style="margin-top: 10px; background: rgba(255,255,255,0.03);">
-                  <>${reply.author}</span>
-                  <div class="Comment-Header">
-                    <span class="Comment-User" style="color: #2ed573">${reply.author}</span>
-                    <button class="delete-btn" style="background-color: #05714b; ${AUTHED_USER == null ? '' : 'display: flex;'}" aria-label="Delete" onclick="deleteCommentModal(${reply.id})">&times;</button>
-                  </div>
-                  <p class="Comment-Text">${reply.message}</p>
-                </div>
-              `).join('')}
-            </div>
+
+// 1. Check if this is an Admin comment
+const isAdmin = comment.author === 'Admin';
+
+// 2. Define the Badge HTML (only if admin)
+const adminBadgeHTML = isAdmin 
+  ? `<span class="Admin-Badge"><i class="fa-solid fa-thumbtack"></i> Pinned</span>` 
+  : '';
+
+// 3. Define the Delete Button Class logic
+const deleteVisibilityClass = AUTHED_USER != null ? 'is-visible' : '';
+
+html += `
+  <div class="Comment-Item">
+    <div class="Comment-Box ${isAdmin ? 'is-admin' : ''}">
+      
+      <div class="Comment-Header">
+        <span class="Comment-User">
+          ${comment.author}
+          ${adminBadgeHTML} 
+          <span style="font-weight:400; color:#aaa; margin-left:5px;">
+            (${new Date(comment.created_at).toLocaleString(navigator.language, { dateStyle: 'medium', timeStyle: 'short' })})
+          </span>
+        </span>
+
+        <button class="delete-btn ${deleteVisibilityClass}" aria-label="Delete" onclick="deleteCommentModal(${comment.id})">&times;</button>
+      </div>
+
+      <p class="Comment-Text">${comment.message}</p>
+      
+      <button class="Reply-Btn" onclick="toggleReply(${comment.id})">Reply</button>
+    
+      <div id="reply-input-${comment.id}" class="Input-Group" style="display:none; margin-top:10px;">
+        <input type="text" id="reply-text-${comment.id}" class="Input-Field" placeholder="Reply..." style="font-size: 16px; padding: 5px;">
+        <button id="reply-submit-${comment.id}" class="Send-Btn" onclick="submitReply(${comment.id})" style="padding: 2px 10px; font-size: 16px;">Send</button>
+      </div>
+    </div>
+  
+    <div class="Reply-List">
+      ${replies?.map(reply => `
+        <div class="Comment-Box" style="margin-top: 10px; background: rgba(255,255,255,0.03);">
+          <div class="Comment-Header">
+             <span class="Comment-User" style="color: #2ed573">
+               ${reply.author}
+               <span style="font-weight:400; color:#aaa; margin-left:5px;">
+                 (${new Date(comment.created_at).toLocaleString(navigator.language, { dateStyle: 'medium', timeStyle: 'short' })})
+               </span>
+             </span>
+             <button class="delete-btn ${deleteVisibilityClass}" style="background-color: #05714b;" aria-label="Delete" onclick="deleteCommentModal(${reply.id})">&times;</button>
           </div>
-        `;
+          <p class="Comment-Text">${reply.message}</p>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+`;
       });
 
       container.innerHTML = html;
@@ -1295,7 +1374,7 @@
 
       apiReq(COMMENTS_ENDPOINT, 'POST', {
         id: Date.now(),
-        author: str, 
+        author: AUTHED_USER != null ? AUTHED_USER.username : str, 
         message: text,
         team: currentCellId,
       }).then( () => {
