@@ -69,12 +69,15 @@ overflow-x: auto;
 
 /* --- HEADER --- */
 .Header__Wrapper {
-min-width: 100%;
-width: fit-content; 
+  position: relative;
+  min-width: 100%;
+  width: fit-content; 
 
-display: flex;
-flex-direction: column;
-align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  z-index: 50;
 }
 
 .Header {
@@ -149,17 +152,6 @@ font-family: 'Oswald', sans-serif;
 text-transform: uppercase;
 letter-spacing: 1px;
 
-display: flex;
-flex-wrap: wrap;
-flex-shrink: 0;
-
-margin-bottom: 30px;
-
-position: sticky;
-left: 0;
-width: max-content;
-height: fit-content;
-
 animation: fadeInDown 0.8s ease-out;
 transition: all 0.3s ease;
 }
@@ -171,44 +163,63 @@ color: #e17055;
 
 /* --- CENTERED MODAL --- */
 .Modal-Overlay {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0, 0, 0, 0.6);
-backdrop-filter: blur(5px);
-z-index: 2000; /* Higher than drawer */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(5px);
+  z-index: 2000;
 
-display: flex;
-justify-content: center;
-align-items: center;
-
-opacity: 0;
-visibility: hidden;
-transition: opacity 0.3s ease, visibility 0.3s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  /* Default State (Hidden) */
+  opacity: 0;
+  visibility: hidden;
+  
+  /* EXIT TRANSITION: Smooth fade out, wait 0.3s before hiding visibility */
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
 }
 
 .Modal-Overlay.open {
-opacity: 1;
-visibility: visible;
+  /* Active State (Visible) */
+  opacity: 1;
+  visibility: visible;
+  
+  /* ENTRY TRANSITION: Fade in immediately */
+  transition: opacity 0.3s ease, visibility 0s linear 0s;
 }
 
 .Modal-Box {
-background: white;
-width: 90%;
-max-width: 400px;
-border-radius: 20px;
-padding: 30px;
-position: relative;
-box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-transform: scale(0.9);
-transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-color: #333;
+  /* ... your existing box styling ... */
+  background: white;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 20px;
+  padding: 30px;
+  position: relative;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  color: #333;
+  
+  /* Default State (Closed) */
+  transform: scale(0.95); /* Start slightly smaller, not 0.9 (too much movement) */
+  opacity: 0;             /* Fade out the box content too */
+  
+  /* EXIT TRANSITION: Fast, simple ease-in (No Bounce) */
+  transition: transform 0.2s ease-in, opacity 0.2s ease-in;
 }
 
 .Modal-Overlay.open .Modal-Box {
-transform: scale(1);
+  /* Active State (Open) */
+  transform: scale(1);
+  opacity: 1;
+  
+  /* ENTRY TRANSITION: Bouncy Pop Effect */
+  /* The cubic-bezier adds the "elastic" snap */
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
 }
 
 .Modal-Close {
@@ -258,6 +269,40 @@ background: #f1f2f6;
 box-sizing: border-box; /* Keeps padding inside width */
 }
 
+.Input-Help {
+  font-size: 11px;
+  color: #b2bec3; /* Muted gray */
+  margin-top: 5px;
+  font-style: italic;
+  letter-spacing: 0.3px;
+}
+
+.Form-Error {
+  background: rgba(255, 71, 87, 0.1); /* Soft Red Background */
+  color: #ff4757;                    /* Bright Red Text */
+  border: 1px solid rgba(255, 71, 87, 0.3);
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 15px;
+  text-align: center;
+  
+  animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.input-invalid {
+  border-color: #ff4757 !important;
+  background-color: rgba(255, 71, 87, 0.05) !important;
+}
+
 .Submit-Btn {
 width: 100%;
 padding: 12px;
@@ -274,6 +319,217 @@ margin-top: 10px;
 .Submit-Btn:hover {
 opacity: 0.9;
 }
+
+.req {
+  color: #e17055; /* Burnt orange for visibility */
+  margin-left: 2px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.Success-View {
+  height: 100%;
+  display: flex; /* Flex is set inline in JS, but good to have here */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 20px 0;
+  animation: fadeInPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.Success-Icon {
+  font-size: 60px;
+  background: linear-gradient(135deg, #2ed573, #1abc9c); /* Success Green Gradient */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 20px;
+  
+  /* Infinite subtle bounce */
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
+.Success-View h2 {
+  font-family: 'Fugaz One', cursive;
+  color: #2d3436;
+  margin: 0 0 10px 0;
+}
+
+.Success-View p {
+  color: #636e72;
+  font-size: 14px;
+  margin-bottom: 30px;
+  line-height: 1.5;
+}
+
+@keyframes fadeInPop {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes floatIcon {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* --- USER MENU (LOGGED IN) --- */
+.Auth-Container {
+display: flex;
+flex-wrap: wrap;
+flex-shrink: 0;
+
+margin-bottom: 30px;
+
+position: sticky;
+left: 0;
+width: max-content;
+height: fit-content;
+}
+
+.User-Trigger {
+  background: rgba(46, 213, 115, 0.15);
+  border: 1px solid #2ed573;
+  color: #2ed573;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.User-Trigger:hover {
+  background: #2ed573;
+  color: white;
+}
+
+.User-Dropdown {
+  position: absolute;
+  top: 110%; /* Just below button */
+  right: 0;
+  width: 160px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  padding: 10px 0;
+  
+  /* Animation */
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 1500;
+}
+
+.User-Dropdown.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.Dropdown-Item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: #2d3436;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.Dropdown-Item:hover { background: #f1f2f6; }
+.Dropdown-Item.is-danger { color: #d63031; }
+.Dropdown-Item.is-danger:hover { background: rgba(214, 48, 49, 0.1); }
+
+.Dropdown-Divider {
+  height: 1px;
+  background: #dfe6e9;
+  margin: 5px 0;
+}
+
+
+
+
+
+
+/* --- UPDATED AUTH MODAL STYLES --- */
+
+.Auth-Box {
+  /* Remove padding here so the slider goes edge-to-edge */
+  padding: 0 !important; 
+  
+  /* CRITICAL: content that slides out must be hidden */
+  overflow: hidden; 
+  
+  width: 90%;
+  max-width: 400px;
+  border-radius: 20px;
+  background: white;
+  transition: height 0.3s ease;
+  position: relative; /* Establish context for absolute positioning */
+}
+
+.Auth-Slider {
+  display: flex;
+  width: 200%; /* Perfectly double the width */
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.Auth-View {
+  width: 50%;        /* Each view is exactly half the slider */
+  flex-shrink: 0;    /* Prevent flexbox from squishing the views */
+  
+  /* Restore the padding here (moved from Auth-Box) */
+  padding: 40px 30px; 
+  box-sizing: border-box; 
+}
+
+/* Close button positioning needs a tweak since we removed box padding */
+.Modal-Close {
+  top: 15px;
+  right: 15px;
+  z-index: 10; /* Ensure it sits on top of the slider */
+}
+
+
+
+
+
+
+
+
+
+
+/* Default State (Login View) */
+.Auth-Slider.show-login { transform: translateX(0); }
+/* Signup State */
+.Auth-Slider.show-signup { transform: translateX(-50%); }
+
+/* --- FORM PIZZAZZ --- */
+.Auth-Toggle {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 13px;
+  color: #636e72;
+}
+
+.Auth-Toggle a {
+  color: #e52e71;
+  font-weight: bold;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.btn-secondary {
+  background: linear-gradient(90deg, #6c5ce7, #a29bfe); /* Purple for Sign Up */
+}
+
+.btn-secondary:hover { opacity: 0.9; }
 
 /* --- MENU BAR --- */
 .Menu-Options {
@@ -948,12 +1204,11 @@ max-height: 100px;
   padding: 10px;
 }
 }
-
 </style>
 </head>
 <body>
 
-<div class="Header__Wraper">"
+<div class="Header__Wrapper">"
 <div class="Header">
 <img src="https://pbs.twimg.com/profile_images/1887582914608607232/zdmOHy16_400x400.jpg" alt="Logo" class="Header__Logo">
 <div class="Header__Text">
@@ -962,9 +1217,27 @@ max-height: 100px;
 </div>
 </div>
 
-<button class="Login-Trigger" onclick="openLoginModal()">
-<i class="fa-solid fa-user"></i> Login
-</button>
+<div class="Auth-Container">
+  <button id="loginBtn" class="Login-Trigger" onclick="openLoginModal()">
+    <i class="fa-solid fa-user"></i> Login
+  </button>
+
+  <div id="userMenu" class="User-Menu" style="display: none;">
+    <button class="User-Trigger" onclick="toggleUserDropdown(event)">
+      <span id="userDisplay">User</span> <i class="fa-solid fa-caret-down"></i>
+    </button>
+    
+    <div id="userDropdown" class="User-Dropdown">
+      <a href="#" class="Dropdown-Item" onclick="alert('Profile Settings coming soon!')">
+        <i class="fa-solid fa-gear"></i> Settings
+      </a>
+      <div class="Dropdown-Divider"></div>
+      <a href="#" class="Dropdown-Item is-danger" onclick="handleLogout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+      </a>
+    </div>
+  </div>
+</div>
 </div>
 
 <div class="Menu-Options">
@@ -1262,28 +1535,84 @@ Rules: These teams and/or players cannot, under any circumstances, be a part of 
 </div>
 
 <div id="loginOverlay" class="Modal-Overlay" onclick="closeLoginModal(event)">
-<div class="Modal-Box">
-<button class="Modal-Close" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
+  <div class="Modal-Box Auth-Box">
+    <button class="Modal-Close" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
 
-<div class="Modal-Header">
-  <h2>Admin Login</h2>
-  <p>Enter your credentials to access admin tools.</p>
-</div>
+    <div class="Auth-Slider" id="authSlider">
+      
+      <div class="Auth-View" id="view-login">
+        <div class="Modal-Header">
+          <h2>Welcome Back</h2>
+          <p>Enter your credentials to access the full experience.</p>
+        </div>
+        <form class="Login-Form" onsubmit="handleLogin(event)">
+          <div class="Input-Wrapper">
+            <label>Email</label>
+            <input type="text" id="username" placeholder="Email" required>
+          </div>
+          <div class="Input-Wrapper">
+            <label>Password</label>
+            <input type="password" id="password" placeholder="Password" required>
+          </div>
+          <button type="submit" class="Submit-Btn">Sign In</button>
+        </form>
+        <div class="Auth-Toggle">
+          Don't have an account? <a onclick="toggleAuthMode('signup')">Sign Up</a>
+        </div>
+      </div>
 
-<form class="Login-Form" onsubmit="handleLogin(event)">
-  <div class="Input-Wrapper">
-    <label>Username</label>
-    <input type="text" id="username" placeholder="Username" required>
+<div class="Auth-View" id="view-signup">
+  <div id="signup-content">
+  <div class="Modal-Header">
+    <h2>Join the Squad</h2>
+    <p>Create an account to join the discussion.</p>
   </div>
   
-  <div class="Input-Wrapper">
-    <label>Password</label>
-    <input type="password" id="password" placeholder="Password" required>
-  </div>
+  <form class="Login-Form" onsubmit="handleSignup(event)">
+    <div class="Input-Wrapper">
+      <label>Choose Username <span class="req">*</span></label>
+      <input type="text" id="new-username" placeholder="CoolName123" required>
+    </div>
+    
+    <div class="Input-Wrapper">
+      <label>Email Address <span class="req">*</span></label>
+      <input type="email" id="new-email" placeholder="you@example.com" required>
+    </div>
+    
+    <div class="Input-Wrapper">
+      <label>Password <span class="req">*</span></label>
+      <input type="password" id="new-password" placeholder="••••••••" required onblur="validateInputs()">
+      <div class="Input-Help">Must be at least 8 characters.</div>
+    </div>
 
-  <button type="submit" class="Submit-Btn">Sign In</button>
-</form>
+    <div class="Input-Wrapper">
+      <label>Referral Code <span class="req">*</span></label>
+      <input type="text" id="new-referral" placeholder="ARCH-XYZ" required autocomplete="off" onblur="validateInputs()">
+      <div class="Input-Help">Obtain this from a founding ArchStepBoyz member.</div>
+    </div>
+
+    <div id="signup-error-msg" class="Form-Error" style="display: none;"></div>
+
+    <button type="submit" class="Submit-Btn btn-secondary">Create Account</button>
+  </form>
+
+  <div class="Auth-Toggle">
+    Already a member? <a onclick="toggleAuthMode('login')">Sign In</a>
+  </div>
 </div>
+
+  <div id="signup-success" class="Success-View" style="display: none;">
+    <div class="Success-Icon">
+      <i class="fa-solid fa-envelope-circle-check"></i>
+    </div>
+    <h2>Verify Email</h2>
+    <p>Welcome to the team! We've sent a verification link to your inbox.</p>
+    <button class="Submit-Btn" onclick="resetSignupView()">Got it!</button>
+  </div>
+</div>
+
+    </div>
+  </div>
 </div>
 
 </body>
@@ -1349,6 +1678,14 @@ async function fetchTeams() {
   return apiReq(TEAMS_ENDPOINT, 'GET');
 }
 
+async function isUserSignedIn() {
+  const data = await db_client.auth.getSession();
+  if (data?.session) {
+    AUTHED_USER = data.session.user?.user_metadata;
+    authedUserDisplay();
+  }
+}
+
 /* PAGE INITIALIZATION */
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -1404,7 +1741,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
   /* POPULATE TABLE */
   fetchTeams().then( (res) => {
     fetchComments().then( (comments) => {
-      CACHED_COMMENTS_DB = comments;
+      CACHED_COMMENTS_DB = comments.data;
       appendTeamCells(res);
 
       const header = document.querySelector('.Table__THEAD');
@@ -1429,6 +1766,15 @@ document.addEventListener('DOMContentLoaded', (event) => {
       });
     });
   });
+
+  db_client.auth.onAuthStateChange((event, session) => {
+    AUTHED_USER = session?.user?.user_metadata;
+    if (AUTHED_USER) {
+      authedUserDisplay();
+    }
+  });
+
+  isUserSignedIn();
 });
 
 /* TABLE GRID FORMAT HELPER */
@@ -1479,15 +1825,18 @@ const appendTeamCells = (data) => {
 
 /* DB LOOKUPS (ASYNC) */
 async function fetchComments() {
-  return apiReq(COMMENTS_ENDPOINT, 'GET');
+  //return apiReq(COMMENTS_ENDPOINT, 'GET');
+  return db_client.from('Comments').select('*');
 }
 
 async function postComment(data) {
-  return apiReq(COMMENTS_ENDPOINT, 'POST', data);
+  //return apiReq(COMMENTS_ENDPOINT, 'POST', data);
+  return db_client.from('Comments').insert([data]);
 }
 
 async function deleteComment(commentId) {
-  return apiReq(COMMENTS_ENDPOINT + '?id=eq.' + commentId, 'DELETE');
+  //return apiReq(COMMENTS_ENDPOINT + '?id=eq.' + commentId, 'DELETE');
+  return db_client.from('Comments').delete().eq('id', commentId);
 }
 
 /* UI METHODS */
@@ -1538,10 +1887,9 @@ async function renderComments() {
   const container = document.getElementById('drawerContent');
     
   const comments = await fetchComments();
-  CACHED_COMMENTS_DB = comments;
+  CACHED_COMMENTS_DB = comments.data;
       
     const main_comments = CACHED_COMMENTS_DB?.filter(comment => comment.team === currentCellId && comment.reply_to_id == null) ?? [];
-    console.log(main_comments);
     
     if (main_comments.length === 0) {
       container.innerHTML = `
@@ -1561,7 +1909,7 @@ async function renderComments() {
         ? `<span class="Admin-Badge"><i class="fa-solid fa-thumbtack"></i> Pinned</span>` 
         : '';
 
-      const deleteVisibilityClass = AUTHED_USER != null ? 'is-visible' : '';
+      const deleteVisibilityClass = (AUTHED_USER != null && AUTHED_USER.username === 'fearthebeak') ? 'is-visible' : '';
 
       html += `
         <div class="Comment-Item">
@@ -1671,7 +2019,7 @@ async function submitReply(parentId) {
   if (parentComment) {
     const city = await getCityFromIP();
     await postComment({
-      author: city,
+      author: AUTHED_USER != null ? AUTHED_USER.username : city,
       message: text,
       team: currentCellId,
       reply_to_id: parentId,
@@ -1705,6 +2053,32 @@ function closeLoginModal(event) {
   window.scrollTo(0, scrollPosition);
 }
 
+function authedUserDisplay() {
+    /*
+    const loginBtn = document.querySelector('.Login-Trigger');
+    
+    loginBtn.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#2ed573"></i> ${AUTHED_USER.username}`;
+    
+    loginBtn.style.cursor = 'default';
+    loginBtn.style.borderColor = '#2ed573'; 
+    loginBtn.style.background = 'rgba(46, 213, 115, 0.1)'; 
+    
+    loginBtn.onclick = null;
+    */
+
+    document.getElementById('loginBtn').style.display = 'none';
+    document.getElementById('userMenu').style.display = 'block';
+    document.getElementById('userDisplay').innerText = AUTHED_USER.username;
+   
+    // TODO: only if admin
+    if (AUTHED_USER.username === 'fearthebeak') {
+      const deleteCommentBtns = document.querySelectorAll('.delete-btn');
+      deleteCommentBtns.forEach( (btn) => {
+        btn.style.display = 'flex';
+      });
+    }
+}
+
 async function handleLogin(event) {
   event.preventDefault(); 
   
@@ -1734,27 +2108,221 @@ async function handleLogin(event) {
   }
 
   AUTHED_USER = data?.user?.user_metadata;
-    
-    const loginBtn = document.querySelector('.Login-Trigger');
-    
-    loginBtn.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#2ed573"></i> ${AUTHED_USER.username}`;
-    
-    loginBtn.style.cursor = 'default';
-    loginBtn.style.borderColor = '#2ed573'; 
-    loginBtn.style.background = 'rgba(46, 213, 115, 0.1)'; 
-    
-    loginBtn.onclick = null;
-    
-    const deleteCommentBtns = document.querySelectorAll('.delete-btn');
-    deleteCommentBtns.forEach( (btn) => {
-      btn.style.display = 'flex';
-    });
-    
-    closeLoginModal();
-    
-    usernameInput.value = '';
-    passwordInput.value = '';
+
+  authedUserDisplay();
+
+  closeLoginModal();
+      
+  usernameInput.value = '';
+  passwordInput.value = '';
 }
 
+function toggleAuthMode(mode) {
+  const slider = document.getElementById('authSlider');
+  const box = document.querySelector('.Auth-Box');
+  
+  if (mode === 'signup') {
+    slider.classList.remove('show-login');
+    slider.classList.add('show-signup');
+    // Optional: Adjust height if signup form is taller
+    // box.style.height = '450px'; 
+  } else {
+    slider.classList.remove('show-signup');
+    slider.classList.add('show-login');
+    // box.style.height = '380px';
+  }
+}
+
+function toggleUserDropdown(event) {
+  // Prevent the click from immediately bubbling up and closing the menu
+  if (event) event.stopPropagation();
+
+  const menu = document.getElementById('userDropdown');
+  const isActive = menu.classList.contains('active');
+
+  if (isActive) {
+    closeDropdown();
+  } else {
+    menu.classList.add('active');
+    // Add the "click out" listener only when the menu is open
+    document.addEventListener('click', closeDropdownOnClickOutside);
+  }
+}
+
+function closeDropdown() {
+  const menu = document.getElementById('userDropdown');
+  if (menu) {
+    menu.classList.remove('active');
+    // Clean up the listener so it doesn't fire unnecessarily
+    document.removeEventListener('click', closeDropdownOnClickOutside);
+  }
+}
+
+function closeDropdownOnClickOutside(event) {
+  const menu = document.getElementById('userDropdown');
+  const trigger = document.querySelector('.User-Trigger');
+
+  // If the click is NOT inside the menu AND NOT on the trigger button
+  if (menu && !menu.contains(event.target) && !trigger.contains(event.target)) {
+    closeDropdown();
+  }
+}
+
+async function handleSignup(event) {
+  event.preventDefault();
+  clearSignupError();
+
+  const newUsername = document.getElementById('new-username').value;
+  const newEmail = document.getElementById('new-email').value;
+  const newPassword = document.getElementById('new-password').value;
+  const referralCode = document.getElementById('new-referral').value;
+
+  if (password.length < 8) {
+    showSignupError("Password must be at least 8 characters.");
+    document.getElementById('new-password').classList.add('input-invalid');
+    return;
+  }
+
+  if (referralCode.length < 6) {
+    showSignupError("Referral code must be at least 6 characters.");
+    document.getElementById('new-referral').classList.add('input-invalid');
+    return;
+  }
+
+  const accountCreated = await signUpWithReferral(newEmail, newPassword, newUsername, referralCode);
+
+  if (accountCreated) {
+
+  // 1. Get the form container and success container
+  const formContent = document.getElementById('signup-content');
+  const successContent = document.getElementById('signup-success');
+  
+  // 2. Validate (The 'required' attribute handles empty fields, 
+  // but you can add specific logic here if needed)
+  const referral = document.getElementById('new-referral').value;
+  
+  // Example: Check specific code (Optional)
+  // if (referral !== 'ARCHSTEP') { alert('Invalid Code'); return; }
+
+  // 3. Simulate API Call / Processing
+  const btn = event.target.querySelector('button');
+  const originalText = btn.innerText;
+  btn.innerText = "Creating...";
+  
+  setTimeout(() => {
+    // 4. Hide Form, Show Success
+    formContent.style.display = 'none';
+    successContent.style.display = 'flex';
+    
+    // Reset button text for next time
+    btn.innerText = originalText;
+    
+    // Clear inputs (Security/Polish)
+    document.getElementById('new-username').value = '';
+    document.getElementById('new-email').value = '';
+    document.getElementById('new-password').value = '';
+    document.getElementById('new-referral').value = '';
+    document.getElementById('new-referral').classList.remove('input-invalid');
+    
+  }, 1000); // Fake delay for realism
+  }
+}
+
+async function signUpWithReferral(email, password, username, referralCode) { 
+  const { data: validCode, codeError } = await db_client
+    .rpc('check_referral_code', { input_code: referralCode });
+
+  if (!validCode) {
+    showSignupError("Invalid referral code. Please contact a founding ArchStepBoyz member.");
+    document.getElementById('new-referral').classList.add('input-invalid');
+    return false; 
+  }
+
+  const { data, error } = await db_client.auth.signUp({
+    email: email,
+    password: password,
+    options: {
+      data: {
+        username: username,
+        referral_code: referralCode 
+      }
+    }
+  });
+
+  if (error) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+function resetSignupView() {
+  closeLoginModal();
+  
+  setTimeout(() => {
+    document.getElementById('signup-content').style.display = 'block';
+    document.getElementById('signup-success').style.display = 'none';
+    toggleAuthMode('login'); 
+  }, 300);
+}
+
+function showSignupError(message) {
+  const errorBox = document.getElementById('signup-error-msg');
+  errorBox.innerText = message;
+  errorBox.style.display = 'block';
+  
+  // Re-trigger animation if it's already visible
+  errorBox.style.animation = 'none';
+  errorBox.offsetHeight; /* trigger reflow */
+  errorBox.style.animation = null; 
+}
+
+function clearSignupError() {
+  const errorBox = document.getElementById('signup-error-msg');
+  errorBox.style.display = 'none';
+  errorBox.innerText = '';
+}
+
+function validateInputs() {
+  const codeEl = document.getElementById('new-referral');
+  const code = codeEl.value.trim(); 
+  if (code.length > 0 && code.length < 6) {
+    codeEl.classList.add('input-invalid');
+    showSignupError("Referral code must be at least 6 characters.");
+    return false;
+  }
+  const errorBox = document.getElementById('signup-error-msg');
+  if (errorBox.innerText.includes("Password")) {
+    clearSignupError();
+  }
+  
+  const passEl = document.getElementById('new-password');
+  const pass = passEl.value.trim();
+  if (pass.length > 0 && pass.length < 8) {
+    passEl.classList.add('input-invalid');
+    showSignupError("Password must be at least 8 characters.");
+    return false;
+  }
+  passEl.classList.remove('input-invalid');
+
+  if (errorBox.innerText.includes("Password")) {
+    clearSignupError();
+  }
+
+  return true;
+}
+
+async function handleLogout() {
+  const { error } = await db_client.auth.signOut();
+
+  if (error) {
+    console.error('Error signing out:', error.message);
+  } else {
+    document.getElementById('userMenu').style.display = 'none';
+    document.getElementById('loginBtn').style.display = 'flex';
+    document.getElementById('userDropdown').classList.remove('active');
+    AUTHED_USER = null;  // TODO: don't rely on this global
+  }
+}
 </script>
 </html>
