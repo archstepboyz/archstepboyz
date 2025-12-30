@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fugaz+One&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 * {
@@ -1290,14 +1291,18 @@ Rules: These teams and/or players cannot, under any circumstances, be a part of 
 
 /* GLOBAL VARS */
 
+const DB_URL = 'https://qeuvposbesblckyuflbd.supabase.co';
 const TEAMS_ENDPOINT = 'https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Teams?order=conf.asc,conf_pos.asc';
 const COMMENTS_ENDPOINT = 'https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Comments';
+const USERS_ENDPOINT = 'https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Users';
+
+const ANON_API_KEY = 'sb_publishable_mZVo1bfw-ChB9iCx1V5QwA_UUKrCx8o';
+
+const db_client = supabase.createClient(DB_URL, ANON_API_KEY);
+
 let  CACHED_COMMENTS_DB = [];
 let AUTHED_USER = null;
 let currentCellId = null;
-const AUTHORIZED_USERS = [
-  { username: "Admin", password: "Password123" },
-];
 
 /* HELPER METHODS */
 
@@ -1320,8 +1325,8 @@ async function apiReq(url, method, data) {
       method: method, 
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'sb_publishable_mZVo1bfw-ChB9iCx1V5QwA_UUKrCx8o',
-        'apikey': 'sb_publishable_mZVo1bfw-ChB9iCx1V5QwA_UUKrCx8o',
+        'Authorization': ANON_API_KEY,
+        'apikey': ANON_API_KEY,
       },
       body: data == null ? null : JSON.stringify(data) 
     });
@@ -1700,7 +1705,7 @@ function closeLoginModal(event) {
   window.scrollTo(0, scrollPosition);
 }
 
-function handleLogin(event) {
+async function handleLogin(event) {
   event.preventDefault(); 
   
   const usernameInput = document.getElementById('username');
@@ -1708,15 +1713,31 @@ function handleLogin(event) {
   
   const userIn = usernameInput.value;
   const passIn = passwordInput.value;
+ 
+  /*
+  const { data, error } = await db_client
+    .rpc('check_password', { 
+      input_username: userIn, 
+      input_password: passIn, 
+    });
+  */
+  const { data, error } = await db_client.auth.signInWithPassword({
+    email: userIn,
+    password: passIn,
+  });
   
-  const validUser = AUTHORIZED_USERS.find(u => u.username === userIn && u.password === passIn);
+  if (error) {
+    alert("Invalid Credentials. Please try again.");
+    console.error('Error:', error);
+    passwordInput.value = '';
+    return;
+  }
 
-  if (validUser) {
-    AUTHED_USER = validUser;
+  AUTHED_USER = data?.user?.user_metadata;
     
     const loginBtn = document.querySelector('.Login-Trigger');
     
-    loginBtn.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#2ed573"></i> ${validUser.username}`;
+    loginBtn.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#2ed573"></i> ${AUTHED_USER.username}`;
     
     loginBtn.style.cursor = 'default';
     loginBtn.style.borderColor = '#2ed573'; 
@@ -1733,13 +1754,6 @@ function handleLogin(event) {
     
     usernameInput.value = '';
     passwordInput.value = '';
-    
-    console.log(`User ${validUser.username} logged in successfully.`);
-
-  } else {
-    alert("Invalid Credentials. Please try again.");
-    passwordInput.value = ''; 
-  }
 }
 
 </script>
