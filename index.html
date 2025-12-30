@@ -468,9 +468,10 @@ height: fit-content;
   
   width: 90%;
   max-width: 400px;
+  height: 400px;
   border-radius: 20px;
   background: white;
-  transition: height 0.3s ease;
+  transition: height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   position: relative; /* Establish context for absolute positioning */
 }
 
@@ -2126,10 +2127,12 @@ function toggleAuthMode(mode) {
     slider.classList.add('show-signup');
     // Optional: Adjust height if signup form is taller
     // box.style.height = '450px'; 
+    box.style.height = '600px';
   } else {
     slider.classList.remove('show-signup');
     slider.classList.add('show-login');
     // box.style.height = '380px';
+    box.style.height = '400px';
   }
 }
 
