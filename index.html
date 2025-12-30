@@ -1340,6 +1340,10 @@ async function apiReq(url, method, data) {
   }
 }
 
+async function fetchTeams() {
+  return apiReq(TEAMS_ENDPOINT, 'GET');
+}
+
 /* PAGE INITIALIZATION */
 
 document.addEventListener('DOMContentLoaded', (event) => {
@@ -1393,8 +1397,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
   }
   
   /* POPULATE TABLE */
-  apiReq(TEAMS_ENDPOINT, 'GET').then( (res) => {
-    apiReq(COMMENTS_ENDPOINT, 'GET').then( (comments) => {
+  fetchTeams().then( (res) => {
+    fetchComments().then( (comments) => {
       CACHED_COMMENTS_DB = comments;
       appendTeamCells(res);
 
@@ -1416,7 +1420,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if(CACHED_COMMENTS_DB?.filter(comment => comment.team === team).length > 0) {
           cell.classList.add('has-comments');
         }
-        cell.addEventListener('click', () => openDrawer(cell));
+        cell.addEventListener('click', () => openDrawer(cell) );
       });
     });
   });
@@ -1473,48 +1477,8 @@ async function fetchComments() {
   return apiReq(COMMENTS_ENDPOINT, 'GET');
 }
 
-// TODO: make async
-function submitComment() {
-  const input = document.getElementById('commentInput');
-  const text = input.value.trim();
-  if (!text) return;
-
-  getCityFromIP().then((str) => {
-
-    apiReq(COMMENTS_ENDPOINT, 'POST', {
-      id: Date.now(),
-      author: AUTHED_USER != null ? AUTHED_USER.username : str, 
-      message: text,
-      team: currentCellId,
-    }).then( () => {
-      input.value = '';
-      updateCellIndicator();
-      renderComments();
-    });
-  });
-}
-function submitReply(parentId) {
-  const input = document.getElementById(`reply-text-${parentId}`);
-  const text = input.value.trim();
-  if (!text) return;
-
-  const parentComment = CACHED_COMMENTS_DB.find(c => c.team === currentCellId && c.id === parentId);
-    
-  if (parentComment) {
-    getCityFromIP().then((str) => {
-      apiReq(COMMENTS_ENDPOINT, 'POST', {
-        id: Date.now(),
-        author: str,
-        message: text,
-        team: currentCellId,
-        reply_to_id: parentId,
-      }).then( () => {
-        renderComments();
-      });
-    });
-  } else {
-    renderComments();
-  }
+async function postComment(data) {
+  return apiReq(COMMENTS_ENDPOINT, 'POST', data);
 }
 
 async function deleteComment(commentId) {
@@ -1532,13 +1496,13 @@ function closeDrawer() {
   currentCellId = null;
 }
 
-function openDrawer(cell) {
+async function openDrawer(cell) {
   if(event.target.closest('a')) return;
 
   closeDrawer();
-  renderComments();
-
   currentCellId = cell.getAttribute('data-cell-name');
+  
+  await renderComments();
 
   document.querySelector('.Drawer__Title').innerHTML = `
     <a 
@@ -1565,13 +1529,14 @@ function openDrawer(cell) {
 }
 
 
-function renderComments() {
+async function renderComments() {
   const container = document.getElementById('drawerContent');
     
-  fetchComments().then( (comments) => {
-    CACHED_COMMENTS_DB = comments;
+  const comments = await fetchComments();
+  CACHED_COMMENTS_DB = comments;
       
     const main_comments = CACHED_COMMENTS_DB?.filter(comment => comment.team === currentCellId && comment.reply_to_id == null) ?? [];
+    console.log(main_comments);
     
     if (main_comments.length === 0) {
       container.innerHTML = `
@@ -1652,7 +1617,6 @@ function renderComments() {
         }
       });
     });
-  });
 }
  
 function toggleReply(commentId) {
@@ -1664,21 +1628,51 @@ function toggleReply(commentId) {
   }
 }
 
-function deleteCommentModal (commentId) {
-  const first_child_comment = CACHED_COMMENTS_DB.find((c) => c.reply_to_id === commentId);
-  if (first_child_comment == null) {
-    deleteComment(commentId);
-  } else {
-    // TODO: async refreshComments() helper would be nice
-    CACHED_COMMENTS_DB.forEach((c) => {
-      if (c.reply_to_id === commentId) {
-        deleteComment(c.id);
-      }
-    });
-    deleteComment(commentId);
+async function deleteCommentModal (commentId) {
+  const children = CACHED_COMMENTS_DB.filter(c => c.reply_to_id === commentId);
+  
+  if (children.length > 0) {
+    await Promise.all(children.map(c => deleteComment(c.id)));
   }
+  await deleteComment(commentId);
+  await renderComments();
   updateCellIndicator();
-  renderComments();
+}
+
+async function submitComment() {
+  const input = document.getElementById('commentInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const city = await getCityFromIP();
+  await postComment({
+    author: AUTHED_USER != null ? AUTHED_USER.username : city, 
+    message: text,
+    team: currentCellId,
+  });
+  
+  input.value = '';
+  await renderComments();
+  updateCellIndicator();
+}
+
+async function submitReply(parentId) {
+  const input = document.getElementById(`reply-text-${parentId}`);
+  const text = input.value.trim();
+  if (!text) return;
+
+  const parentComment = CACHED_COMMENTS_DB.find(c => c.team === currentCellId && c.id === parentId);
+    
+  if (parentComment) {
+    const city = await getCityFromIP();
+    await postComment({
+      author: city,
+      message: text,
+      team: currentCellId,
+      reply_to_id: parentId,
+    });
+  }
+  await renderComments();
 }
 
 /* LOGIN */
