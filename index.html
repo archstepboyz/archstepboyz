@@ -1244,6 +1244,78 @@ max-height: 100px;
   padding: 10px;
 }
 }
+
+.Mention-List {
+  position: absolute;
+  bottom: 100%; /* Sits right on top of the input bar */
+  left: 0;
+  width: 100%;
+  max-height: 0; /* Hidden by default */
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(0,0,0,0.05);
+  box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+  transition: max-height 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 10;
+}
+
+.Mention-List.active {
+  max-height: 150px; /* Slide up */
+  border-top: 1px solid rgba(229, 46, 113, 0.2);
+}
+
+.Mention-Item {
+  padding: 12px 20px;
+  border-bottom: 1px solid rgba(0,0,0,0.03);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #2d3436;
+  transition: background 0.2s;
+}
+
+.Mention-Item:hover {
+  background: rgba(229, 46, 113, 0.05);
+  color: #e52e71;
+}
+
+.Mention-Avatar {
+  width: 24px;
+  height: 24px;
+  background: #dfe6e9;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #636e72;
+}
+
+/* --- THE FINAL RENDERED BADGE (The Pizzazz) --- */
+.Mention-Badge {
+  display: inline-block;
+  background: linear-gradient(90deg, #ff8a00, #e52e71);
+  color: white;
+  padding: 1px 6px;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 0.9em;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 5px rgba(229, 46, 113, 0.3);
+  transform: translateY(-1px);
+  
+  /* Make it unselectable so it feels like a distinct object */
+  user-select: none;
+  cursor: pointer;
+}
+
+.Mention-Badge:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 3px 8px rgba(229, 46, 113, 0.5);
+}
 </style>
 </head>
 <body>
@@ -1566,11 +1638,13 @@ Rules: These teams and/or players cannot, under any circumstances, be a part of 
 </div>
 </div>
 
-<div class="Drawer__Footer">
-<div class="Input-Group">
-  <input type="text" id="commentInput" class="Input-Field" placeholder="Type a comment...">
-  <button class="Send-Btn" id="sendBtn" onclick="submitComment()"><i class="fa-solid fa-paper-plane"></i></button>
-</div>
+<div class="Drawer__Footer" style="position: relative;"> <div id="mentionList" class="Mention-List">
+    </div>
+
+  <div class="Input-Group">
+    <input type="text" id="commentInput" class="Input-Field" placeholder="Type a comment... (@ to mention)" autocomplete="off">
+    <button class="Send-Btn" id="sendBtn" onclick="submitComment()"><i class="fa-solid fa-paper-plane"></i></button>
+  </div>
 </div>
 </div>
 
@@ -1969,7 +2043,7 @@ async function renderComments() {
               <button class="delete-btn ${deleteVisibilityClass}" aria-label="Delete" onclick="deleteCommentModal(${comment.id})">&times;</button>
             </div>
 
-            <p class="Comment-Text">${comment.message}</p>
+            <p class="Comment-Text">${formatMentions(comment.message)}</p>
       
             <button class="Reply-Btn" onclick="toggleReply(${comment.id})">Reply</button>
     
@@ -2040,11 +2114,14 @@ async function submitComment() {
   const text = input.value.trim();
   if (!text) return;
 
+  const mentions = getValidMentions(text).map(mention => mention.email);
+
   const city = await getCityFromIP();
   await postComment({
     author: AUTHED_USER != null ? AUTHED_USER.username : city, 
     message: text,
     team: currentCellId,
+    mentions: mentions,
   });
   
   input.value = '';
@@ -2069,6 +2146,118 @@ async function submitReply(parentId) {
     });
   }
   await renderComments();
+}
+
+// Mock Data for suggestions (In real app, pull from unique authors in commentDB)
+let  MOCK_USERS = [
+  { username: 'Admin', avatar: 'A' },
+  { username: 'HoopsFan', avatar: 'H' },
+  { username: 'CourtSide', avatar: 'C' },
+  { username: 'NetRipper', avatar: 'N' },
+  { username: 'Coach', avatar: 'C' }
+];
+const MOCK_USERS2 = db_client
+  .from('Profiles')
+  .select('username, email').then ((res) => {
+    MOCK_USERS = res.data;
+  });
+
+const inputField = document.getElementById('commentInput');
+const mentionList = document.getElementById('mentionList');
+
+inputField.addEventListener('input', function(e) {
+  const value = e.target.value;
+  const cursor = e.target.selectionStart;
+  
+  // Find the word being typed at the cursor
+  const textBeforeCursor = value.slice(0, cursor);
+  const words = textBeforeCursor.split(/\s+/);
+  const currentWord = words[words.length - 1];
+
+  // Check if current word starts with @
+  if (currentWord.startsWith('@')) {
+    const query = currentWord.slice(1).toLowerCase();
+    showSuggestions(query, cursor);
+  } else {
+    hideSuggestions();
+  }
+});
+
+/* --- PARSER FUNCTION --- */
+function getValidMentions(inputText) {
+  if (!inputText) return [];
+
+  // 1. Regex to capture words starting with @
+  // \w+ matches alphanumeric characters and underscores
+  const mentionRegex = /@(\w+)/g;
+  
+  // 2. Get all matches from the text
+  // matchAll returns an iterator, so we spread it into an array
+  const matches = [...inputText.matchAll(mentionRegex)];
+
+  // 3. Map matches to users and filter out invalid ones
+  const foundUsers = matches.map(match => {
+    const capturedName = match[1]; // The name without the '@'
+    
+    // Look up in MOCK_USERS (Case-insensitive check)
+    return MOCK_USERS.find(u => u.username.toLowerCase() === capturedName.toLowerCase());
+  })
+  .filter(user => user !== undefined); // Remove nulls (mentions that don't exist in DB)
+
+  // 4. Remove Duplicates
+  // (If user types "@Admin hello @Admin", we only want one notification)
+  const uniqueUsers = [...new Map(foundUsers.map(u => [u.username, u])).values()];
+
+  return uniqueUsers;
+}
+
+function showSuggestions(query, cursorPos) {
+  // Filter Users
+  const matches = MOCK_USERS.filter(u => u.username.toLowerCase().includes(query));
+  
+  if (matches.length === 0) {
+    hideSuggestions();
+    return;
+  }
+
+  // Build HTML
+  mentionList.innerHTML = matches.map(u => `
+    <div class="Mention-Item" onclick="insertMention('${u.username}')">
+      <div class="Mention-Avatar">${u.username[0]}</div>
+      ${u.username}
+    </div>
+  `).join('');
+  
+  mentionList.classList.add('active');
+}
+
+function hideSuggestions() {
+  mentionList.classList.remove('active');
+}
+
+function insertMention(name) {
+  const value = inputField.value;
+  const cursor = inputField.selectionStart;
+  const textBefore = value.slice(0, cursor);
+  const textAfter = value.slice(cursor);
+  
+  // Replace the partial @word with the full @Name
+  const words = textBefore.split(/\s+/);
+  words.pop(); // Remove the partial word
+  
+  const newValue = words.join(' ') + (words.length > 0 ? ' ' : '') + '@' + name + ' ' + textAfter;
+  
+  inputField.value = newValue;
+  inputField.focus();
+  hideSuggestions();
+}
+
+function formatMentions(text) {
+  // Regex: Finds @Word (alphanumeric + underscores)
+  // Replaces it with the styled span
+  return text.replace(/@(\w+)/g, function(match, username) {
+    return `<span class="Mention-Badge">@${username}</span>`;
+  });
 }
 
 /* LOGIN */
@@ -2292,7 +2481,8 @@ async function signUpWithReferral(email, password, username, referralCode) {
       data: {
         username: username,
         referral_code: referralCode 
-      }
+      },
+      redirectTo: 'https://archstepboyz.github.io/archstepboyz',
     }
   });
 
