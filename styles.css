@@ -765,7 +765,8 @@ animation: fadeInDown 0.8s ease-out;
     .Ranking-Container {
         width: 100%;
         /* max-width: 450px; iPhone Max width sweet spot */
-        padding: 0 20px; */
+        padding: 0 20px;
+        padding-bottom: 50px;
         box-sizing: border-box;
         animation: fadeInDown 0.8s ease-out;
     }
