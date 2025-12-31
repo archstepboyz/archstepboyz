@@ -302,7 +302,7 @@ Rules: These teams and/or players cannot, under any circumstances, be a part of 
         </button>
       </div>
         <div class="Row__Drawer">
-          <button class="Action-Btn edit" onclick="openModal('pbl-row1')">
+          <button class="Action-Btn edit" onclick="openAddModal('pbl-row1')">
           <i class="fa-solid fa-pen"></i>
           </button>
           <button class="Action-Btn delete" onclick="deleteTeam('pbl-row1')">
@@ -366,8 +366,8 @@ Rules: These teams and/or players cannot, under any circumstances, be a part of 
             <button class="Modal-Close" onclick="closeAddModal()"><i class="fa-solid fa-xmark"></i></button>
             
             <div class="Modal-Header">
-                <h2>New Contender</h2>
-                <p>Add a team to the ranking board.</p>
+                <h2 id="modalTitle">New Fraud</h2>
+                <p id="modalDesc">Add a team to the parlay banned list.</p>
             </div>
 
             <form onsubmit="handleNewTeam(event)">
@@ -387,7 +387,7 @@ Rules: These teams and/or players cannot, under any circumstances, be a part of 
                     </div>
                 </div>
 
-                <button type="submit" class="Submit-Btn">Add to List</button>
+                <button type="submit" class="Submit-Btn" id="modalSubmitBtn">Add to List</button>
             </form>
         </div>
     </div>
@@ -1069,12 +1069,48 @@ function formatMentions(text) {
 
 /* LIST VIEW */
 
-        // Modal Logic
+        let teamsData = [
+            { id: 'pbl-row1', name: 'Mark Anti-Pope', record: '9-4', streak: 'W4' },
+            { id: 'pbl-row2', name: 'Will Fade', record: '9-4', streak: 'W2' },
+            { id: 'pbl-row3', name: 'Minnesota T-Wolves', record: '56-26', streak: 'W2' }
+        ];
+
         const modal = document.getElementById('addTeamModal');
 
-        function openAddModal() {
+        // Open Modal (handles both Add and Edit states)
+        function openAddModal(teamIdToEdit = null) {
+          const listContainer = document.getElementById('rankingList');
+          //const modal = document.getElementById('teamModal');
+          const modalTitle = document.getElementById('modalTitle');
+          const modalDesc = document.getElementById('modalDesc');
+          const modalSubmitBtn = document.getElementById('modalSubmitBtn');
+          //const editRowIdInput = document.getElementById('editRowId');
+          const inputName = document.getElementById('inputName');
+          const inputRecord = document.getElementById('inputRecord');
+          const inputStreak = document.getElementById('inputStreak');
+            // Reset form first
+            //document.querySelector('form').reset();
+            //editRowIdInput.value = '';
+
+            if (teamIdToEdit) {
+                const team = teamsData.find(t => t.id === teamIdToEdit);
+                modalTitle.textContent = "Edit Team";
+                modalDesc.textContent = "Update team statistics.";
+                modalSubmitBtn.textContent = "Save Changes";
+                //editRowIdInput.value = team.id;
+                inputName.value = team.name;
+                inputRecord.value = team.record;
+                inputStreak.value = team.streak;
+                toggleDrawer(teamIdToEdit); // Close drawer on click
+            } else {
+                // --- ADD MODE ---
+                modalTitle.textContent = "New Fraud";
+                modalDesc.textContent = "Add a team to the parlay banned list.";
+                modalSubmitBtn.textContent = "Add to List";
+            }
+            
             modal.classList.add('open');
-            setTimeout(() => document.getElementById('inputName').focus(), 100);
+            setTimeout(() => inputName.focus(), 100);
         }
 
         function closeAddModal(e) {
@@ -1090,9 +1126,7 @@ function formatMentions(text) {
             }, 300);
         }
 
-        // 2. Toggle Drawer
         function toggleDrawer(id) {
-            return; //TODO: keep implementing button actions
             const row = document.getElementById(id);
             // Close others first (optional, but cleaner UX)
             document.querySelectorAll('.Ranking-Row-Wrapper').forEach(r => {
@@ -1101,7 +1135,18 @@ function formatMentions(text) {
             row.classList.toggle('drawer-open');
         }
 
-        // Add Team Logic
+        // TODO: implement
+        function deleteTeam(id) {
+            if(confirm('Coming soon!')) {
+                // Remove from data array
+                //teamsData = teamsData.filter(t => t.id !== id);
+                // Re-render list to update ranks
+                //renderList();
+                return;
+            }
+            return;
+        }
+
         function handleNewTeam(event) {
             event.preventDefault();
             alert('Coming soon!');
