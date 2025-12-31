@@ -679,7 +679,7 @@ display: none;
 flex-wrap: wrap; */
 box-sizing: border-box;
 
-min-width: 20px;
+min-width: 450px;
 max-width: 600px;
 /* max-width: 450px; iPhone Max width sweet spot */
 width: 100vw;
@@ -765,7 +765,7 @@ animation: fadeInDown 0.8s ease-out;
     .Ranking-Container {
         width: 100%;
         /* max-width: 450px; iPhone Max width sweet spot */
-        /* padding: 0 20px; */
+        padding: 0 20px; */
         box-sizing: border-box;
         animation: fadeInDown 0.8s ease-out;
     }
