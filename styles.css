@@ -373,20 +373,21 @@ opacity: 0.9;
 
 /* --- USER MENU (LOGGED IN) --- */
 .Auth-Container {
-display: flex;
-flex-wrap: wrap;
-flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  flex-shrink: 0;
 
-/* NOW
-margin-bottom: 30px;
-*/
-padding: 0 20px;
+  /* NOW
+  margin-bottom: 30px;
+  */
+  padding: 0 20px;
 
-position: sticky;
-left: 0;
-width: max-content;
-min-width: 350px;
-height: fit-content;
+  position: sticky;
+  left: 0;
+  width: 100%;
+  height: fit-content;
+  
+  z-index: 1500;
 }
 
 .User-Trigger {
@@ -413,7 +414,6 @@ height: fit-content;
 .User-Dropdown {
   position: absolute;
   top: 110%; /* Just below button */
-  right: 0;
   width: 160px;
   background: white;
   border-radius: 12px;
@@ -430,7 +430,7 @@ height: fit-content;
 
 @media (max-width: 480px) {
   .User-Dropdown {
-    right: -100px; 
+    /* right: -100px; NOW */
     max-width: 92vw; 
     white-space: normal; 
     min-width: 200px; 
@@ -933,6 +933,7 @@ li {
 
     /* --- NEW: OPTIONS TOGGLE & DRAWER --- */
     .Row__Toggle {
+        display: none;
         background: none;
         border: none;
         color: #dfe6e9;
@@ -1001,11 +1002,11 @@ li {
     /* --- FLOATING ACTION BUTTON (Add Team) --- */
     /* Positions perfectly for thumb use on iPhone */
     .Fab-Wrapper {
+        display: none; /* flex ... huh does this not do anything? */
         /* position: fixed; NOW */
         bottom: 30px;
         left: 0; 
         right: 0;
-        display: flex;
         justify-content: flex-end;
         padding-right: 20px;
         z-index: 100;
@@ -1016,6 +1017,7 @@ li {
     }
 
     .Fab-Button {
+        display: none; /* flex */
         pointer-events: auto;
         background: linear-gradient(90deg, #ff8a00, #e52e71); /* Your Gradient */
         color: white;
@@ -1030,7 +1032,6 @@ li {
         box-shadow: 0 10px 20px rgba(229, 46, 113, 0.4);
         cursor: pointer;
         transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        display: flex;
         align-items: center;
         gap: 10px;
     }

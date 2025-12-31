@@ -329,11 +329,11 @@ Rules: These teams and/or players cannot, under any circumstances, be a part of 
         <div class="team-name">Will Fade</div>
         <div class="stats-container">
                     <div class="Stat-Group">
-                        <span class="Stat__Value">9-4</span>
+                        <span class="Stat__Value">10-4</span>
                         <span class="Stat__Label">Rec</span>
                     </div>
                     <div class="Stat-Group">
-                        <span class="Stat__Value is-win">W2</span>
+                        <span class="Stat__Value is-win">W3</span>
                         <span class="Stat__Label">Strk</span>
                     </div>
         </div>
@@ -350,6 +350,82 @@ Rules: These teams and/or players cannot, under any circumstances, be a part of 
           </button>
         </div>
     </li>
+    <li class="team-row" id="pbl-row3">
+      <div class="Row__Content">
+        <span class="rank">3</span>
+        <span class="pr4 TeamLink__Logo rm_space_test">
+          <a class="AnchorLink" tabindex="0" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/258" target="_blank" rel="noopener noreferrer">
+            <img 
+              alt="${team.name}" 
+              class="Image Logo Logo__sm" 
+              title="${team.name}" 
+              data-mptype="image" 
+              src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/258.png&h=200&w=200"
+            >
+          </a>
+        </span>
+        <div class="team-name">Virginia</div>
+        <div class="stats-container">
+                    <div class="Stat-Group">
+                        <span class="Stat__Value">11-2</span>
+                        <span class="Stat__Label">Rec</span>
+                    </div>
+                    <div class="Stat-Group">
+                        <span class="Stat__Value is-loss">L1</span>
+                        <span class="Stat__Label">Strk</span>
+                    </div>
+        </div>
+        <button class="Row__Toggle" onclick="toggleDrawer('pbl-row3')">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+      </div>
+        <div class="Row__Drawer">
+          <button class="Action-Btn edit" onclick="openModal('pbl-row3')">
+          <i class="fa-solid fa-pen"></i>
+          </button>
+          <button class="Action-Btn delete" onclick="deleteTeam('pbl-row3')">
+          <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+    </li>
+    <li class="team-row" id="pbl-row4">
+      <div class="Row__Content">
+        <span class="rank">4</span>
+        <span class="pr4 TeamLink__Logo rm_space_test">
+          <a class="AnchorLink" tabindex="0" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/227" target="_blank" rel="noopener noreferrer">
+            <img 
+              alt="${team.name}" 
+              class="Image Logo Logo__sm" 
+              title="${team.name}" 
+              data-mptype="image" 
+              src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/227.png&h=200&w=200"
+            >
+          </a>
+        </span>
+        <div class="team-name">Fhade Island</div>
+        <div class="stats-container">
+                    <div class="Stat-Group">
+                        <span class="Stat__Value">9-5</span>
+                        <span class="Stat__Label">Rec</span>
+                    </div>
+                    <div class="Stat-Group">
+                        <span class="Stat__Value is-loss">L1</span>
+                        <span class="Stat__Label">Strk</span>
+                    </div>
+        </div>
+        <button class="Row__Toggle" onclick="toggleDrawer('pbl-row4')">
+          <i class="fa-solid fa-gear"></i>
+        </button>
+      </div>
+        <div class="Row__Drawer">
+          <button class="Action-Btn edit" onclick="openModal('pbl-row4')">
+          <i class="fa-solid fa-pen"></i>
+          </button>
+          <button class="Action-Btn delete" onclick="deleteTeam('pbl-row4')">
+          <i class="fa-solid fa-trash"></i>
+          </button>
+        </div>
+    </li>
 </ol>
 
 
@@ -357,8 +433,8 @@ Rules: These teams and/or players cannot, under any circumstances, be a part of 
     </div>
 </div>
 
-    <div class="Fab-Wrapper">
-        <button class="Fab-Button" onclick="openAddModal()">
+    <div class="Fab-Wrapper" id="fabWrapper">
+        <button class="Fab-Button" id="fabButton" onclick="openAddModal()">
             <i class="fa-solid fa-plus"></i> Add Team
         </button>
     </div>
@@ -569,6 +645,13 @@ async function isUserSignedIn() {
   if (data?.session) {
     AUTHED_USER = data.session.user?.user_metadata;
     authedUserDisplay();
+  }
+  // TODO: move
+  if (AUTHED_USER.username === 'fearthebeak') {
+    document.getElementById('fabButton').style.display = 'flex';
+    document.querySelectorAll('.Row__Toggle').forEach(element => {
+      element.style.display = 'block';
+    });
   }
 }
 
