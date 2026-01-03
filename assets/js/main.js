@@ -1220,7 +1220,7 @@ async function removeValueFromArray(columnName, valueToRemove, rowId) {
         }
 
         function getPickerObj(id) {
-            return PICKERS.find(p => p.id === id);
+            return PICKERS.find(p => p.id === id) ?? { id: 'CO', color: '#ff7675' };
         }
 
         function createAvatarHTML(pickerIds) {
