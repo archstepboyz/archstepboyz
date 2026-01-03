@@ -391,6 +391,10 @@ opacity: 0.9;
   z-index: 1500;
 }
 
+.User-Menu {
+  padding: 8px 0;
+}
+
 .User-Trigger {
   background: rgba(46, 213, 115, 0.15);
   border: 1px solid #2ed573;
@@ -1605,17 +1609,19 @@ max-height: 100px;
     .Picks-Container {
         display: flex;
         flex-wrap: wrap; 
-        gap: 15px;
+        gap: 10px;
         max-width: 600px;
         margin: 0 auto;
-        padding: 10px 15px;
+        padding: 10px 0;
     }
 
     .Matchup-Column {
-        flex: 1 1 100%;
+        flex: 0 0 calc(50% - 5px);
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 10px;
+
+        min-width: 0;
     }
 
     /*
@@ -1627,9 +1633,9 @@ max-height: 100px;
     /* --- GAME CARD --- */
     .Game-Slip {
         background: #ffffff;
-        border-radius: 16px;
+        border-radius: 12px;
         box-shadow: 6px 6px 15px rgba(0,0,0,0.03), -6px -6px 15px rgba(255,255,255,0.9);
-        padding: 12px;
+        padding: 8px;
         border: 1px solid rgba(0,0,0,0.02);
         position: relative;
     }
@@ -1637,7 +1643,7 @@ max-height: 100px;
     .Slip__Meta {
         display: flex;
         justify-content: space-between;
-        font-size: 10px;
+        font-size: 9px;
         color: #b2bec3;
         font-weight: 700;
         text-transform: uppercase;
@@ -1686,7 +1692,7 @@ max-height: 100px;
 
     .Team__Name {
         font-family: 'Oswald', sans-serif;
-        font-size: 17px;
+        font-size: 13px;
         font-weight: 600;
         color: #2d3436;
         line-height: 1.1;
@@ -1694,7 +1700,7 @@ max-height: 100px;
     }
 
     .Team__Record {
-        font-size: 11px;
+        font-size: 10px;
         color: #636e72;
         font-weight: 500;
         transition: color 0.3s ease;
@@ -1710,8 +1716,8 @@ max-height: 100px;
     }
 
     .Avatar {
-        width: 24px;
-        height: 24px;
+        width: 20px;
+        height: 20px;
         border-radius: 50%;
         color: white;
         font-size: 10px;

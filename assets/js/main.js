@@ -1254,7 +1254,7 @@ forgotPassword();
                     <div class="Picker-Row">
                         ${createAvatarHTML(picks.away)}
                     </div>
-                    <div class="Consensus-Badge">Consensus</div>
+                    <div class="Consensus-Badge"> <i class="fa-solid fa-check"></i></div>
                 </div>
 
                 <div class="Slip__Divider"><span>VS</span></div>
