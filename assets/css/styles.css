@@ -381,7 +381,7 @@ opacity: 0.9;
   /* NOW
   margin-bottom: 30px;
   */
-  padding: 0 20px;
+  padding: 0 20px 12px 20px;
 
   position: sticky;
   left: 0;
@@ -587,7 +587,7 @@ gap: 20px 20px;
 /*
 margin-bottom: 30px;
 */
-padding: 20px;
+padding: 0 20px 20px 20px;
 
 position: sticky;
 left: 0;
@@ -606,7 +606,7 @@ animation: fadeInDown 0.8s ease-out;
   
   align-items: center;
   
-  height: 40px;
+  height: 36.5px;
   min-width: 120px;
   
   padding: 0 16px 0 20px;
@@ -1618,9 +1618,11 @@ max-height: 100px;
         gap: 15px;
     }
 
+    /*
     @media(min-width: 150px) {
         .Matchup-Column { flex: 1 1 45%; }
     }
+    */
 
     /* --- GAME CARD --- */
     .Game-Slip {
