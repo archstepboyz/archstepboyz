@@ -1227,8 +1227,8 @@ async function removeValueFromArray(columnName, valueToRemove, rowId) {
 
         function renderCardHTML(game) {
             // Check Consensus (5 pickers total)
-            const isAwayConsensus = game.awayPicks?.length === 5;
-            const isHomeConsensus = game.homePicks?.length === 5;
+            const isAwayConsensus = game.awayPicks?.length === 4;
+            const isHomeConsensus = game.homePicks?.length === 4;
 
             const awayClass = isAwayConsensus ? 'is-consensus' : '';
             const homeClass = isHomeConsensus ? 'is-consensus' : '';
