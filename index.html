@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com"
   crossorigin="">
   <link href=
-  "https://fonts.googleapis.com/css2?family=Fugaz+One&amp;family=Oswald:wght@400;600;700&amp;family=Merriweather:wght@300&amp;display=swap"
+  "https://fonts.googleapis.com/css2?family=Fugaz+One&amp;family=Oswald:wght@400;500;600;700&amp;family=Merriweather:wght@300&amp;family=Segoe+UI&amp;display=swap"
   rel="stylesheet">
   <link rel="stylesheet" href=
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -92,11 +92,18 @@
         viewbox="0 0 24 24">
         <path d=
         "M10 10h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zM10 4h4v4h-4zm6 0h4v4h-4zM4 4h4v4H4zm6 12h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4z"></path>
-        </svg> Rank</button> <button class="Toggle-Btn" id=
+        </svg> Rank</button>
+        <button class="Toggle-Btn" id=
         "listViewBtn"><svg xmlns="http://www.w3.org/2000/svg"
         viewbox="0 0 24 24">
         <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"></path>
         </svg> PBL</button>
+        <button class="Toggle-Btn" id="picksViewBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+          </svg>
+          Picks
+        </button>
       </div>
     </div>
   </div>
@@ -640,6 +647,10 @@
         </div>
       </div>
     </div>
+  </div>
+  <div class="Picks-Container">
+    <div class="Matchup-Column" id="col-1"></div>
+    <div class="Matchup-Column" id="col-2"></div>
   </div>
 </body>
 </html>

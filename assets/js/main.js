@@ -90,11 +90,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   const gridBtn = document.getElementById("gridViewBtn");
   const listBtn = document.getElementById("listViewBtn");
+  const picksBtn = document.getElementById("picksViewBtn");
   const mainContent = document.getElementById("MainContent");
 
   function switchToGrid() {
     gridBtn.classList.add("active");
     listBtn.classList.remove("active");
+    picksBtn.classList.remove("active");
 
     const list = document.querySelector(".list-container");
     list.style.display = "none";
@@ -102,11 +104,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
     fab.style.display = "none";
     const table = document.querySelector(".table-container");
     table.style.display = "flex";
+    const picks = document.querySelector(".Picks-Container");
+    picks.style.display = "none";
   }
 
   function switchToList() {
     listBtn.classList.add("active");
     gridBtn.classList.remove("active");
+    picksBtn.classList.remove("active");
 
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -114,10 +119,28 @@ document.addEventListener("DOMContentLoaded", (event) => {
     list.style.display = "flex";
     const fab = document.querySelector(".Fab-Wrapper");
     fab.style.display = "flex";
+    const picks = document.querySelector(".Picks-Container");
+    picks.style.display = "none";
+  }
+
+  function switchToPicks() {
+    listBtn.classList.remove("active");
+    gridBtn.classList.remove("active");
+    picksBtn.classList.add("active");
+
+    const table = document.querySelector(".table-container");
+    table.style.display = "none";
+    const list = document.querySelector(".list-container");
+    list.style.display = "none";
+    const fab = document.querySelector(".Fab-Wrapper");
+    fab.style.display = "none";
+    const picks = document.querySelector(".Picks-Container");
+    picks.style.display = "flex";
   }
 
   gridBtn.addEventListener("click", switchToGrid);
   listBtn.addEventListener("click", switchToList);
+  picksBtn.addEventListener("click", switchToPicks);
 
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -125,8 +148,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const chat = urlParams.get("chat");
 
   switch (view) {
+    case "grid":
+      switchToGrid();
+      break;
     case "PBL":
       switchToList();
+      break;
+    case "picks":
+      switchToPicks();
       break;
     default:
       switchToGrid();
@@ -1086,3 +1115,198 @@ async function forgotPassword() {
   */
 }
 forgotPassword();
+
+// --- 1. SETUP ---
+        
+        const CURRENT_USER_ID = 'JD';
+
+        const PICKERS = [
+            { id: 'JD', color: '#6c5ce7' }, // Purple (YOU)
+            { id: 'AS', color: '#00cec9' }, // Teal
+            { id: 'MK', color: '#fab1a0' }, // Peach
+            { id: 'TR', color: '#fdcb6e' }, // Yellow
+            { id: 'BL', color: '#ff7675' }  // Red
+        ];
+
+        // Map team names to real URLs for demo purposes
+        const LOGO_MAP = {
+            'BOS Celtics': 'https://upload.wikimedia.org/wikipedia/en/8/8f/Boston_Celtics.svg',
+            'NY Knicks': 'https://upload.wikimedia.org/wikipedia/en/2/25/New_York_Knicks_logo.svg',
+            'SF 49ers': 'https://upload.wikimedia.org/wikipedia/commons/3/3a/San_Francisco_49ers_logo.svg',
+            'GB Packers': 'https://upload.wikimedia.org/wikipedia/commons/5/50/Green_Bay_Packers_logo.svg',
+            'LAL Lakers': 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Los_Angeles_Lakers_logo.svg',
+            'GS Warriors': 'https://upload.wikimedia.org/wikipedia/en/0/01/Golden_State_Warriors_logo.svg',
+            'EDM Oilers': 'https://upload.wikimedia.org/wikipedia/en/4/4d/Logo_Edmonton_Oilers.svg',
+            'VAN Canucks': 'https://upload.wikimedia.org/wikipedia/en/3/3a/Vancouver_Canucks_logo.svg',
+            'PHI Phillies': 'https://upload.wikimedia.org/wikipedia/en/f/f0/Philadelphia_Phillies_2019_logo.svg',
+            'ATL Braves': 'https://upload.wikimedia.org/wikipedia/en/f/f2/Atlanta_Braves.svg',
+            'MIA Heat': 'https://upload.wikimedia.org/wikipedia/en/f/fb/Miami_Heat_logo.svg',
+            'ORL Magic': 'https://upload.wikimedia.org/wikipedia/en/1/10/Orlando_Magic_logo.svg'
+        };
+
+        const GAMES = [
+            { id: 0, away: 'Virginia', awayId: '258', awayRec: '11-2 (0-1)', home: 'NC State', homeId: '152', homeRec: '10-4 (1-0)', league: 'NCAAM', time: '11:00 AM' },
+            { id: 1, away: 'Kentucky', awayId: '96', awayRec: '9-4 (0-0)', home: 'Alabama', homeId: '333', homeRec: '10-3 (0-0)', league: 'NCAAM', time: '12:00 PM' },
+            { id: 2, away: 'VCU', awayId: '2670', awayRec: '10-4 (1-0)', home: 'Duquesne', homeId: '2184', homeRec: '9-5 (1-0)', league: 'NCAAM', time: '12:00 PM' },
+            { id: 3, away: 'UTSA', awayId: '2636', awayRec: '4-9 (0-1)', home: 'Temple', homeId: '218', homeRec: '9-5 (1-0)', league: 'NCAAM', time: '12:00 PM' },
+            { id: 4, away: 'Villanova', awayId: '222', awayRec: '11-2 (2-0)', home: 'Butler', homeId: '2086', homeRec: '7-6 (0-2)', league: 'NCAAM', time: '12:00 PM' },
+            { id: 5, away: 'Providence', awayId: '2507', awayRec: '7-6 (0-2)', home: "St. John's", homeId: '2599', homeRec: '9-4 (2-0)', league: 'NCAAM', time: '12:00 PM' }
+        ];
+
+        // --- 2. STATE MANAGEMENT ---
+        
+        // This object stores who picked who for each game
+        // Structure: { 0: { away: ['JD', 'AS'], home: ['MK', 'TR', 'BL'] }, ... }
+        let gameState = {};
+
+        function initGame() {
+            GAMES.forEach(game => {
+                gameState[game.id] = { away: [], home: [] };
+                
+                // Randomly assign pickers for initial state
+                PICKERS.forEach(picker => {
+                    const side = Math.random() > 0.5 ? 'away' : 'home';
+                    gameState[game.id][side].push(picker.id);
+                    gameState[game.id][side].sort();
+                });
+            });
+            renderAll();
+        }
+
+        // --- 3. INTERACTION ---
+
+        function switchPick(gameId, targetSide) {
+            const gamePicks = gameState[gameId];
+            const currentSide = gamePicks.away.includes(CURRENT_USER_ID) ? 'away' : 'home';
+
+            // If user clicked the side they are already on, do nothing
+            if (currentSide === targetSide) return;
+
+            // Remove from current side
+            gamePicks[currentSide] = gamePicks[currentSide].filter(id => id !== CURRENT_USER_ID);
+            
+            // Add to new side
+            gamePicks[targetSide].push(CURRENT_USER_ID);
+            gamePicks[targetSide].sort();
+
+            // Re-render only this card
+            renderCardToDOM(gameId);
+        }
+
+        // --- 4. RENDERING ---
+
+        function getPickerObj(id) {
+            return PICKERS.find(p => p.id === id);
+        }
+
+        function createAvatarHTML(pickerIds) {
+            return pickerIds.map(id => {
+                const p = getPickerObj(id);
+                // Add special class if it's the current user for animation
+                const extraClass = (id === CURRENT_USER_ID) ? 'just-added' : '';
+                // CHECK: Is this JD? If so, add 'current-user' class
+                const userClass = (id === CURRENT_USER_ID) ? 'current-user' : '';
+                return `<div class="Avatar ${userClass} ${extraClass}" style="background-color: ${p.color};">${p.id}</div>`;
+            }).join('');
+        }
+
+        function renderCardHTML(game) {
+            const picks = gameState[game.id];
+            
+            // Check Consensus (5 pickers total)
+            const isAwayConsensus = picks.away.length === 5;
+            const isHomeConsensus = picks.home.length === 5;
+
+            const awayClass = isAwayConsensus ? 'is-consensus' : '';
+            const homeClass = isHomeConsensus ? 'is-consensus' : '';
+
+            const awayLog = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${game.awayId}.png&h=200&w=200`;
+            /*
+          <span class="pr4 TeamLink__Logo">
+            <!-- <a class="AnchorLink" tabindex="0" href="https://www.espn.com/mens-college-basketball/team/stats/_/id/${team.id}" target="_blank" rel="noopener noreferrer"> -->
+            <img 
+              alt="${team.name}" 
+              class="Image Logo Logo__sm" 
+              title="${team.name}" 
+              data-mptype="image" 
+              src=""
+            >
+            <!-- </a> --->
+          </span>
+            */
+            const homeLog = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${game.homeId}.png&h=200&w=200`;
+
+            return `
+            <div class="Game-Slip" id="game-${game.id}">
+                <div class="Slip__Meta">
+                    <span><i class="fa-solid fa-basketball"></i> ${game.league}</span>
+                    <span>${game.time}</span>
+                </div>
+
+                <div class="Team-Section ${awayClass}" onclick="switchPick(${game.id}, 'away')">
+                    <div class="Team__Header">
+                        <img src="${awayLog}" class="Team__Logo" alt="${game.away}">
+                        <div class="Team__Text">
+                            <span class="Team__Name">${game.away}</span>
+                            <span class="Team__Record">${game.awayRec}</span>
+                        </div>
+                    </div>
+                    <div class="Picker-Row">
+                        ${createAvatarHTML(picks.away)}
+                    </div>
+                    <div class="Consensus-Badge">Consensus</div>
+                </div>
+
+                <div class="Slip__Divider"><span>VS</span></div>
+
+                <div class="Team-Section ${homeClass}" onclick="switchPick(${game.id}, 'home')">
+                    <div class="Team__Header">
+                        <img src="${homeLog}" class="Team__Logo" alt="${game.home}">
+                         <div class="Team__Text">
+                            <span class="Team__Name">${game.home}</span>
+                            <span class="Team__Record">${game.homeRec}</span>
+                        </div>
+                    </div>
+                    <div class="Picker-Row">
+                        ${createAvatarHTML(picks.home)}
+                    </div>
+                    <div class="Consensus-Badge">Consensus</div>
+                </div>
+            </div>
+            `;
+        }
+
+        function renderCardToDOM(gameId) {
+            const game = GAMES.find(g => g.id === gameId);
+            const cardHTML = renderCardHTML(game);
+            
+            // Find the existing element and replace it specifically to maintain scroll position
+            // But since we are replacing the whole HTML, animation classes trigger again.
+            // We need to find the specific container. 
+            // For simplicity in this structure, we replace the outerHTML of the Game-Slip
+            
+            const existingEl = document.getElementById(`game-${gameId}`);
+            if (existingEl) {
+                existingEl.outerHTML = cardHTML;
+            }
+        }
+
+        function renderAll() {
+            const col1 = document.getElementById('col-1');
+            const col2 = document.getElementById('col-2');
+            
+            col1.innerHTML = '';
+            col2.innerHTML = '';
+
+            GAMES.forEach((game, index) => {
+                const cardHTML = renderCardHTML(game);
+                if (index % 2 === 0) {
+                    col1.insertAdjacentHTML('beforeend', cardHTML);
+                } else {
+                    col2.insertAdjacentHTML('beforeend', cardHTML);
+                }
+            });
+        }
+
+        // Run
+        initGame();
