@@ -15,6 +15,7 @@ let CACHED_COMMENTS_DB = [];
 let AUTHED_USER = null;
 let currentCellId = null;
 let queryString;
+let showingAllPicks = false;
 
 /* HELPER METHODS */
 
@@ -1181,6 +1182,11 @@ async function removeValueFromArray(columnName, valueToRemove, rowId) {
 
         var GAMES = [];
 
+        function toggleView() {
+            showingAllPicks = document.getElementById('viewToggle').checked;
+            renderAll();
+        }
+
         function switchPick(gameId, targetSide) {
             const gamePicks = GAMES.find( game => game.id ===  gameId );
             const userId = AUTHED_USER?.username?.slice(0,2).toUpperCase(); // .sub
@@ -1214,7 +1220,9 @@ async function removeValueFromArray(columnName, valueToRemove, rowId) {
         function createAvatarHTML(pickerIds) {
             const userId = AUTHED_USER?.username?.slice(0,2).toUpperCase(); // .sub
             if (pickerIds == null) return '';
-            return pickerIds.map(id => {
+            let visibleIds = pickerIds;
+            if (!showingAllPicks) visibleIds = pickerIds.filter(id => id === userId);
+            return visibleIds.map(id => {
                 const p = getPickerObj(id);
                 
                 // Add special class if it's the current user for animation
@@ -1308,11 +1316,13 @@ async function removeValueFromArray(columnName, valueToRemove, rowId) {
             if (GAMES.length === 0) {
               const g = await db_client.from("Picks").select("*").order('time').order('id');
               GAMES = g.data;
+              GAMES.forEach((game, index) => {
+                game['home_picks'] = game['home_picks']?.map(uuid => MOCK_USERS.find(user => user.id === uuid)?.username?.slice(0,2).toUpperCase() ?? '?');
+                game['away_picks'] = game['away_picks']?.map(uuid => MOCK_USERS.find(user => user.id === uuid)?.username?.slice(0,2).toUpperCase() ?? '?');
+              });
             }
 
             GAMES.forEach((game, index) => {
-                game['home_picks'] = game['home_picks']?.map(uuid => MOCK_USERS.find(user => user.id === uuid)?.username?.slice(0,2).toUpperCase() ?? '?');
-                game['away_picks'] = game['away_picks']?.map(uuid => MOCK_USERS.find(user => user.id === uuid)?.username?.slice(0,2).toUpperCase() ?? '?');
                 const cardHTML = renderCardHTML(game);
                 if (index % 2 === 0) {
                     col1.insertAdjacentHTML('beforeend', cardHTML);
