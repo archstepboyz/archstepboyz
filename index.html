@@ -81,7 +81,7 @@
     </div>
     <div class="Menu-Options">
       <div class="Week-Selector">
-        <select class="Week-Select-Input">
+        <select class="Week-Select-Input" onchange="renderAll(true)">
           <option value="10">
             Week 10
           </option>
@@ -387,11 +387,11 @@
             </div>
             <div class="stats-container">
               <div class="Stat-Group">
-                <span class="Stat__Value">9-4</span> <span class=
+                <span class="Stat__Value">9-5</span> <span class=
                 "Stat__Label">Rec</span>
               </div>
               <div class="Stat-Group">
-                <span class="Stat__Value is-win">W4</span>
+                <span class="Stat__Value is-win">L1</span>
                 <span class="Stat__Label">Strk</span>
               </div>
             </div><button class="Row__Toggle" onclick=
@@ -423,11 +423,11 @@
             </div>
             <div class="stats-container">
               <div class="Stat-Group">
-                <span class="Stat__Value">10-4</span> <span class=
+                <span class="Stat__Value">10-5</span> <span class=
                 "Stat__Label">Rec</span>
               </div>
               <div class="Stat-Group">
-                <span class="Stat__Value is-win">W3</span>
+                <span class="Stat__Value is-win">L1</span>
                 <span class="Stat__Label">Strk</span>
               </div>
             </div><button class="Row__Toggle" onclick=
@@ -459,11 +459,11 @@
             </div>
             <div class="stats-container">
               <div class="Stat-Group">
-                <span class="Stat__Value">11-2</span> <span class=
+                <span class="Stat__Value">12-2</span> <span class=
                 "Stat__Label">Rec</span>
               </div>
               <div class="Stat-Group">
-                <span class="Stat__Value is-loss">L1</span>
+                <span class="Stat__Value is-loss">W1</span>
                 <span class="Stat__Label">Strk</span>
               </div>
             </div><button class="Row__Toggle" onclick=
@@ -495,11 +495,11 @@
             </div>
             <div class="stats-container">
               <div class="Stat-Group">
-                <span class="Stat__Value">9-5</span> <span class=
+                <span class="Stat__Value">9-6</span> <span class=
                 "Stat__Label">Rec</span>
               </div>
               <div class="Stat-Group">
-                <span class="Stat__Value is-loss">L1</span>
+                <span class="Stat__Value is-loss">L2</span>
                 <span class="Stat__Label">Strk</span>
               </div>
             </div><button class="Row__Toggle" onclick=
@@ -512,6 +512,42 @@
             "fa-solid fa-pen"></i></button> <button class=
             "Action-Btn delete" onclick=
             "deleteTeam('pbl-row4')"><i class=
+            "fa-solid fa-trash"></i></button>
+          </div>
+        </li>
+        <li class="team-row" id="pbl-row5">
+          <div class="Row__Content">
+            <span class="rank">5</span> <span class=
+            "pr5 TeamLink__Logo rm_space_test"><a class=
+            "AnchorLink" tabindex="0" href=
+            "https://www.espn.com/mens-college-basketball/team/stats/_/id/2599"
+            target="_blank" rel="noopener noreferrer"><img alt=
+            "${team.name}" class="Image Logo Logo__sm" title=
+            "${team.name}" data-mptype="image" src=
+            "https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/2599.png&amp;h=200&amp;w=200">
+            </a></span>
+            <div class="team-name">
+              Ain't John's
+            </div>
+            <div class="stats-container">
+              <div class="Stat-Group">
+                <span class="Stat__Value">9-6</span> <span class=
+                "Stat__Label">Rec</span>
+              </div>
+              <div class="Stat-Group">
+                <span class="Stat__Value is-loss">L1</span>
+                <span class="Stat__Label">Strk</span>
+              </div>
+            </div><button class="Row__Toggle" onclick=
+            "toggleDrawer('pbl-row5')"><i class=
+            "fa-solid fa-gear"></i></button>
+          </div>
+          <div class="Row__Drawer">
+            <button class="Action-Btn edit" onclick=
+            "openModal('pbl-row5')"><i class=
+            "fa-solid fa-pen"></i></button> <button class=
+            "Action-Btn delete" onclick=
+            "deleteTeam('pbl-row5')"><i class=
             "fa-solid fa-trash"></i></button>
           </div>
         </li>

@@ -23,9 +23,10 @@ const PICKERS = [
   { id: 'NO', color: '#fab1a0' }, // Peach
   { id: 'BI', color: '#fdcb6e' }, // Yellow
   { id: 'BL', color: '#ff7675' },  // Red
-  { id: 'CO', color: '#BA0C2F' },  // Red
+  { id: 'CO', color: '#d63031' },  // Red
 ];
 let showingAllPicks = false;
+const CURRENT_WEEK = 10;
 
 /* HELPER METHODS */
 
@@ -1173,8 +1174,8 @@ async function removeValueFromArray(columnName, valueToRemove, rowId) {
   }
 }
 
-async function fetchPicks() {
-  return db_client.from("Picks").select("*").order('time').order('id');
+async function fetchPicks(week) {
+  return db_client.from("Picks").select("*").eq('week',week).order('time').order('id');
 }
 
 // TODO: make this more scalable for many users
@@ -1188,7 +1189,6 @@ function toggleView() {
 }
 
 function switchPick(gameId, targetSide) {
-    return // TODO: disabled
     const gamePicks = GAMES.find( game => game.id ===  gameId );
     const userId = AUTHED_USER?.username?.slice(0,2).toUpperCase();
     const currentSide = gamePicks.away_picks?.includes(userId) ? 'away_picks' : (gamePicks.home_picks?.includes(userId) ? 'home_picks' : null);
@@ -1229,7 +1229,7 @@ function switchPick(gameId, targetSide) {
             }).join('');
         }
 
-        function renderCardHTML(game) {
+        function renderCardHTML(game, week) {
             // Check Consensus (5 pickers total)
             const isAwayConsensus = game.away_picks?.length === 5;
             const isHomeConsensus = game.home_picks?.length === 5;
@@ -1252,6 +1252,9 @@ function switchPick(gameId, targetSide) {
             const awayClass = awayClasses.join(' ');
             const homeClass = homeClasses.join(' ');
 
+            const awayClickFn = week >= CURRENT_WEEK ? `onclick="switchPick(${game.id}, 'away_picks')"` : '';
+            const homeClickFn = week >= CURRENT_WEEK ? `onclick="switchPick(${game.id}, 'home_picks')"` : '';
+
             const awayLog = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${game.away_id}.png&h=200&w=200`;
             const homeLog = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${game.home_id}.png&h=200&w=200`;
 
@@ -1269,7 +1272,7 @@ function switchPick(gameId, targetSide) {
 })}</span>
                 </div>
 
-                <div class="Team-Section ${awayClass}" onclick="switchPick(${game.id}, 'away_picks')">
+                <div class="Team-Section ${awayClass}" ${awayClickFn}>
                     <div class="Team__Header">
                         <img src="${awayLog}" class="Team__Logo" alt="${game.away}">
                         <div class="Team__Text">
@@ -1285,7 +1288,7 @@ function switchPick(gameId, targetSide) {
 
                 <div class="Slip__Divider"><span>VS</span></div>
 
-                <div class="Team-Section ${homeClass}" onclick="switchPick(${game.id}, 'home_picks')">
+                <div class="Team-Section ${homeClass}" ${homeClickFn}>
                     <div class="Team__Header">
                         <img src="${homeLog}" class="Team__Logo" alt="${game.home}">
                          <div class="Team__Text">
@@ -1312,15 +1315,16 @@ function switchPick(gameId, targetSide) {
             }
         }
 
-        async function renderAll() {
+        async function renderAll(forceRefresh = false) {
             const col1 = document.getElementById('col-1');
             const col2 = document.getElementById('col-2');
+            const week = document.querySelector('.Week-Select-Input')?.value.split(' ').at(-1) ?? '9';
             
             col1.innerHTML = '';
             col2.innerHTML = '';
 
-            if (GAMES.length === 0) {
-              const g = await fetchPicks();
+            if (GAMES.length === 0 || forceRefresh) {
+              const g = await fetchPicks(week);
               GAMES = g.data;
               GAMES.forEach((game, index) => {
                 game['home_picks'] = game['home_picks']?.map(uuid => MOCK_USERS.find(user => user.id === uuid)?.username?.slice(0,2).toUpperCase() ?? '?');
@@ -1329,10 +1333,10 @@ function switchPick(gameId, targetSide) {
             }
 
             // TODO: remove; only showing games I picked for fun
-            GAMES = GAMES.filter(game => game.away_picks?.includes('FE') || game.home_picks?.includes('FE'));
+            //GAMES = GAMES.filter(game => game.away_picks?.includes('FE') || game.home_picks?.includes('FE'));
 
             GAMES.forEach((game, index) => {
-                const cardHTML = renderCardHTML(game);
+                const cardHTML = renderCardHTML(game, week);
                 if (index % 2 === 0) {
                     col1.insertAdjacentHTML('beforeend', cardHTML);
                 } else {
