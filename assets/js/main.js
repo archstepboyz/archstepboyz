@@ -22,8 +22,12 @@ const PICKERS = [
   { id: 'GA', color: '#00cec9' }, // Teal
   { id: 'NO', color: '#fab1a0' }, // Peach
   { id: 'BI', color: '#fdcb6e' }, // Yellow
-  { id: 'BL', color: '#ff7675' },  // Red
   { id: 'CO', color: '#d63031' },  // Red
+  { id: 'CB', color: '#0984e3' },  // Blue
+  { id: 'JO', color: '#00b894' },  // Green
+  /* unused */
+  { id: '-', color: '#e17055' },  // Orange
+  { id: '--', color: '#e84393' },  // Pink
 ];
 let showingAllPicks = false;
 const CURRENT_WEEK = 10;
@@ -1317,13 +1321,10 @@ function switchPick(gameId, targetSide) {
         }
 
         async function renderAll(forceRefresh = false) {
-            const col1 = document.getElementById('col-1');
-            const col2 = document.getElementById('col-2');
+            const list = document.querySelector('.Picks-Container');
+            list.innerHTML = '';
             const week = document.querySelector('.Week-Select-Input')?.value.split(' ').at(-1) ?? '9';
             
-            col1.innerHTML = '';
-            col2.innerHTML = '';
-
             if (GAMES.length === 0 || forceRefresh) {
               const g = await fetchPicks(week);
               GAMES = g.data;
@@ -1336,12 +1337,32 @@ function switchPick(gameId, targetSide) {
             // TODO: remove; only showing games I picked for fun
             //GAMES = GAMES.filter(game => game.away_picks?.includes('FE') || game.home_picks?.includes('FE'));
 
+            let lastDate = '';
+            let days = 0;
             GAMES.forEach((game, index) => {
+              date = new Date(game.time).toLocaleString(navigator.language, { month: "short", day: "numeric", weekday: "long" });
+              if (date !== lastDate) {
+                days += 1;
+                const separatorHTML = `
+                <div class="Date-Separator">
+                    <div class="Date-Separator__Text">
+                        <i class="fa-regular fa-calendar"></i> ${date}
+                    </div>
+                </div>
+                `;
+                list.insertAdjacentHTML('beforeend', separatorHTML);
+                lastDate = date;
+                list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column" id="${days}-col-1"></div>`);
+                list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column" id="${days}-col-2"></div>`);
+              }
+                const colA = document.getElementById(`${days}-col-1`);
+                const colB = document.getElementById(`${days}-col-2`);
+
                 const cardHTML = renderCardHTML(game, week);
                 if (index % 2 === 0) {
-                    col1.insertAdjacentHTML('beforeend', cardHTML);
+                    colA.insertAdjacentHTML('beforeend', cardHTML);
                 } else {
-                    col2.insertAdjacentHTML('beforeend', cardHTML);
+                    colB.insertAdjacentHTML('beforeend', cardHTML);
                 }
             });
         }
