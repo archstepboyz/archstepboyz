@@ -20,16 +20,16 @@ let queryString;
 
 var GAMES = [];
 const PICKERS = [
-  { id: 'FE', color: '#6c5ce7' }, // Purple
-  { id: 'GA', color: '#00cec9' }, // Teal
-  { id: 'NO', color: '#fab1a0' }, // Peach
-  { id: 'BI', color: '#fdcb6e' }, // Yellow
-  { id: 'CO', color: '#d63031' },  // Red
-  { id: 'CB', color: '#0984e3' },  // Blue
-  { id: 'JO', color: '#00b894' },  // Green
+  { uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9', id: 'FE', color: '#6c5ce7' }, // Purple
+  { uuid: 'c310b6e4-1827-4df6-a65d-42e6f7523f58', id: 'GA', color: '#00cec9' }, // Teal
+  { uuid: '61e46342-e00e-4ed6-ab69-cd3b060e54cd', id: 'NO', color: '#fab1a0' }, // Peach
+  { uuid: '0372871d-2f06-444b-835b-599383550980', id: 'BI', color: '#fdcb6e' }, // Yellow
+  { uuid: 'fa3d35cd-6495-4893-a704-cad39542533f', id: 'CO', color: '#d63031' },  // Red
+  { uuid: '1bca9cd2-5e27-4942-97d7-29c2e0bc70cc', id: 'CB', color: '#0984e3' },  // Blue
+  { uuid: '72cee94c-8f10-4005-94df-c21995d44bae', id: 'JO', color: '#00b894' },  // Green
   /* unused */
-  { id: '-', color: '#e17055' },  // Orange
-  { id: '--', color: '#e84393' },  // Pink
+  { uuid: '', id: '-', color: '#e17055' },  // Orange
+  { uuid: '', id: '--', color: '#e84393' },  // Pink
 ];
 let showingAllPicks = false;
 const CURRENT_WEEK = 10;
