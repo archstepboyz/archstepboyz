@@ -860,9 +860,19 @@ function authedUserDisplay() {
     */
 
   document.getElementById("loginBtn").style.display = "none";
-  document.getElementById("userMenu").style.display = "block";
-  document.getElementById("userDisplay").innerText = AUTHED_USER.username;
   document.querySelector('.Unauthed-Picks').style.display = "flex";
+
+  const menuContainer = document.getElementById('userMenu');
+  const userDisplay = document.getElementById('userDisplay');
+  const userAvatar = document.getElementById('userAvatarInitials');
+
+  color = PICKERS.find(p => p.uuid === AUTHED_USER.sub)?.color;
+  if (color) {
+    menuContainer.style.setProperty('--user-theme', color);
+    userDisplay.textContent = AUTHED_USER.username;
+    userAvatar.textContent = AUTHED_USER.username.slice(0,2).toUpperCase();
+  }  
+  menuContainer.style.display = "block";
 
   // TODO: only if admin
   if (AUTHED_USER.username === "fearthebeak") {
@@ -1328,7 +1338,6 @@ function switchPick(gameId, targetSide) {
         async function renderAll(forceRefresh = false) {
             const list = document.getElementById('picks-new');
             const finalList = document.getElementById('picks-final');
-            console.log(finalList);
             list.innerHTML = '';
             finalList.innerHTML = '';
             const week = document.querySelector('.Week-Select-Input')?.value.split(' ').at(-1) ?? '9';

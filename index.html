@@ -52,21 +52,24 @@
       <button id="loginBtn" class="Login-Trigger" onclick=
       "openLoginModal()"><i class="fa-solid fa-user"></i>
       Login</button>
-      <div id="userMenu" class="User-Menu" style="display: none;">
-        <button class="User-Trigger" onclick=
-        "toggleUserDropdown(event)"><span id=
-        "userDisplay">User</span> <i class=
-        "fa-solid fa-caret-down"></i></button>
-        <div id="userDropdown" class="User-Dropdown">
-          <a href="#" class="Dropdown-Item" onclick=
-          "alert('Profile Settings coming soon!')"><i class=
-          "fa-solid fa-gear"></i> Settings</a>
-          <div class="Dropdown-Divider"></div><a href="#" class=
-          "Dropdown-Item is-danger" onclick=
-          "handleLogout()"><i class=
-          "fa-solid fa-right-from-bracket"></i> Sign Out</a>
-        </div>
-      </div>
+<div id="userMenu" class="User-Menu" style="display: none;">
+    <button id="userTriggerBtn" class="User-Trigger" onclick="toggleUserDropdown(event)">
+        <div class="User-Avatar-Small" id="userAvatarInitials">JD</div>
+        
+        <span id="userDisplay">JD</span> 
+        <i class="fa-solid fa-caret-down"></i>
+    </button>
+    
+    <div id="userDropdown" class="User-Dropdown">
+        <a href="#" class="Dropdown-Item" onclick="alert('Settings...')">
+            <i class="fa-solid fa-gear"></i> Settings
+        </a>
+        <div class="Dropdown-Divider"></div>
+        <a href="#" class="Dropdown-Item is-danger" onclick="handleLogout()">
+            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+        </a>
+    </div>
+</div>
     </div>
     <div class="Menu-Options">
       <div class="View-Toggle">

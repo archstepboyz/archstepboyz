@@ -392,81 +392,137 @@ opacity: 0.9;
 }
 
 .User-Menu {
-  padding: 8px 0;
+    position: relative;
+    /* Default fallback color (Dark Grey) if JS fails */
+    --user-theme: #2d3436; 
+    padding: 8px 0;
+    display: flex;
+    justify-content: center;
 }
 
 .User-Trigger {
-  background: rgba(46, 213, 115, 0.15);
-  border: 1px solid #2ed573;
-  color: #2ed573;
-  padding: 8px 16px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-family: 'Oswald', sans-serif;
-  text-transform: uppercase;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s ease;
+    background: white;
+    border: 2px solid var(--user-theme); 
+    color: var(--user-theme);
+    
+    padding: 6px 16px 6px 6px; /* Less padding left to hug avatar */
+    border-radius: 30px; /* Full pill shape */
+    cursor: pointer;
+    
+    /* Typography */
+    font-family: 'Oswald', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    
+    transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
-.User-Trigger:hover {
-  background: #2ed573;
-  color: white;
+.User-Trigger:hover, .User-Trigger:active {
+    background: var(--user-theme);
+    color: white;
+    box-shadow: 0 4px 15px var(--user-theme); 
+    transform: translateY(-1px);
+}
+
+.User-Trigger.is-active {
+    background: var(--user-theme);
+    color: white;
+}
+
+.User-Avatar-Small {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background-color: var(--user-theme);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    
+    border: 2px solid white; 
+}
+
+.User-Trigger:hover .User-Avatar-Small {
+    background-color: white;
+    color: var(--user-theme);
 }
 
 .User-Dropdown {
-  position: absolute;
-  top: 110%; /* Just below button */
-  width: 160px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  padding: 10px 0;
-  
-  /* Animation */
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-10px);
-  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-  z-index: 1500;
-}
-
-@media (max-width: 480px) {
-  .User-Dropdown {
-    /* right: -100px; NOW */
-    max-width: 92vw; 
-    white-space: normal; 
-    min-width: 200px; 
-  }
+    position: absolute;
+    top: calc(100% + 10px);
+    
+    width: 200px;
+    background: white;
+    border-radius: 16px;
+    
+    /* Decoration */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    border: 1px solid rgba(0,0,0,0.05);
+    border-top: 4px solid var(--user-theme); /* The "Pizzazz" Strip */
+    
+    padding: 8px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scale(0.95);
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 1500;
+    transform-origin: top right;
 }
 
 .User-Dropdown.active {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
 }
 
 .Dropdown-Item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 20px;
-  color: #2d3436;
-  text-decoration: none;
-  font-size: 14px;
-  transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: #2d3436;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
 }
 
-.Dropdown-Item:hover { background: #f1f2f6; }
-.Dropdown-Item.is-danger { color: #d63031; }
-.Dropdown-Item.is-danger:hover { background: rgba(214, 48, 49, 0.1); }
+.Dropdown-Item i {
+    width: 20px;
+    text-align: center;
+    color: #b2bec3;
+    transition: color 0.2s;
+}
+
+.Dropdown-Item:hover {
+    background: #f8f9fa;
+    color: var(--user-theme);
+}
+
+.Dropdown-Item:hover i {
+    color: var(--user-theme);
+}
+
+.Dropdown-Item.is-danger { color: #ff7675; }
+.Dropdown-Item.is-danger:hover { 
+    background: #fff5f5; 
+    color: #d63031;
+}
+.Dropdown-Item.is-danger:hover i { color: #d63031; }
 
 .Dropdown-Divider {
-  height: 1px;
-  background: #dfe6e9;
-  margin: 5px 0;
+    height: 1px;
+    background: #f1f2f6;
+    margin: 6px 0;
 }
 
 .Auth-Box {
