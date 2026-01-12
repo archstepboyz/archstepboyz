@@ -2214,8 +2214,7 @@ max-height: 100px;
         min-height: 70px;
         padding: 0 15px 0 0; 
         position: relative;
-        transition: all 0.2s ease;
-        min-width:400px;
+        min-width: 500px;
     }
 
     .Ballot-Row.is-empty {
@@ -2264,7 +2263,7 @@ max-height: 100px;
     .Team-Name {
         font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 500;
         color: #2d3436; text-transform: uppercase; white-space: nowrap;
-        overflow: hidden; text-overflow: ellipsis; max-width: 160px;
+        overflow: hidden; text-overflow: ellipsis; max-width: 250px;
     }
 
     /* --- CONTROLS --- */
@@ -2345,6 +2344,42 @@ max-height: 100px;
     /* Hide button when not in Draft mode */
     .Fab-Save-1.hidden { opacity: 0; pointer-events: none; transform: translateY(100px); }
 
+/* --- DRAG & DROP STYLES --- */
+
+.Drag-Handle {
+    color: #dfe6e9;
+    font-size: 16px;
+    padding: 0 15px; /* Wider touch target */
+    cursor: grab;
+    touch-action: none; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%; /* Full height grip area */
+}
+
+/* The card actually being dragged (The "Lifted" Element) */
+.sortable-fallback {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2); /* Deep shadow for height */
+    transform: scale(1.02); /* Slight scale up */
+    border: 1px solid #0984e3;
+    opacity: 1 !important; /* Ensure it's fully opaque */
+    z-index: 9999 !important;
+}
+
+/* The space left behind */
+.sortable-ghost {
+    background: #f1f2f6;
+    border: 2px dashed #b2bec3;
+    opacity: 0.4;
+    box-shadow: none;
+    transform: scale(0.98); /* Slight shrink for the hole */
+}
+
+/* Hide dragging artifacts */
+.sortable-drag { opacity: 0; }
 
 
 

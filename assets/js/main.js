@@ -40,6 +40,7 @@ const CURRENT_WEEK = 10;
         let currentView = 'DRAFT'; // 'DRAFT', 'OFFICIAL', 'MK'
         let draftBallot = new Array(25).fill(null); // The user's editing space
         let activeRowIndex = null;
+        let sortableInstance = null; // Store the sortable object
 
         // Mock Database
         const MOCK_DB = {
@@ -225,7 +226,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "flex";
-    fetchD1().then((res) => { TEAMS = res; AUTHED_USER && fetchTop25(AUTHED_USER.sub).then((res2) => { draftBallot = res2.data[0].week10 ?? draftBallot; renderBallot(); }); });
+    fetchD1().then((res) => { TEAMS = res; AUTHED_USER && fetchTop25(AUTHED_USER.sub).then((res2) => { draftBallot = res2.data[0].week10 ?? draftBallot; initSortable(); renderBallot(); }); });
   }
 
   gridBtn.addEventListener("click", switchToGrid);
@@ -1496,6 +1497,36 @@ const container = document.getElementById('ballotContainer');
         //const saveBtn = document.getElementById('saveBtn');
         const viewSelector = document.getElementById('viewSelector');
 
+// --- SORTABLE INITIALIZATION ---
+function initSortable() {
+    sortableInstance = new Sortable(container, {
+        handle: '.Drag-Handle', 
+        
+        // ANIMATION SETTINGS
+        animation: 350,          // Slower animation = smoother "push" feel
+        easing: "cubic-bezier(1, 0, 0, 1)", // Snappy slide effect
+        
+        // INTERACTION FEEL
+        forceFallback: true,     // Disables native HTML5 DnD (Required for smooth mobile)
+        fallbackClass: "sortable-fallback", // Class for the "lifted" item
+        ghostClass: "sortable-ghost",       // Class for the "hole"
+        
+        // UX POLISH
+        scroll: true,            // Auto-scroll when dragging near edge
+        scrollSensitivity: 100,  // How close to edge to trigger scroll
+        scrollSpeed: 20,         // How fast to scroll
+        delay: 0,                // Instant pick up (can set to 150 for touch protection)
+        fallbackOnBody: true,    // Appends dragged item to Body so it's never clipped
+
+        // DATA LOGIC (Unchanged)
+        onEnd: function (evt) {
+            const item = draftBallot.splice(evt.oldIndex, 1)[0];
+            draftBallot.splice(evt.newIndex, 0, item);
+            renderBallot(); 
+        }
+    });
+}
+
 function renderBallot() {
             container.innerHTML = '';
             
@@ -1507,10 +1538,12 @@ function renderBallot() {
                 dataToShow = draftBallot;
                 isReadOnly = false;
                 //saveBtn.classList.remove('hidden');
+                if(sortableInstance) sortableInstance.option("disabled", false);
             } else {
                 dataToShow = MOCK_DB[currentView];
                 isReadOnly = true;
                 //saveBtn.classList.add('hidden');
+                if(sortableInstance) sortableInstance.option("disabled", true);
             }
             updateTop25(AUTHED_USER.sub, 'week10', draftBallot);
 
@@ -1521,6 +1554,8 @@ function renderBallot() {
                 
                 let contentHTML = '';
                 let controlsHTML = '';
+
+                const handleHTML = isReadOnly ? '' : `<div class="Drag-Handle"><i class="fa-solid fa-grip-lines"></i></div>`;
 
                 if (isFilled) {
                     const team = TEAMS.find(team => team.id == teamKey);
@@ -1540,9 +1575,11 @@ function renderBallot() {
                                 <button class="Control-Btn ${upVisibility}" onclick="moveTeam(${index}, -1)">
                                     <i class="fa-solid fa-chevron-up"></i>
                                 </button>
+                                <!--
                                 <button class="Control-Btn remove" onclick="clearRow(${index})">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
+                                -->
                                 <button class="Control-Btn ${downVisibility}" onclick="moveTeam(${index}, 1)">
                                     <i class="fa-solid fa-chevron-down"></i>
                                 </button>
@@ -1560,6 +1597,7 @@ function renderBallot() {
 
                 const html = `
                     <div class="Ballot-Row ${rowClass}">
+                        ${handleHTML}
                         <div class="Row__Rank">${rank}</div>
                         <div class="Row__Content ${readonlyClass}" ${clickAction}>
                             ${contentHTML}
