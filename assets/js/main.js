@@ -1,5 +1,7 @@
 /* GLOBAL VARS */
 
+// comment
+
 const currentDate = new Date();
 
 const DB_URL = "https://qeuvposbesblckyuflbd.supabase.co";
