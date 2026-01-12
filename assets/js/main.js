@@ -1641,11 +1641,9 @@ function renderBallot(initialLoad = false, submitted = false) {
                                 <button class="Control-Btn ${upVisibility}" onclick="moveTeam(${index}, -1)">
                                     <i class="fa-solid fa-chevron-up"></i>
                                 </button>
-                                <!--
                                 <button class="Control-Btn remove" onclick="clearRow(${index})">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
-                                -->
                                 <button class="Control-Btn ${downVisibility}" onclick="moveTeam(${index}, 1)">
                                     <i class="fa-solid fa-chevron-down"></i>
                                 </button>
