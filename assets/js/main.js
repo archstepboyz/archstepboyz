@@ -39,15 +39,72 @@ const CURRENT_WEEK = 10;
         // --- STATE MANAGEMENT ---
         let currentView = 'DRAFT'; // 'DRAFT', 'OFFICIAL', 'MK'
         let draftBallot = new Array(25).fill(null); // The user's editing space
+        let isSubmitted = false;
         let activeRowIndex = null;
         let sortableInstance = null; // Store the sortable object
 
         // Mock Database
-        const MOCK_DB = {
-            'OFFICIAL': ['2','5'],
+        let MOCK_DB = {
+            'OFFICIAL': [{ key: '2', votes: '25 (1)'},{key: '5', votes: '25 (1)'}],
         };
 
+function calculateIdIndexSums(arraysWithIds) {
+    const idSumMap = new Map();
+
+    arraysWithIds.forEach(innerArray => {
+        innerArray.forEach((id, idx) => {
+            if (id != 0) {
+const curr = idSumMap.get(id) ?? [0,0]; 
+idSumMap.set(id, [curr[0] + (25 - idx), idx === 0 ? curr[1] + 1 : curr[1]]);
+            }
+        });
+    });
+
+    const resultPioneerArray = Array.from(idSumMap, ([key, votes]) => ({ key, totalVotes: votes[0], firstPlace: votes[1] }));
+
+    resultPioneerArray.sort((a, b) => b.totalVotes - a.totalVotes);
+
+    return resultPioneerArray;
+}
+
+function populateMockDB(ballots) {
+  const submittedBallots = ballots.filter(ballot => ballot.submitted);
+  const myBallot = ballots.find(ballot => ballot.id === AUTHED_USER.sub);
+
+  const all = submittedBallots.reduce((acc, curr) => {
+    const { id, week10 } = curr;
+    acc[id] = week10;
+    return acc;
+  }, {});
+
+  const arr = calculateIdIndexSums(submittedBallots.map(ballot => ballot.week10));
+
+  all['OFFICIAL'] = arr;
+  MOCK_DB = { ...all };
+  delete MOCK_DB[AUTHED_USER.sub];
+
+  isSubmitted = myBallot.submitted;
+  if (isSubmitted) {
+    currentView = 'OFFICIAL';
+    viewSelector.options[1].selected = true;
+  }
+  draftBallot = myBallot.week10;
+}
+
 /* HELPER METHODS */
+
+function idCompareSort(a, b) {
+  // Sort by length first (ascending order)
+  // If lengths are different, a.length - b.length will return a non-zero value
+  const lengthComparison = a.length - b.length;
+
+  if (lengthComparison !== 0) {
+    return lengthComparison;
+  }
+
+  // If lengths are equal, sort alphabetically using localeCompare()
+  return a.localeCompare(b);
+};
 
 async function getCityFromIP() {
   try {
@@ -96,12 +153,12 @@ async function fetchD1() {
   return apiReq(D1_ENDPOINT, "GET");
 }
 
-async function fetchTop25(user_id) {
-  return db_client.from("Top25").select('*').eq("id", user_id);
+async function fetchTop25() {
+  return db_client.from("Top25").select('*');
 }
 
-async function updateTop25(user_id, week, rankings) {
-  const data = { [week]: rankings };
+async function updateTop25(user_id, week, rankings, submitted = false) {
+  const data = { [week]: rankings, submitted };
   console.log('updated db top 25');
   return db_client.from("Top25").update(data).eq("id", user_id);
 }
@@ -226,7 +283,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "flex";
-    fetchD1().then((res) => { TEAMS = res; AUTHED_USER && fetchTop25(AUTHED_USER.sub).then((res2) => { draftBallot = res2.data[0].week10 ?? draftBallot; initSortable(); renderBallot(); }); });
+    // add submitted eq true
+    fetchD1().then((res) => { TEAMS = res; AUTHED_USER && fetchTop25().then((res2) => { populateMockDB(res2.data); initSortable(); renderBallot(true); }); });
   }
 
   gridBtn.addEventListener("click", switchToGrid);
@@ -248,6 +306,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
       break;
     case "picks":
       switchToPicks();
+      break;
+    case "top25":
+      switchToTop25();
       break;
     default:
       switchToGrid();
@@ -1527,7 +1588,7 @@ function initSortable() {
     });
 }
 
-function renderBallot() {
+function renderBallot(initialLoad = false, submitted = false) {
             container.innerHTML = '';
             
             // Determine which data to show
@@ -1536,18 +1597,23 @@ function renderBallot() {
 
             if (currentView === 'DRAFT') {
                 dataToShow = draftBallot;
-                isReadOnly = false;
+                isReadOnly = isSubmitted;
                 //saveBtn.classList.remove('hidden');
                 if(sortableInstance) sortableInstance.option("disabled", false);
             } else {
-                dataToShow = MOCK_DB[currentView];
+                dataToShow = MOCK_DB[currentView].slice(0,25);
                 isReadOnly = true;
                 //saveBtn.classList.add('hidden');
                 if(sortableInstance) sortableInstance.option("disabled", true);
             }
-            updateTop25(AUTHED_USER.sub, 'week10', draftBallot);
+            !initialLoad && updateTop25(AUTHED_USER.sub, 'week10', draftBallot, submitted);
 
-            dataToShow.forEach((teamKey, index) => {
+            updateHeaderControls(isReadOnly);
+
+            dataToShow.forEach((team, index) => {
+                const teamKey = currentView === 'OFFICIAL' ? team.key : team;
+                const teamVotes = team.totalVotes ?? '25';
+                const firstPlaceVotes = team.firstPlace ?? '25';
                 const rank = index + 1;
                 const isFilled = teamKey != 0;
                 const rowClass = isFilled ? 'is-filled' : 'is-empty';
@@ -1585,6 +1651,8 @@ function renderBallot() {
                                 </button>
                             </div>
                         `;
+                    } else if (currentView === 'OFFICIAL') {
+                        controlsHTML = `<p style="color: gray; font-family:'Oswald'; width: 70px;">${teamVotes} ${firstPlaceVotes > 0 ? '(' + firstPlaceVotes.toString() + ')' : ''}</p>`
                     }
                 } else {
                     // EMPTY STATE (Only in Draft Mode)
@@ -1607,11 +1675,16 @@ function renderBallot() {
                 `;
                 container.insertAdjacentHTML('beforeend', html);
             });
+
+            document.getElementById('othersReceivingVotes').innerText = '';
+            if (currentView === 'OFFICIAL') { 
+                document.getElementById('othersReceivingVotes').innerText = 'Others receiving votes: ' + MOCK_DB[currentView].slice(25).map(t => `${TEAMS.find(team => team.id == t.key).name} ${t.totalVotes}`).join(', ');
+            }
         }
 
         function switchView(newView) {
             currentView = newView;
-            renderBallot();
+            renderBallot(true);
         }
 
         // --- MODAL & SEARCH ---
@@ -1644,11 +1717,9 @@ function renderBallot() {
 
             const usedTeams = draftBallot.filter(t => t != 0);
 
-            console.log(usedTeams);
             for (team of TEAMS) {
                 // Determine disabled state
                 const isUsed = usedTeams.includes(team.id) && draftBallot[activeRowIndex] != team.id;
-                isUsed && console.log(team.id)
                 const disabledClass = isUsed ? 'disabled' : '';
                 const style = isUsed ? 'opacity: 0.4;' : '';
 
@@ -1713,6 +1784,82 @@ function renderBallot() {
             // 2. Transition View
             viewSelector.value = "OFFICIAL";
             switchView("OFFICIAL");
+        }
+
+        function updateHeaderControls(readOnly) {
+            const btnSubmit = document.getElementById('btnSubmit');
+            const badge = document.getElementById('badgeSubmitted');
+
+                Object.keys(MOCK_DB).sort(idCompareSort).forEach((picker, idx) => {
+                  if (idx > 1 && !viewSelector.options[idx]) {
+                  viewSelector.options.add(new Option(MOCK_USERS.find(u => u.id === picker)?.username ?? picker,picker));
+                  }
+                });
+            
+            // If we are looking at Official data, hide everything
+            if (currentView !== 'DRAFT') {
+                btnSubmit.classList.add('hidden');
+                badge.classList.add('hidden');
+                viewSelector.options[0].text = "My Ballot";
+                return;
+            }
+
+            // If Draft mode, toggle based on submission state
+            if (isSubmitted) {
+                viewSelector.disabled = false;
+                viewSelector.options[0].text = "My Ballot";
+                btnSubmit.classList.add('hidden');
+                badge.classList.remove('hidden');
+            } else {
+                viewSelector.disabled = true;
+                viewSelector.options[0].text = "My Draft Ballot";
+                btnSubmit.classList.remove('hidden');
+                badge.classList.add('hidden');
+            }
+
+
+        }
+
+        function submitBallot() {
+            // Check validation
+            const filledCount = draftBallot.filter(x => x != 0).length;
+            if (filledCount === 0) return alert("You must complete entire ballot before submitting!");
+
+            // Lock the state
+            isSubmitted = true;
+            
+            // Set Time
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('submissionTime').innerText = `Submitted ${timeString}`;
+
+            // Re-render to lock rows
+            renderBallot(false, true);
+            setTimeout( () => {fetchD1().then((res) => { TEAMS = res; AUTHED_USER && fetchTop25().then((res2) => { populateMockDB(res2.data); initSortable(); renderBallot(true); }); });}, 1000 );
+        }
+        
+        function toggleUnsubmitMenu() {
+            const menu = document.getElementById('unsubmitDropdown');
+            menu.classList.toggle('active');
+            
+            // Auto close if clicking elsewhere
+            if(menu.classList.contains('active')) {
+                setTimeout(() => {
+                    document.addEventListener('click', closeMenuOutside, {once:true});
+                }, 0);
+            }
+        }
+
+        function closeMenuOutside(e) {
+            if (!e.target.closest('.Badge-Submitted')) {
+                document.getElementById('unsubmitDropdown').classList.remove('active');
+            }
+        }
+
+        function unsubmitBallot() {
+            isSubmitted = false;
+            document.getElementById('unsubmitDropdown').classList.remove('active');
+            renderBallot(false, false); // Re-render to unlock rows
         }
 
 // AUTH LOGIC

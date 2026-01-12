@@ -2381,6 +2381,51 @@ max-height: 100px;
 /* Hide dragging artifacts */
 .sortable-drag { opacity: 0; }
 
+/* 1. Submit Button (Draft State) */
+.Submit-Btn-Container {
+  position: relative; 
+  display: flex; 
+  align-items: center;
+  justify-content: flex-end;}
+
+    .Btn-Submit {
+        background: #00b894; color: white; border: none; border-radius: 20px;
+        padding: 8px 16px; font-family: 'Oswald'; font-size: 13px; font-weight: 600;
+        text-transform: uppercase; cursor: pointer; box-shadow: 0 4px 10px rgba(0,184,148,0.3);
+        transition: transform 0.2s, background 0.2s; display: flex; align-items: center; gap: 6px;
+    }
+    .Btn-Submit:active { transform: scale(0.95); }
+    .Btn-Submit.hidden { display: none; }
+
+    /* 2. Locked Badge (Submitted State) */
+    .Badge-Submitted {
+        background: #2d3436; color: white; border-radius: 8px;
+        padding: 6px 12px; font-family: 'Oswald'; font-size: 11px; font-weight: 500;
+        cursor: pointer; display: flex; flex-direction: column; align-items: flex-end;
+        line-height: 1.2; box-shadow: 0 4px 10px rgba(45, 52, 54, 0.2);
+    }
+    .Badge-Submitted.hidden { display: none; }
+    
+    .Badge-Top { display: flex; align-items: center; gap: 6px; color: #00b894; font-weight: 700; text-transform: uppercase; }
+    .Badge-Time { color: #b2bec3; font-size: 10px; }
+
+    /* 3. Unsubmit Dropdown */
+    .Action-Dropdown {
+        position: absolute; top: 110%; right: 0; background: white;
+        border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        border: 1px solid #f1f2f6; width: 140px; overflow: hidden;
+        opacity: 0; visibility: hidden; transform: translateY(-10px);
+        transition: all 0.2s ease; z-index: 200;
+    }
+    .Action-Dropdown.active { opacity: 1; visibility: visible; transform: translateY(0); }
+    
+    .Dropdown-Btn {
+        width: 100%; border: none; background: white; padding: 12px;
+        text-align: left; font-family: 'Segoe UI'; font-size: 13px; color: #d63031;
+        cursor: pointer; display: flex; align-items: center; gap: 8px;
+    }
+    .Dropdown-Btn:hover { background: #fff5f5;
+
 
 
 
