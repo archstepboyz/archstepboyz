@@ -1641,9 +1641,11 @@ function renderBallot(initialLoad = false, submitted = false) {
                                 <button class="Control-Btn ${upVisibility}" onclick="moveTeam(${index}, -1)">
                                     <i class="fa-solid fa-chevron-up"></i>
                                 </button>
+                                <!--
                                 <button class="Control-Btn remove" onclick="clearRow(${index})">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
+                                -->
                                 <button class="Control-Btn ${downVisibility}" onclick="moveTeam(${index}, 1)">
                                     <i class="fa-solid fa-chevron-down"></i>
                                 </button>
@@ -1789,7 +1791,7 @@ function renderBallot(initialLoad = false, submitted = false) {
             const badge = document.getElementById('badgeSubmitted');
 
                 Object.keys(MOCK_DB).sort(idCompareSort).forEach((picker, idx) => {
-                  if (idx > 1 && !viewSelector.options[idx]) {
+                  if (idx > 0 && !viewSelector.options[idx+1]) {
                   viewSelector.options.add(new Option(MOCK_USERS.find(u => u.id === picker)?.username ?? picker,picker));
                   }
                 });
@@ -1821,7 +1823,7 @@ function renderBallot(initialLoad = false, submitted = false) {
         function submitBallot() {
             // Check validation
             const filledCount = draftBallot.filter(x => x != 0).length;
-            if (filledCount === 0) return alert("You must complete entire ballot before submitting!");
+            if (filledCount !== 25) return alert("You must complete entire ballot before submitting!");
 
             // Lock the state
             isSubmitted = true;
@@ -1829,7 +1831,7 @@ function renderBallot(initialLoad = false, submitted = false) {
             // Set Time
             const now = new Date();
             const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('submissionTime').innerText = `Submitted ${timeString}`;
+            //document.getElementById('submissionTime').innerText = `Submitted ${timeString}`;
 
             // Re-render to lock rows
             renderBallot(false, true);
