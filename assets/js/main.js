@@ -1608,6 +1608,14 @@ function renderBallot(initialLoad = false, submitted = false) {
                 //saveBtn.classList.add('hidden');
                 if(sortableInstance) sortableInstance.option("disabled", true);
             }
+
+            if (currentView === 'OFFICIAL') {
+              container.classList.add('mode-official');
+              container.classList.add('is-creative');
+            } else {
+              container.classList.remove('mode-official');
+              container.classList.remove('is-creative');
+            }
             !initialLoad && updateTop25(AUTHED_USER.sub, 'week10', draftBallot, submitted);
 
             updateHeaderControls(isReadOnly);
@@ -1665,23 +1673,65 @@ function renderBallot(initialLoad = false, submitted = false) {
                 const clickAction = (!isReadOnly) ? `onclick="openSelector(${index})"` : '';
                 const readonlyClass = isReadOnly ? 'readonly' : '';
 
-                const html = `
-                    <div class="Ballot-Row ${rowClass}">
-                        ${handleHTML}
-                        <div class="Row__Rank">${rank}</div>
-                        <div class="Row__Content ${readonlyClass}" ${clickAction}>
-                            ${contentHTML}
-                        </div>
-                        ${controlsHTML}
-                    </div>
-                `;
-                container.insertAdjacentHTML('beforeend', html);
+
+                if (currentView !== 'OFFICIAL') {
+                  const html = `
+                      <div class="Ballot-Row ${rowClass}">
+                          ${handleHTML}
+                          <div class="Row__Rank">${rank}</div>
+                          <div class="Row__Content ${readonlyClass}" ${clickAction}>
+                              ${contentHTML}
+                          </div>
+                          ${controlsHTML}
+                      </div>
+                  `;
+                  container.insertAdjacentHTML('beforeend', html);
+                } else {
+                // --- VIEW 2: OFFICIAL (Colored Creative Grid) ---
+                //document.body.classList.add('mode-official');
+                //listElement.classList.add('is-creative');
+                
+                if(sortableInstance) sortableInstance.option("disabled", true);
+
+                const data = MOCK_DB['OFFICIAL'];
+               
+                //${data[0].totalVotes} ${firstPlace > 0 ? ("(" + firstplace ")") : ""}
+                if (index === 0) {
+                  renderCreativeCard(data[0].key, 1, data[0].totalVotes, data[0].firstPlace, 'rank-1');
+                } else {
+                  renderCreativeCard(data[index].key, index + 1, data[index].totalVotes, data[index].firstPlace, 'rank-grid');
+                }
+              }
             });
 
-            document.getElementById('othersReceivingVotes').innerText = '';
-            if (currentView === 'OFFICIAL') { 
-                document.getElementById('othersReceivingVotes').innerText = 'Others receiving votes: ' + MOCK_DB[currentView].slice(25).map(t => `${TEAMS.find(team => team.id == t.key).name} ${t.totalVotes}`).join(', ');
-            }
+const listHTML = `
+    <div class="ORV-Container">
+        <span class="ORV-Label">Others receiving votes:</span> 
+        ${MOCK_DB[currentView].slice(25).map(t => `${TEAMS.find(team => team.id == t.key).name} ${t.totalVotes}`).join(', ')}
+    </div>
+`;
+
+container.insertAdjacentHTML('beforeend', listHTML);
+
+        }
+
+        // Helper for Creative Cards
+        function renderCreativeCard(teamKey, rank, votes, firstPlace, className) {
+            let teamName = TEAMS.find(team => team.id == teamKey).name;
+            if (teamName === 'North Carolina Tar Heels') teamName = 'UNC Tar Heels';
+            const firstPlaceHTML = firstPlace > 0 ? '<span class="Votes-First">(' + firstPlace  + ')</span>' : '';
+            container.insertAdjacentHTML('beforeend', `
+                <div class="Creative-Card ${className}">
+                    <div class="Creative-Content">
+                        <div class="Creative-Rank">${rank}</div>
+                        <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${teamKey}.png&h=200&w=200" class="Creative-Logo Team-Logo" alt="Test">
+                        <div class="Creative-Name">${teamName}</div>
+    <div class="Creative-Votes">
+        <span class="Votes-Total">${votes}</span>
+        ${firstPlaceHTML}
+    </div>
+                </div>
+            `);
         }
 
         function switchView(newView) {

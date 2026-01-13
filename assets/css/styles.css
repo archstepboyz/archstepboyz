@@ -2266,6 +2266,154 @@ max-height: 100px;
         overflow: hidden; text-overflow: ellipsis; max-width: 250px;
     }
 
+    /* --- THE "TEAM COLORS" GRID (Official View) --- */
+    .Ballot-Container.is-creative {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 2 Columns */
+        gap: 12px;
+        align-content: start;
+    }
+
+    /* SHARED CREATIVE STYLES */
+    .Creative-Card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 6px;
+        /* The Skew Effect */
+        transform: skewX(-8deg); 
+        margin: 0 6px; 
+        box-shadow: 0 4px 8px -1px rgba(0, 0, 0, 0.1);
+        background: white;
+        height: 55px; /* Consistent height for grid */
+        /* Dark Blue Bottom Accent */
+        border-bottom: 4px solid #003366; 
+    }
+    
+    .Creative-Content {
+        transform: skewX(8deg); /* Un-skew text */
+        display: flex;
+        align-items: center;
+        height: 100%;
+        width: 100%;
+        padding: 0 12px;
+    }
+
+    /* --- RANK 1: THE HERO (Full Width) --- */
+    .Creative-Card.rank-1 {
+        grid-column: span 2; /* Span across both columns */
+        height: 85px;
+        /* Gradient: Red to Blue */
+        background: linear-gradient(135deg, #CC0033 0%, #003366 100%);
+        border: none;
+        margin-bottom: 5px;
+    }
+    
+    .Creative-Card.rank-1 .Creative-Rank { 
+        font-size: 48px; 
+        color: rgba(255,255,255,0.15); /* Subtle watermark effect */
+        position: absolute; right: 10px; top: -5px; 
+        font-weight: 900; 
+    }
+    .Creative-Card.rank-1 .Creative-Name { font-size: 26px; color: white; font-weight: 700; letter-spacing: 0.5px; z-index: 2; }
+    .Creative-Card.rank-1 .Creative-Logo { width: 55px; height: 55px; margin-right: 15px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); z-index: 2; }
+
+    /* --- RANKS 2-25 (Grid Items) --- */
+    /* They inherit the base .Creative-Card styles (White bg, Blue border) */
+    
+    .Creative-Card .Creative-Rank {
+        font-family: 'Fugaz One';
+        font-size: 22px;
+        /* Cardinal Red Text for Ranks */
+        color: #CC0033; 
+        margin-right: 10px;
+        min-width: 25px;
+        text-align: center;
+    }
+
+    .Creative-Card .Creative-Logo {
+        width: 30px; 
+        height: 30px; 
+        margin-right: 8px; 
+        object-fit: contain;
+    }
+
+    .Creative-Card .Creative-Name {
+        font-family: 'Oswald';
+        font-size: 14px;
+        color: #003366; /* Dark Blue Text */
+        font-weight: 600;
+        text-transform: uppercase;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+.Creative-Votes {
+    /* Push to the far right */
+    margin-left: auto; 
+    
+    /* Typography */
+    font-family: 'Oswald', sans-serif;
+    text-align: right;
+    display: flex;
+    flex-direction: column; /* Stack them on small screens if needed, or row */
+    align-items: flex-end;
+    line-height: 1;
+}
+
+/* 1. Total Votes (Prominent) */
+.Votes-Total {
+    font-size: 14px;
+    font-weight: 600;
+    color: #475569; /* Slate 600 - Visible but distinct from Name */
+}
+
+/* 2. First Place Votes (Subtle) */
+.Votes-First {
+    font-size: 10px;
+    color: #94a3b8; /* Slate 400 - Receded */
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+/* --- SPECIAL HANDLING FOR RANK 1 (Gradient Background) --- */
+/* We need to turn the text white so it's visible on the Red/Blue gradient */
+.Creative-Card.rank-1 .Votes-Total {
+    color: #ffffff;
+    font-size: 16px; /* Slightly larger for #1 */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    padding-right: 40px;
+}
+
+.Creative-Card.rank-1 .Votes-First {
+    color: rgba(255, 255, 255, 0.7);
+    padding-right: 40px;
+}
+
+.ORV-Container {
+    /* Layout: Span across both columns in the grid */
+    grid-column: span 2;
+    margin-top: 12px;
+    padding-top: 12px;
+    
+    /* Style: Subtle Separator */
+    border-top: 2px solid #e2e8f0;
+    
+    /* Typography: The "Stat Sheet" Look */
+    font-family: Arial, sans-serif; 
+    font-size: 16px;
+    color: black; 
+}
+
+/* Make the label slightly bolder/darker */
+.ORV-Label {
+    font-family: Arial, sans-serif; 
+    font-weight: 700;
+    font-size: 16px;
+    color: #334155; /* Darker Slate */
+    text-transform: uppercase;
+    margin-right: 4px;
+}
+
     /* --- CONTROLS --- */
     .Row__Controls {
         display: flex; flex-direction: column; gap: 4px; align-items: center;
