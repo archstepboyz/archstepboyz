@@ -36,7 +36,7 @@ const PICKERS = [
   { uuid: '', id: 'BOOTS', username: 'Boots Radford', color: '#e84393', icon: 'fa-solid fa-shoe-prints' },  // Pink
 ];
 let showingAllPicks = false;
-const CURRENT_WEEK = 10;
+const CURRENT_WEEK = 11;
 
         // --- STATE MANAGEMENT ---
         let currentView = 'DRAFT'; // 'DRAFT', 'OFFICIAL', 'MK'
