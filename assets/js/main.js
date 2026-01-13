@@ -1609,12 +1609,12 @@ function renderBallot(initialLoad = false, submitted = false) {
                 if(sortableInstance) sortableInstance.option("disabled", true);
             }
 
-            if (currentView === 'OFFICIAL') {
-              container.classList.add('mode-official');
-              container.classList.add('is-creative');
-            } else {
+            if (currentView === 'DRAFT' && !isSubmitted) {
               container.classList.remove('mode-official');
               container.classList.remove('is-creative');
+            } else {
+              container.classList.add('mode-official');
+              container.classList.add('is-creative');
             }
             !initialLoad && updateTop25(AUTHED_USER.sub, 'week10', draftBallot, submitted);
 
@@ -1674,7 +1674,8 @@ function renderBallot(initialLoad = false, submitted = false) {
                 const readonlyClass = isReadOnly ? 'readonly' : '';
 
 
-                if (currentView !== 'OFFICIAL') {
+                if (currentView === 'DRAFT' && !isSubmitted) {
+                  console.log(currentView);
                   const html = `
                       <div class="Ballot-Row ${rowClass}">
                           ${handleHTML}
@@ -1687,29 +1688,30 @@ function renderBallot(initialLoad = false, submitted = false) {
                   `;
                   container.insertAdjacentHTML('beforeend', html);
                 } else {
+                  console.log('hello');
                 // --- VIEW 2: OFFICIAL (Colored Creative Grid) ---
                 //document.body.classList.add('mode-official');
                 //listElement.classList.add('is-creative');
                 
                 if(sortableInstance) sortableInstance.option("disabled", true);
 
-                const data = MOCK_DB['OFFICIAL'];
+                const data = MOCK_DB[currentView];
                
                 //${data[0].totalVotes} ${firstPlace > 0 ? ("(" + firstplace ")") : ""}
                 if (index === 0) {
-                  renderCreativeCard(data[0].key, 1, data[0].totalVotes, data[0].firstPlace, 'rank-1');
+                  renderCreativeCard(teamKey, 1, data[0].totalVotes, data[0].firstPlace, 'rank-1');
                 } else {
-                  renderCreativeCard(data[index].key, index + 1, data[index].totalVotes, data[index].firstPlace, 'rank-grid');
+                  renderCreativeCard(teamKey, index + 1, data[index].totalVotes, data[index].firstPlace, 'rank-grid');
                 }
               }
             });
 
-const listHTML = `
+const listHTML = currentView === 'OFFICIAL' ? `
     <div class="ORV-Container">
         <span class="ORV-Label">Others receiving votes:</span> 
         ${MOCK_DB[currentView].slice(25).map(t => `${TEAMS.find(team => team.id == t.key).name} ${t.totalVotes}`).join(', ')}
     </div>
-`;
+` : '';
 
 container.insertAdjacentHTML('beforeend', listHTML);
 
@@ -1719,6 +1721,7 @@ container.insertAdjacentHTML('beforeend', listHTML);
         function renderCreativeCard(teamKey, rank, votes, firstPlace, className) {
             let teamName = TEAMS.find(team => team.id == teamKey).name;
             if (teamName === 'North Carolina Tar Heels') teamName = 'UNC Tar Heels';
+            const votesHTML = votes > 0 ? '<span class="Votes-Total">' + votes + '</span>' : '';
             const firstPlaceHTML = firstPlace > 0 ? '<span class="Votes-First">(' + firstPlace  + ')</span>' : '';
             container.insertAdjacentHTML('beforeend', `
                 <div class="Creative-Card ${className}">
@@ -1727,7 +1730,7 @@ container.insertAdjacentHTML('beforeend', listHTML);
                         <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${teamKey}.png&h=200&w=200" class="Creative-Logo Team-Logo" alt="Test">
                         <div class="Creative-Name">${teamName}</div>
     <div class="Creative-Votes">
-        <span class="Votes-Total">${votes}</span>
+        ${votesHTML}
         ${firstPlaceHTML}
     </div>
                 </div>
@@ -1827,10 +1830,6 @@ container.insertAdjacentHTML('beforeend', listHTML);
                 return;
             }
 
-            // 1. Save logic (mocking DB save)
-            // We update 'DRAFT' view or create a 'MY_SAVED' view. 
-            // For demo, let's pretend we submitted to Official.
-            
             alert(`Ballot Submitted! Switching to Official Rankings.`);
 
             // 2. Transition View
