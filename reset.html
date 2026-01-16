@@ -6,6 +6,9 @@
     <title>Reset Password | ArchStepBoyz</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fugaz+One&family=Oswald:wght@400;500&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+  <script src=
+  "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         body {
@@ -152,6 +155,12 @@
     </div>
 
     <script>
+
+const DB_URL = "https://qeuvposbesblckyuflbd.supabase.co";
+const ANON_API_KEY = "sb_publishable_mZVo1bfw-ChB9iCx1V5QwA_UUKrCx8o";
+
+const db_client = supabase.createClient(DB_URL, ANON_API_KEY);
+
         function handleResetSubmit(e) {
             e.preventDefault();
             const pass = document.getElementById('reset-pass').value;
