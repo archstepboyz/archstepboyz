@@ -182,6 +182,8 @@ async function isUserSignedIn() {
 
 /* PAGE INITIALIZATION */
 
+let setActive;
+
 document.addEventListener("DOMContentLoaded", (event) => {
   const inputField = document.getElementById("commentInput");
   const sendButton = document.getElementById("sendBtn");
@@ -215,7 +217,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     table.style.display = "flex";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
-    const picksToggle = document.querySelector(".Toggle-Container");
+    const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
@@ -237,7 +239,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     save.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
-    const picksToggle = document.querySelector(".Toggle-Container");
+    const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
@@ -259,7 +261,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     //save.style.display = "flex";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "flex";
-    const picksToggle = document.querySelector(".Toggle-Container");
+    const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "flex";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
@@ -281,7 +283,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     save.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
-    const picksToggle = document.querySelector(".Toggle-Container");
+    const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "flex";
@@ -293,6 +295,32 @@ document.addEventListener("DOMContentLoaded", (event) => {
   listBtn.addEventListener("click", switchToList);
   picksBtn.addEventListener("click", switchToPicks);
   top25Btn.addEventListener("click", switchToTop25);
+
+  setActive = (button) => {
+    const buttons = document.querySelectorAll('.Grid-Btn');
+    buttons.forEach(btn => btn.classList.remove('active')); 
+    button.classList.add('active');
+  
+    const viewId = button.id; 
+    switch (viewId) {
+      case "gridViewBtn":
+        switchToGrid();
+        break;
+      case "listViewBtn":
+        switchToList();
+        break;
+      case "picksViewBtn":
+        switchToPicks();
+        break;
+      case "top25ViewBtn":
+        switchToTop25();
+        break;
+      case "statsViewBtn":
+        break;
+      default:
+        switchToGrid();
+    }
+  };
 
   queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -315,6 +343,79 @@ document.addEventListener("DOMContentLoaded", (event) => {
     default:
       switchToGrid();
   }
+
+  const allCheckbox = document.querySelector('.filter-all');
+  const otherCheckboxes = document.querySelectorAll('.filter-other');
+  const confCheckboxes = document.querySelectorAll('.filter-conf');
+
+  // Helper: Enable or Disable Conference Options
+  function setConferenceState(shouldDisable) {
+    confCheckboxes.forEach(input => {
+      input.disabled = shouldDisable; // Disable the actual checkbox
+      // Find the parent label to style it grey
+      const label = input.closest('.Filter-Item');
+      if (shouldDisable) {
+        label.classList.add('disabled');
+      } else {
+        label.classList.remove('disabled');
+      }
+    });
+  }
+
+  // Helper: Check logic to see if we should reset to "All"
+  const areAllConfsChecked = () => Array.from(confCheckboxes).every(box => box.checked);
+  const areNoOthersChecked = () => Array.from(otherCheckboxes).every(box => !box.checked);
+
+  // --- MAIN LOGIC ---
+  function handleFilterChange(e) {
+    const target = e.target;
+    
+    // 1. "ALL" CLICKED
+    if (target.classList.contains('filter-all')) {
+      if (target.checked) {
+        // Reset everything
+        confCheckboxes.forEach(box => box.checked = true);
+        otherCheckboxes.forEach(box => box.checked = false);
+        setConferenceState(false); // Enable conferences
+      }
+    }
+
+    // 2. "OTHER" (SOJR / Close Lines) CLICKED
+    else if (target.classList.contains('filter-other')) {
+      if (target.checked) {
+        // If specific view selected, uncheck "All" and DISABLE conferences
+        allCheckbox.checked = false;
+        setConferenceState(true);
+      } else {
+        // If unchecking an "Other", we must check if ANY others are still active
+        const isAnyOtherActive = Array.from(otherCheckboxes).some(box => box.checked);
+        
+        if (!isAnyOtherActive) {
+          // If no others are active, RE-ENABLE conferences
+          setConferenceState(false);
+          
+          // Check if we effectively returned to "All" state
+          if (areAllConfsChecked()) {
+            allCheckbox.checked = true;
+          }
+        }
+      }
+    }
+
+    // 3. "CONFERENCE" CLICKED
+    else if (target.classList.contains('filter-conf')) {
+      if (!target.checked) {
+        allCheckbox.checked = false;
+      } else {
+        if (areAllConfsChecked() && areNoOthersChecked()) {
+          allCheckbox.checked = true;
+        }
+      }
+    }
+  }
+
+  const menu = document.getElementById('filterMenu');
+  menu.addEventListener('change', handleFilterChange);
 
   /* POPULATE TABLE */
   fetchTeams().then((res) => {
@@ -363,6 +464,24 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   isUserSignedIn();
 });
+
+function toggleFilters() {
+  const menu = document.getElementById('filterMenu');
+  menu.classList.toggle('show');
+}
+
+// Close the dropdown if the user clicks outside of it
+window.onclick = function(event) {
+  if (!event.target.closest('.Filter-Dropdown-Container')) {
+    const dropdowns = document.getElementsByClassName("Filter-Menu");
+    for (let i = 0; i < dropdowns.length; i++) {
+      const openDropdown = dropdowns[i];
+      if (openDropdown.classList.contains('show')) {
+        openDropdown.classList.remove('show');
+      }
+    }
+  }
+}
 
 /* TABLE GRID FORMAT HELPER */
 const appendTeamCells = (data) => {

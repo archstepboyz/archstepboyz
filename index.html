@@ -6,36 +6,35 @@
   <meta charset="UTF-8">
   <meta name="viewport" content=
   "width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.5, maximum-scale=3.0">
-  <meta property="og:image" content=
-  "https://pbs.twimg.com/profile_images/1887582914608607232/zdmOHy16_400x400.jpg">
+  <title>ArchStepBoyz Index</title>
   <link rel="icon" href=
   "https://www.svgrepo.com/show/395860/basketball.svg" type=
   "image/svg+xml">
-  <title>ArchStepBoyz Index</title>
-  <link rel="apple-touch-icon" href="https://pbs.twimg.com/profile_images/1887582914608607232/zdmOHy16_400x400.jpg">
-
+  <link rel="apple-touch-icon" href=
+  "https://pbs.twimg.com/profile_images/1887582914608607232/zdmOHy16_400x400.jpg">
+  <meta property="og:image" content=
+  "https://pbs.twimg.com/profile_images/1887582914608607232/zdmOHy16_400x400.jpg">
   <meta property="og:type" content="website">
   <meta property="og:title" content="ArchStepBoyz Index">
-  <meta property="og:description" content="ArchStepBoyz College Basketball Index">
-  <meta property="og:image" content="https://pbs.twimg.com/profile_images/1887582914608607232/zdmOHy16_400x400.jpg">
-  <meta property="og:url" content="https://archstepboyz.github.io/archstepboyz?view=picks">
-
+  <meta property="og:description" content=
+  "ArchStepBoyz College Basketball Index">
+  <meta property="og:url" content=
+  "https://archstepboyz.github.io/archstepboyz?view=picks">
   <meta name="twitter:card" content="summary_large_image">
-
   <link rel="stylesheet" href="assets/css/styles.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com"
   crossorigin="">
   <link href=
-  "https://fonts.googleapis.com/css2?family=Fugaz+One&amp;family=Oswald:wght@400;500;600;700&amp;family=Merriweather:wght@300&amp;family=Segoe+UI&amp;display=swap"
+  "https://fonts.googleapis.com/css2?family=Fugaz+One&amp;family=Merriweather:wght@300&amp;family=Oswald:wght@400;500;600;700&amp;display=swap"
   rel="stylesheet">
   <link rel="stylesheet" href=
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
   <script src=
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/main.js" defer></script>
+  <script src=
+  "https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
 <body>
   <div class="Header__Wrapper">
@@ -53,55 +52,56 @@
       <button id="loginBtn" class="Login-Trigger" onclick=
       "openLoginModal()"><i class="fa-solid fa-user"></i>
       Login</button>
-<div id="userMenu" class="User-Menu" style="display: none;">
-    <button id="userTriggerBtn" class="User-Trigger" onclick="toggleUserDropdown(event)">
-        <div class="User-Avatar-Small" id="userAvatarInitials">JD</div>
-        
-        <span id="userDisplay">JD</span> 
-        <i class="fa-solid fa-caret-down"></i>
-    </button>
-    
-    <div id="userDropdown" class="User-Dropdown">
-        <a href="#" class="Dropdown-Item" onclick="alert('Settings...')">
-            <i class="fa-solid fa-gear"></i> Settings
-        </a>
-        <div class="Dropdown-Divider"></div>
-        <a href="#" class="Dropdown-Item is-danger" onclick="handleLogout()">
-            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
-        </a>
+      <div id="userMenu" class="User-Menu" style="display: none;">
+        <button id="userTriggerBtn" class="User-Trigger" onclick=
+        "toggleUserDropdown(event)"><span class="User-Avatar-Small"
+        id="userAvatarInitials">?</span> <span id=
+        "userDisplay">?</span> <i class=
+        "fa-solid fa-caret-down"></i></button>
+        <div id="userDropdown" class="User-Dropdown">
+          <a href="#" class="Dropdown-Item" onclick=
+          "alert('Settings...')"><i class="fa-solid fa-gear"></i>
+          Settings</a>
+          <div class="Dropdown-Divider"></div><a href="#" class=
+          "Dropdown-Item is-danger" onclick=
+          "handleLogout()"><i class=
+          "fa-solid fa-right-from-bracket"></i> Sign Out</a>
+        </div>
+      </div>
     </div>
-</div>
-    </div>
-    <div class="Menu-Options">
-      <div class="View-Toggle">
-        <button class="Toggle-Btn active" id=
-        "gridViewBtn"><svg xmlns="http://www.w3.org/2000/svg"
+    <div class="Header-Menu">
+      <div class="Grid-Control">
+        <button class="Grid-Btn active" id="gridViewBtn" onclick=
+        "setActive(this)"><svg xmlns="http://www.w3.org/2000/svg"
         viewbox="0 0 24 24">
         <path d=
         "M10 10h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zM10 4h4v4h-4zm6 0h4v4h-4zM4 4h4v4H4zm6 12h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4z"></path>
-        </svg> Rank</button>
-        <button class="Toggle-Btn" id=
-        "listViewBtn"><svg xmlns="http://www.w3.org/2000/svg"
-        viewbox="0 0 24 24">
+        </svg> Rank</button> <button class="Grid-Btn" id=
+        "picksViewBtn" onclick="setActive(this)"><svg xmlns=
+        "http://www.w3.org/2000/svg" viewbox="0 0 24 24">
+        <path d=
+        "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"></path>
+        </svg> Picks</button> <button class="Grid-Btn" id=
+        "listViewBtn" onclick="setActive(this)"><svg xmlns=
+        "http://www.w3.org/2000/svg" viewbox="0 0 24 24">
         <path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"></path>
-        </svg> PBL</button>
-      </div>
-      <div class="View-Toggle">
-        <button class="Toggle-Btn" id="picksViewBtn">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-          </svg>
-          Picks
-        </button>
-        <button class="Toggle-Btn" id="top25ViewBtn">
-          <i class="fas fa-trophy"></i>
-            Top 25
-        </button>
+        </svg> PBL</button> <button class="Grid-Btn" id=
+        "top25ViewBtn" onclick="setActive(this)"><svg xmlns=
+        "http://www.w3.org/2000/svg" viewbox="0 0 24 24">
+        <path d=
+        "M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM7 8V7h2v3.52C8.17 10.07 7.54 9.11 7 8zm10 0c-.54 1.11-1.17 2.07-2 2.52V7h2v1z"></path>
+        </svg> Top 25</button> <button class="Grid-Btn" id=
+        "statsViewBtn" onclick="setActive(this)"><svg xmlns=
+        "http://www.w3.org/2000/svg" viewbox="0 0 24 24">
+        <path d=
+        "M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"></path>
+        </svg> Stats</button>
       </div>
     </div>
     <div class="Menu-Options">
       <div class="Week-Selector">
-        <select class="Week-Select-Input" onchange="renderAll(true)">
+        <select class="Week-Select-Input" onchange=
+        "renderAll(true)">
           <option value="11" selected>
             Week 11
           </option>
@@ -142,14 +142,47 @@
           <path d="M7 10l5 5 5-5z"></path></svg>
         </div>
       </div>
-
-  <div class="Toggle-Container">
-                <label class="switch">
-                    <input type="checkbox" id="viewToggle" onchange="toggleView()">
-                    <span class="slider"></span>
-                </label>
-                <span>Show All</span>
-            </div>
+    </div>
+    <div class="Menu-Options" id="picksMenu">
+      <div class="Filter-Dropdown-Container">
+        <button class="Filter-Trigger-Btn" onclick=
+        "toggleFilters()"><svg xmlns="http://www.w3.org/2000/svg"
+        viewbox="0 0 24 24" width="18" height="18">
+        <path d=
+        "M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"></path>
+        </svg> Filters</button>
+        <div class="Filter-Menu" id="filterMenu">
+          <label class="Filter-Item"><input type="checkbox" class=
+          "filter-all" checked> <span class=
+          "Check-Box-Visual"></span> <span class=
+          "Label-Text">All</span></label> <label class=
+          "Filter-Item"><input type="checkbox" class=
+          "filter-other"> <span class="Check-Box-Visual"></span>
+          <span class="Label-Text">SOJR</span> <svg class=
+          "Icon-Crown" xmlns="http://www.w3.org/2000/svg" viewbox=
+          "0 0 24 24">
+          <path d=
+          "M12 8.2l-2.4 2.1-3.2-1.5L8 16h8l1.6-7.2-3.2 1.5z"></path>
+          </svg></label> <label class="Filter-Item"><input type=
+          "checkbox" class="filter-other"> <span class=
+          "Check-Box-Visual"></span> <span class="Label-Text">Close
+          Lines</span></label>
+          <div class="Filter-Subheader">
+            Conference
+          </div><label class="Filter-Item"><input type="checkbox"
+          class="filter-conf" checked> <span class=
+          "Check-Box-Visual"></span> <span class="Label-Text">Power
+          5</span></label> <label class="Filter-Item"><input type=
+          "checkbox" class="filter-conf" checked> <span class=
+          "Check-Box-Visual"></span> <span class=
+          "Label-Text">Mid-Major</span></label>
+        </div>
+      </div>
+      <div class="Toggle-Container">
+        <label class="switch"><input type="checkbox" id=
+        "viewToggle" onchange="toggleView()"> <span class=
+        "slider"></span></label> <span>Show All Users</span>
+      </div>
     </div>
   </div>
   <div class="table-container">
@@ -225,7 +258,6 @@
         </tr>
       </thead>
       <tbody class="Table__TBODY">
-        <!-- 1  -->
         <tr class="Table__TR Table__TR--sm Table__even rank-1"
         data-idx="1" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -233,7 +265,7 @@
               1
             </div>
           </td>
-        </tr><!-- 2  -->
+        </tr>
         <tr class="Table__TR Table__TR--sm Table__even rank-2"
         data-idx="2" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -241,7 +273,7 @@
               2
             </div>
           </td>
-        </tr><!-- 3  -->
+        </tr>
         <tr class="Table__TR Table__TR--sm Table__even rank-3"
         data-idx="3" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -249,7 +281,7 @@
               3
             </div>
           </td>
-        </tr><!-- 4  -->
+        </tr>
         <tr class="Table__TR Table__TR--sm Table__even" data-idx=
         "4" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -257,7 +289,7 @@
               4
             </div>
           </td>
-        </tr><!-- 5  -->
+        </tr>
         <tr class="filled Table__TR Table__TR--sm Table__even"
         data-idx="5" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -265,7 +297,7 @@
               5
             </div>
           </td>
-        </tr><!-- 6  -->
+        </tr>
         <tr class="Table__TR Table__TR--sm Table__even" data-idx=
         "6" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -273,7 +305,7 @@
               6
             </div>
           </td>
-        </tr><!-- 7  -->
+        </tr>
         <tr class="filled Table__TR Table__TR--sm Table__even"
         data-idx="7" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -281,7 +313,7 @@
               7
             </div>
           </td>
-        </tr><!-- 8  -->
+        </tr>
         <tr class="filled Table__TR Table__TR--sm Table__even"
         data-idx="8" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -289,7 +321,7 @@
               8
             </div>
           </td>
-        </tr><!-- 9  -->
+        </tr>
         <tr class="filled Table__TR Table__TR--sm Table__even"
         data-idx="9" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -297,7 +329,7 @@
               9
             </div>
           </td>
-        </tr><!-- 10  -->
+        </tr>
         <tr class="Table__TR Table__TR--sm Table__even" data-idx=
         "10" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -305,7 +337,7 @@
               10
             </div>
           </td>
-        </tr><!-- 11  -->
+        </tr>
         <tr class="Table__TR Table__TR--sm Table__even" data-idx=
         "11" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -313,7 +345,7 @@
               11
             </div>
           </td>
-        </tr><!-- 12  -->
+        </tr>
         <tr class="Table__TR Table__TR--sm Table__even" data-idx=
         "12" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -321,7 +353,7 @@
               12
             </div>
           </td>
-        </tr><!-- 13  -->
+        </tr>
         <tr class="filled Table__TR Table__TR--sm Table__even"
         data-idx="13" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -329,7 +361,7 @@
               13
             </div>
           </td>
-        </tr><!-- 14  -->
+        </tr>
         <tr class=
         "is-favorite filled Table__TR Table__TR--sm Table__even"
         data-idx="14" style="height: auto;">
@@ -338,7 +370,7 @@
               14
             </div>
           </td>
-        </tr><!-- 15  -->
+        </tr>
         <tr class="Table__TR Table__TR--sm Table__even" data-idx=
         "15" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -346,7 +378,7 @@
               15
             </div>
           </td>
-        </tr><!-- 16  -->
+        </tr>
         <tr class="filled Table__TR Table__TR--sm Table__even"
         data-idx="16" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -354,7 +386,7 @@
               16
             </div>
           </td>
-        </tr><!-- 17  -->
+        </tr>
         <tr class="Table__TR Table__TR--sm Table__even" data-idx=
         "17" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -362,7 +394,7 @@
               17
             </div>
           </td>
-        </tr><!-- 18  -->
+        </tr>
         <tr class="filled Table__TR Table__TR--sm Table__even"
         data-idx="18" style="height: auto;">
           <td class="Table__TD rank-cell">
@@ -729,89 +761,89 @@
       </div>
     </div>
   </div>
-  
   <div class="Unauthed-Picks" style="display:none;">
-  <div class="Picks-Container">
-
-  <div class="Legend-Wrapper">
-        <button class="Legend-Toggle-Btn" onclick="toggleLegend()">
-            User Legend<i class="fa-solid fa-chevron-down"></i>
-        </button>
-        <div class="Legend-Drawer" id="rosterList">
-            </div>
-    </div>
-  <div class="Picks-List" id="picks-new">
-
-  <div id="gatekeeper" class="Gatekeeper">
-        <div class="Gatekeeper__Content">
+    <div class="Picks-Container">
+      <div class="Legend-Wrapper">
+        <button class="Legend-Toggle-Btn" onclick=
+        "toggleLegend()">User Legend<i class=
+        "fa-solid fa-chevron-down"></i></button>
+        <div class="Legend-Drawer" id="rosterList"></div>
+      </div>
+      <div class="Picks-List" id="picks-new">
+        <div id="gatekeeper" class="Gatekeeper">
+          <div class="Gatekeeper__Content">
             <div class="Lock-Wrapper locked" id="lockIcon">
-                <i class="fa-solid fa-lock" id="iconSymbol"></i>
+              <i class="fa-solid fa-lock" id="iconSymbol"></i>
             </div>
             <h2 class="GK__Title">Members Only</h2>
-            <p class="GK__Desc">This content is reserved for squad members.</p>
-            <button class="GK__Button" onclick="simulateLogin()">Unlock Access</button>
+            <p class="GK__Desc">This content is reserved for squad
+            members.</p><button class="GK__Button" onclick=
+            "simulateLogin()">Unlock Access</button>
+          </div>
         </div>
-    </div>
-  </div>
-  <div class="Picks-List" id="picks-final">
-  </div>
-  </div>
-  <button class="Fab-Save" onclick="alert('Picks Saved!')">
-        <i class="fa-solid fa-floppy-disk"></i> Save Picks
-    </button>
-
-  <div class="Top25-Container" id=top25Container">
-    <h2 style=
-    "font-family: 'Fugaz One'; color: #2d3436; margin:0; line-height:1;">Top 25 Rankings</h2>
-        
-        <div class="View-Selector-Wrapper">
-            <select id="viewSelector" class="View-Selector" onchange="switchView(this.value)">
-                <option value="DRAFT" selected>My Draft Ballot</option>
-                <option value="OFFICIAL">Consensus Rankings</option>
-            </select>
-            <i class="fa-solid fa-chevron-down View-Selector-Icon"></i>
-        </div>
-
-     <div class="Submit-Btn-Container">
-     <button id="btnSubmit" class="Btn-Submit" onclick="submitBallot()">
-                Submit <i class="fa-solid fa-paper-plane"></i>
-            </button>
-
-            <div id="badgeSubmitted" class="Badge-Submitted hidden" onclick="toggleUnsubmitMenu()">
-                <div class="Badge-Top"><i class="fa-solid fa-lock"></i> Locked</div>
-                <div class="Badge-Time" id="submissionTime">Submitted</div>
-            </div>
-
-            <div id="unsubmitDropdown" class="Action-Dropdown">
-                <button class="Dropdown-Btn" onclick="unsubmitBallot()">
-                    <i class="fa-solid fa-unlock"></i> Unsubmit & Edit
-                </button>
-            </div>
       </div>
-  <div class="Ballot-Container" id="ballotContainer">
-  </div>
-  <p id="othersReceivingVotes" style="color: black;"></p>
-  </div>
-
-    <!--
+      <div class="Picks-List" id="picks-final"></div>
+    </div>
+  </div><button class="Fab-Save" onclick=
+  "alert('Picks Saved!')"><i class="fa-solid fa-floppy-disk"></i>
+  Save Picks</button>
+  <div class="Top25-Container" id="top25Container">
+    <h2 style=
+    "font-family: 'Fugaz One'; color: #2d3436; margin:0; line-height:1;">
+    Top 25 Rankings</h2>
+    <div class="View-Selector-Wrapper">
+      <select id="viewSelector" class="View-Selector" onchange=
+      "switchView(this.value)">
+        <option value="DRAFT" selected>
+          My Draft Ballot
+        </option>
+        <option value="OFFICIAL">
+          Consensus Rankings
+        </option>
+      </select> <i class=
+      "fa-solid fa-chevron-down View-Selector-Icon"></i>
+    </div>
+    <div class="Submit-Btn-Container">
+      <button id="btnSubmit" class="Btn-Submit" onclick=
+      "submitBallot()">Submit <i class=
+      "fa-solid fa-paper-plane"></i></button>
+      <div id="badgeSubmitted" class="Badge-Submitted hidden"
+      onclick="toggleUnsubmitMenu()">
+        <div class="Badge-Top">
+          <i class="fa-solid fa-lock"></i> Locked
+        </div>
+        <div class="Badge-Time" id="submissionTime">
+          Submitted
+        </div>
+      </div>
+      <div id="unsubmitDropdown" class="Action-Dropdown">
+        <button class="Dropdown-Btn" onclick=
+        "unsubmitBallot()"><i class="fa-solid fa-unlock"></i>
+        Unsubmit & Edit</button>
+      </div>
+    </div>
+    <div class="Ballot-Container" id="ballotContainer"></div>
+    <p id="othersReceivingVotes" style="color: black;"></p>
+  </div><!--
     <button id="saveBtn" class="Fab-Save-1" onclick="saveBallot()">
         <i class="fa-solid fa-check"></i> Submit Ballot
     </button>
     -->
-
-    <div class="Modal-Overlay" id="teamModal" onclick="closeModal(event)">
-        <div class="Modal-Card">
-            <button class="Modal-Close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
-            <div class="Modal-Header">Select Team</div>
-            
-            <div class="Search-Container">
-                <i class="fa-solid fa-magnifying-glass Search-Icon"></i>
-                <input type="text" id="teamSearch" class="Search-Input" placeholder="Search teams..." onkeyup="filterTeams()">
-            </div>
-
-            <div class="Team-Grid" id="teamGrid">
-                </div>
-        </div>
+  <div class="Modal-Overlay" id="teamModal" onclick=
+  "closeModal(event)">
+    <div class="Modal-Card">
+      <button class="Modal-Close" onclick="closeModal()"><i class=
+      "fa-solid fa-xmark"></i></button>
+      <div class="Modal-Header">
+        Select Team
+      </div>
+      <div class="Search-Container">
+        <i class="fa-solid fa-magnifying-glass Search-Icon"></i>
+        <input type="text" id="teamSearch" class="Search-Input"
+        placeholder="Search teams..." onkeyup="filterTeams()">
+      </div>
+      <div class="Team-Grid" id="teamGrid"></div>
     </div>
+  </div>
 </body>
 </html>
