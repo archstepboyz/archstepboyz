@@ -195,22 +195,43 @@ color: #e17055;
 }
 
 .Modal-Box {
-  /* ... your existing box styling ... */
-  background: white;
+  /* Common Transition for smooth resizing */
+  transition: 
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+    opacity 0.3s ease, 
+    max-width 0.4s ease,  /* Animate width changes */
+    padding 0.4s ease;
+  
   width: 90%;
-  max-width: 400px;
-  border-radius: 20px;
-  padding: 30px;
-  position: relative;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-  color: #333;
-  
-  /* Default State (Closed) */
-  transform: scale(0.95); /* Start slightly smaller, not 0.9 (too much movement) */
-  opacity: 0;             /* Fade out the box content too */
-  
-  /* EXIT TRANSITION: Fast, simple ease-in (No Bounce) */
-  transition: transform 0.2s ease-in, opacity 0.2s ease-in;
+  margin: 0 auto;
+  overflow: hidden; /* Ensures content doesn't spill during resize */
+}
+
+/* 1. Login & Forgot Password Mode (Smaller) */
+.Modal-Box.mode-login,
+.Modal-Box.mode-forgot {
+  max-height: fit-content;
+}
+
+/* 2. Signup Mode (Larger) */
+.Modal-Box.mode-signup {
+  max-height: fit-content;
+}
+
+/* --- FORGOT PASSWORD SPECIFIC --- */
+.Auth-Toggle a {
+  cursor: pointer;
+  color: #636e72;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+.Auth-Toggle a:hover {
+  color: #e17055;
+}
+
+/* Ensure FontAwesome icons have spacing */
+.Auth-Toggle i {
+  margin-right: 5px;
 }
 
 .Modal-Overlay.open .Modal-Box {

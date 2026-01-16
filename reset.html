@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password | ArchStepBoyz</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fugaz+One&family=Oswald:wght@400;500&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .Reset-Card {
+            background: white;
+            width: 90%;
+            max-width: 400px; /* Small, focused size */
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            text-align: center;
+            position: relative;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .Brand-Logo {
+            font-family: 'Fugaz One', cursive;
+            font-size: 24px;
+            color: #2d3436;
+            margin-bottom: 30px;
+            display: block;
+            text-decoration: none;
+        }
+
+        .Reset-Header h2 {
+            margin: 0 0 10px 0;
+            color: #e17055;
+            font-family: 'Fugaz One', cursive;
+        }
+
+        .Reset-Header p {
+            margin: 0 0 30px 0;
+            color: #636e72;
+            font-size: 14px;
+        }
+
+        /* Reusing your Input styles */
+        .Input-Wrapper {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .Input-Wrapper label {
+            display: block;
+            font-size: 12px;
+            font-weight: bold;
+            color: #636e72;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .Input-Wrapper input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #dfe6e9;
+            border-radius: 8px;
+            font-size: 16px;
+            background: #f1f2f6;
+            box-sizing: border-box;
+            transition: border 0.3s;
+        }
+        .Input-Wrapper input:focus {
+            outline: none;
+            border-color: #e17055;
+            background: #fff;
+        }
+
+        .Submit-Btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(229, 46, 113, 0.3);
+            transition: transform 0.2s;
+        }
+        .Submit-Btn:active {
+            transform: scale(0.98);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Success Message styling */
+        .Success-View {
+            display: none; /* Hidden by default */
+        }
+        .Success-Icon {
+            font-size: 50px;
+            color: #2ed573;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="Reset-Card">
+        <a href="#" class="Brand-Logo">ARCHSTEPBOYZ</a>
+
+        <div id="reset-form-view">
+            <div class="Reset-Header">
+                <h2>Set New Password</h2>
+                <p>Please enter your new credentials below.</p>
+            </div>
+
+            <form onsubmit="handleResetSubmit(event)">
+                <div class="Input-Wrapper">
+                    <label>New Password</label>
+                    <input type="password" id="reset-pass" placeholder="••••••••" required>
+                </div>
+
+                <div class="Input-Wrapper">
+                    <label>Confirm Password</label>
+                    <input type="password" id="reset-confirm" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" class="Submit-Btn">Update Password</button>
+            </form>
+        </div>
+
+        <div id="reset-success-view" class="Success-View">
+            <div class="Success-Icon"><i class="fa-solid fa-check-circle"></i></div>
+            <div class="Reset-Header">
+                <h2>All Set!</h2>
+                <p>Your password has been successfully updated.</p>
+            </div>
+            <button class="Submit-Btn" onclick="window.location.href='index.html'">Go to Login</button>
+        </div>
+    </div>
+
+    <script>
+        function handleResetSubmit(e) {
+            e.preventDefault();
+            const pass = document.getElementById('reset-pass').value;
+            const confirm = document.getElementById('reset-confirm').value;
+
+            if(pass !== confirm) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            if(pass.length < 8) {
+                alert("Password must be at least 8 characters.");
+                return;
+            }
+            const { data, error } = await supabase.auth.updateUser({
+              password: pass
+            });
+            // Simulate API call
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Updating...';
+            
+            setTimeout(() => {
+                document.getElementById('reset-form-view').style.display = 'none';
+                document.getElementById('reset-success-view').style.display = 'block';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

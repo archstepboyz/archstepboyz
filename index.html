@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 <head>
-  <meta name="generator" content=
-  "HTML Tidy for HTML5 for Apple macOS version 5.8.0">
   <meta charset="UTF-8">
   <meta name="viewport" content=
   "width=device-width, initial-scale=1.0, user-scalable=yes, minimum-scale=0.5, maximum-scale=3.0">
@@ -668,99 +666,100 @@
       </div>
     </div>
   </div>
-  <div id="loginOverlay" class="Modal-Overlay" onclick=
-  "closeLoginModal(event)">
-    <div class="Modal-Box Auth-Box">
-      <button class="Modal-Close" onclick=
-      "closeLoginModal()"><i class=
-      "fa-solid fa-xmark"></i></button>
-      <div class="Auth-Slider" id="authSlider">
-        <div class="Auth-View" id="view-login">
-          <div class="Modal-Header">
-            <h2>Welcome Back</h2>
-            <p>Enter your credentials to access the full
-            experience.</p>
-          </div>
-          <form class="Login-Form" onsubmit="handleLogin(event)">
-            <div class="Input-Wrapper">
-              <label>Email</label> <input type="text" id="username"
-              placeholder="Email" required="">
-            </div>
-            <div class="Input-Wrapper">
-              <label>Password</label> <input type="password" id=
-              "password" placeholder="Password" required="">
-            </div><button type="submit" class="Submit-Btn">Sign
-            In</button>
-          </form>
-          <div class="Auth-Toggle">
-            <a onclick="forgotPassword()">Forgot password</a>
-          </div>
-          <div class="Auth-Toggle">
-            Don't have an account? <a onclick=
-            "toggleAuthMode('signup')">Sign Up</a>
-          </div>
+
+  <div id="loginOverlay" class="Modal-Overlay" onclick="closeLoginModal(event)">
+  <div class="Modal-Box Auth-Box mode-login" id="mainModalBox">
+    <button class="Modal-Close" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
+    
+    <div class="Auth-Slider" id="authSlider">
+      
+      <div class="Auth-View" id="view-login">
+        <div class="Modal-Header">
+          <h2>Welcome Back</h2>
+          <p>Enter your credentials to access the full experience.</p>
         </div>
-        <div class="Auth-View" id="view-signup">
-          <div id="signup-content">
-            <div class="Modal-Header">
-              <h2>Join the Squad</h2>
-              <p>Create an account to join the discussion.</p>
-            </div>
-            <form class="Login-Form" onsubmit=
-            "handleSignup(event)">
-              <div class="Input-Wrapper">
-                <label>Choose Username <span class=
-                "req">*</span></label> <input type="text" id=
-                "new-username" placeholder="CoolName123" required=
-                "">
-              </div>
-              <div class="Input-Wrapper">
-                <label>Email Address <span class=
-                "req">*</span></label> <input type="email" id=
-                "new-email" placeholder="you@example.com" required=
-                "">
-              </div>
-              <div class="Input-Wrapper">
-                <label>Password <span class="req">*</span></label>
-                <input type="password" id="new-password"
-                placeholder="••••••••" required="" onblur=
-                "validateInputs()">
-                <div class="Input-Help">
-                  Must be at least 8 characters.
-                </div>
-              </div>
-              <div class="Input-Wrapper">
-                <label>Referral Code <span class=
-                "req">*</span></label> <input type="text" id=
-                "new-referral" placeholder="ARCH-XYZ" required=""
-                autocomplete="off" onblur="validateInputs()">
-                <div class="Input-Help">
-                  Obtain this from a founding ArchStepBoyz member.
-                </div>
-              </div>
-              <div id="signup-error-msg" class="Form-Error" style=
-              "display: none;"></div><button type="submit" class=
-              "Submit-Btn btn-secondary">Create Account</button>
-            </form>
-            <div class="Auth-Toggle">
-              Already a member? <a onclick=
-              "toggleAuthMode('login')">Sign In</a>
-            </div>
+        <form class="Login-Form" onsubmit="handleLogin(event)">
+          <div class="Input-Wrapper">
+            <label>Email</label> 
+            <input type="text" id="username" placeholder="Email" required="">
           </div>
-          <div id="signup-success" class="Success-View" style=
-          "display: none;">
-            <div class="Success-Icon">
-              <i class="fa-solid fa-envelope-circle-check"></i>
-            </div>
-            <h2>Verify Email</h2>
-            <p>Welcome to the team! We've sent a verification link
-            to your inbox.</p><button class="Submit-Btn" onclick=
-            "resetSignupView()">Got it!</button>
+          <div class="Input-Wrapper">
+            <label>Password</label> 
+            <input type="password" id="password" placeholder="Password" required="">
           </div>
+          <button type="submit" class="Submit-Btn">Sign In</button>
+        </form>
+        <div class="Auth-Toggle">
+          <a onclick="toggleAuthMode('forgot')">Forgot password?</a>
+        </div>
+        <div class="Auth-Toggle">
+          Don't have an account? <a onclick="toggleAuthMode('signup')">Sign Up</a>
         </div>
       </div>
+
+      <div class="Auth-View" id="view-forgot" style="display: none;">
+        <div class="Modal-Header">
+          <h2>Reset Password</h2>
+          <p>Enter your email and we'll send you a recovery link.</p>
+        </div>
+        <form class="Login-Form" onsubmit="handleForgotSubmit(event)">
+          <div class="Input-Wrapper">
+            <label>Email Address</label> 
+            <input type="email" id="forgot-email" placeholder="you@example.com" required="">
+          </div>
+          <button type="submit" class="Submit-Btn">Send Link</button>
+        </form>
+        <div class="Auth-Toggle">
+          <a onclick="toggleAuthMode('login')"><i class="fa-solid fa-arrow-left"></i> Back to Login</a>
+        </div>
+      </div>
+
+      <div class="Auth-View" id="view-signup" style="display: none;">
+        <div id="signup-content">
+          <div class="Modal-Header">
+            <h2>Join the Squad</h2>
+            <p>Create an account to join the discussion.</p>
+          </div>
+          <form class="Login-Form" onsubmit="handleSignup(event)">
+            <div class="Input-Wrapper">
+              <label>Choose Username <span class="req">*</span></label> 
+              <input type="text" id="new-username" placeholder="CoolName123" required="">
+            </div>
+            <div class="Input-Wrapper">
+              <label>Email Address <span class="req">*</span></label> 
+              <input type="email" id="new-email" placeholder="you@example.com" required="">
+            </div>
+            <div class="Input-Wrapper">
+              <label>Password <span class="req">*</span></label>
+              <input type="password" id="new-password" placeholder="••••••••" required="" onblur="validateInputs()">
+              <div class="Input-Help">Must be at least 8 characters.</div>
+            </div>
+            <div class="Input-Wrapper">
+              <label>Referral Code <span class="req">*</span></label> 
+              <input type="text" id="new-referral" placeholder="ARCH-XYZ" required="" autocomplete="off">
+            </div>
+            <div id="signup-error-msg" class="Form-Error" style="display: none;"></div>
+            <button type="submit" class="Submit-Btn btn-secondary">Create Account</button>
+          </form>
+          <div class="Auth-Toggle">
+            Already a member? <a onclick="toggleAuthMode('login')">Sign In</a>
+          </div>
+        </div>
+        
+        <div id="signup-success" class="Success-View" style="display: none;">
+          <div class="Success-Icon">
+            <i class="fa-solid fa-envelope-circle-check"></i>
+          </div>
+          <h2>Verify Email</h2>
+          <p>Welcome to the team! We've sent a verification link to your inbox.</p>
+          <button class="Submit-Btn" onclick="resetSignupView()">Got it!</button>
+        </div>
+      </div>
+
     </div>
   </div>
+</div>
+
   <div class="Unauthed-Picks" style="display:none;">
     <div class="Picks-Container">
       <div class="Legend-Wrapper">

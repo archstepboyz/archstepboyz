@@ -1164,23 +1164,38 @@ async function handleLogin(event) {
   passwordInput.value = "";
 }
 
-function toggleAuthMode(mode) {
-  const slider = document.getElementById("authSlider");
-  const box = document.querySelector(".Auth-Box");
+  function toggleAuthMode(mode) {
+    const loginView = document.getElementById('view-login');
+    const signupView = document.getElementById('view-signup');
+    const forgotView = document.getElementById('view-forgot');
+    const modalBox = document.getElementById('mainModalBox');
 
-  if (mode === "signup") {
-    slider.classList.remove("show-login");
-    slider.classList.add("show-signup");
-    // Optional: Adjust height if signup form is taller
-    // box.style.height = '450px';
-    box.style.height = "600px";
-  } else {
-    slider.classList.remove("show-signup");
-    slider.classList.add("show-login");
-    // box.style.height = '380px';
-    box.style.height = "420px";
+    // Hide all first
+    loginView.style.display = 'none';
+    signupView.style.display = 'none';
+    forgotView.style.display = 'none';
+
+    // Remove sizing classes
+    modalBox.classList.remove('mode-login', 'mode-signup', 'mode-forgot');
+
+    if (mode === 'signup') {
+      signupView.style.display = 'block';
+      modalBox.classList.add('mode-signup');
+    } else if (mode === 'forgot') {
+      forgotView.style.display = 'block';
+      modalBox.classList.add('mode-forgot');
+    } else {
+      // Default to login
+      loginView.style.display = 'block';
+      modalBox.classList.add('mode-login');
+    }
   }
-}
+
+  function handleForgotSubmit(e) {
+    e.preventDefault();
+    forgotPassword(document.getElementById('forgot-email').value);
+    toggleAuthMode('login');
+  }
 
 function toggleUserDropdown(event) {
   // Prevent the click from immediately bubbling up and closing the menu
@@ -1384,23 +1399,18 @@ async function handleLogout() {
   }
 }
 
-async function forgotPassword() {
-  return;
-
-  /*
-  const { error } = await db_client.auth.resetPasswordForEmail("", {
-    redirectTo: 'https://archstepboyz.github.io/archstepboyz', 
+async function forgotPassword(email) {
+  const { error } = await db_client.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://archstepboyz.github.io/archstepboyz/reset.html', 
   });
 
   if (error) {
     console.error('Error sending password reset email:', error.message);
-    alert('Failed to send reset email. Please check your email address.');
+    alert('Failed to send reset email. Please confirm your email address or try again later.');
   } else {
     alert('Password reset email sent. Check your inbox!');
   }
-  */
 }
-forgotPassword();
 
 /* PICKS */
 
