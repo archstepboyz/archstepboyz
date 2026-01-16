@@ -166,9 +166,9 @@
                 alert("Password must be at least 8 characters.");
                 return;
             }
-            const { data, error } = await supabase.auth.updateUser({
+            db_client.auth.updateUser({
               password: pass
-            });
+            }).then((res) => {console.log('Password updated successfully for user');});
             // Simulate API call
             const btn = e.target.querySelector('button');
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Updating...';
