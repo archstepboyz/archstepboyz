@@ -664,6 +664,13 @@ opacity: 0.9;
   --bg-track: #dfe6e9;
   --bg-active: #ffffff;
   --font-stack: 'Oswald', sans-serif;
+
+        --husker-red: #CC0033;
+        --husker-blue: #003366;
+        --bg-color: #f8fafc;
+        --card-bg: #ffffff;
+        --text-main: #1e293b;
+        --text-muted: #64748b;
 }
 
 .Header-Menu {
@@ -2842,9 +2849,124 @@ max-height: 100px;
         text-align: left; font-family: 'Segoe UI'; font-size: 13px; color: #d63031;
         cursor: pointer; display: flex; align-items: center; gap: 8px;
     }
-    .Dropdown-Btn:hover { background: #fff5f5;
+    .Dropdown-Btn:hover { background: #fff5f5; }
 
+    /* --- DASHBOARD GRID --- */
+    .Dashboard-Container {
+        max-width: 800px; margin: 0 auto; padding: 20px;
+        display: grid; gap: 20px;
+    }
 
+    /* --- CARDS (Base Style) --- */
+    .Stat-Card {
+        background: var(--card-bg); border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        padding: 20px; overflow: hidden; position: relative;
+    }
+    
+    .Card-Title {
+        font-family: 'Oswald'; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;
+        color: var(--text-muted); margin-bottom: 15px; display: flex; align-items: center; gap: 8px;
+    }
+
+    /* --- SECTION 1: HOT & COLD (User Specific) --- */
+    .Split-Grid {
+        display: none; /* grid; */
+        grid-template-columns: 1fr 1fr; gap: 15px;
+    }
+    
+    .Team-Record-Item {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9;
+    }
+    .Team-Record-Item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+    .Team-Identity { display: flex; align-items: center; gap: 10px; }
+    .Team-Logo { width: 32px; height: 32px; object-fit: contain; }
+    .Team-Name { font-weight: 600; font-size: 14px; color: var(--text-main); }
+    
+    .Record-Badge {
+        padding: 4px 8px; border-radius: 6px; font-family: 'Oswald'; font-size: 12px;
+    }
+    .is-hot .Record-Badge { background: rgba(46, 213, 115, 0.15); color: #2ecc71; }
+    .is-cold .Record-Badge { background: rgba(255, 71, 87, 0.15); color: #ff4757; }
+
+    /* The Percentage Circle */
+    .Win-Pct { font-size: 11px; color: var(--text-muted); margin-top: 2px; text-align: right;}
+
+    /* Icons */
+    .Icon-Hot { color: #ff6b6b; filter: drop-shadow(0 2px 4px rgba(255, 107, 107, 0.4)); }
+    .Icon-Cold { color: #54a0ff; filter: drop-shadow(0 2px 4px rgba(84, 160, 255, 0.4)); }
+
+    /* --- SECTION 2: CHARTS --- */
+    .Chart-Wrapper { position: relative; height: 250px; width: 100%; }
+    .Chart-Wrapper.Tall { height: 300px; }
+
+    /* --- FOOTER STATS --- */
+    .Stat-Row {
+        display: flex; justify-content: space-around; text-align: center; margin-top: 10px;
+    }
+    .Big-Stat-Label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .Big-Stat-Value { font-family: 'Fugaz One'; font-size: 28px; color: var(--husker-blue); }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+        .Split-Grid { grid-template-columns: 1fr; }
+    }
+
+/* --- FULL WIDTH CHART ROW --- */
+.Chart-Row {
+    grid-column: 1 / -1; /* Spans full width of grid */
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    border: 1px solid #f1f5f9;
+}
+
+.Chart-Header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.Chart-Title {
+    font-family: 'Fugaz One', cursive;
+    font-size: 18px;
+    color: #2d3436;
+    text-transform: uppercase;
+}
+
+.Chart-Subtitle {
+    font-family: 'Oswald', sans-serif;
+    font-size: 12px;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+/* Responsive Container */
+.Chart-Wrapper-Large {
+    position: relative;
+    height: 500px; /* Desktop Height */
+    width: 500px;
+}
+
+/*
+@media (max-width: 600px) {
+    .Chart-Wrapper-Large {
+        height: 280px; 
+    }
+    .Chart-Header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
+*/
 
 
 

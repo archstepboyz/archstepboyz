@@ -31,6 +31,7 @@
   <script src=
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/main.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src=
   "https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
 </head>
@@ -844,5 +845,60 @@
       <div class="Team-Grid" id="teamGrid"></div>
     </div>
   </div>
+
+
+    <div class="Dashboard-Container" id="statsDash">
+
+        <div class="Split-Grid">
+            
+            <div class="Stat-Card is-hot">
+                <div class="Card-Title">
+                    <i class="fa-solid fa-fire Icon-Hot"></i> The Money Makers
+                </div>
+                <div id="hotList">
+                    </div>
+            </div>
+
+            <div class="Stat-Card is-cold">
+                <div class="Card-Title">
+                    <i class="fa-solid fa-snowflake Icon-Cold"></i> The Wallet Drainers
+                </div>
+                <div id="coldList">
+                    </div>
+            </div>
+        </div>
+
+<div class="Chart-Row">
+    <div class="Chart-Header">
+        <div class="Chart-Title"><i class="fa-solid fa-flag-checkered"></i> Leaderboard</div>
+        <div class="Chart-Subtitle">Cumulative Win % (Weeks 9-11)</div>
+    </div>
+    <div class="Chart-Wrapper-Large">
+        <canvas id="raceChart"></canvas>
+    </div>
+</div>
+
+        <!--
+        <div class="Stat-Card">
+            <div class="Card-Title">
+                <i class="fa-solid fa-crosshairs"></i> League Proficiency
+            </div>
+            <div class="Chart-Wrapper Tall">
+                <canvas id="radarChart"></canvas>
+            </div>
+            <div class="Stat-Row">
+                <div>
+                    <div class="Big-Stat-Label">Total Picks</div>
+                    <div class="Big-Stat-Value">412</div>
+                </div>
+                <div>
+                    <div class="Big-Stat-Label">Global Win %</div>
+                    <div class="Big-Stat-Value">54.2%</div>
+                </div>
+            </div>
+        </div>
+        -->
+
+    </div>
 </body>
 </html>

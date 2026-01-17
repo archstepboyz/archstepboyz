@@ -38,35 +38,27 @@ const PICKERS = [
 let showingAllPicks = false;
 const CURRENT_WEEK = 11;
 
-        // --- STATE MANAGEMENT ---
-        let currentView = 'DRAFT'; // 'DRAFT', 'OFFICIAL', 'MK'
-        let draftBallot = new Array(25).fill(null); // The user's editing space
-        let isSubmitted = false;
-        let activeRowIndex = null;
-        let sortableInstance = null; // Store the sortable object
-
-        // Mock Database
-        let MOCK_DB = {
-            'OFFICIAL': [{ key: '2', votes: '25 (1)'},{key: '5', votes: '25 (1)'}],
-        };
+let currentView = 'DRAFT';
+let draftBallot = new Array(25).fill(null); 
+let isSubmitted = false;
+let activeRowIndex = null;
+let sortableInstance = null; // Store the sortable object
+let MOCK_DB = {};
 
 function calculateIdIndexSums(arraysWithIds) {
-    const idSumMap = new Map();
-
-    arraysWithIds.forEach(innerArray => {
-        innerArray.forEach((id, idx) => {
-            if (id != 0) {
-const curr = idSumMap.get(id) ?? [0,0]; 
-idSumMap.set(id, [curr[0] + (25 - idx), idx === 0 ? curr[1] + 1 : curr[1]]);
-            }
-        });
+  const idSumMap = new Map();
+  arraysWithIds.forEach(innerArray => {
+    innerArray.forEach((id, idx) => {
+      if (id != 0) {
+        const curr = idSumMap.get(id) ?? [0,0]; 
+        idSumMap.set(id, [curr[0] + (25 - idx), idx === 0 ? curr[1] + 1 : curr[1]]);
+      }
     });
+  });
 
-    const resultPioneerArray = Array.from(idSumMap, ([key, votes]) => ({ key, totalVotes: votes[0], firstPlace: votes[1] }));
-
-    resultPioneerArray.sort((a, b) => b.totalVotes - a.totalVotes);
-
-    return resultPioneerArray;
+  const resultPioneerArray = Array.from(idSumMap, ([key, votes]) => ({ key, totalVotes: votes[0], firstPlace: votes[1] }));
+  resultPioneerArray.sort((a, b) => b.totalVotes - a.totalVotes);
+  return resultPioneerArray;
 }
 
 function populateMockDB(ballots) {
@@ -95,16 +87,13 @@ function populateMockDB(ballots) {
 
 /* HELPER METHODS */
 
+/* Sort by string length then alphabetically in case of tie */
 function idCompareSort(a, b) {
-  // Sort by length first (ascending order)
-  // If lengths are different, a.length - b.length will return a non-zero value
   const lengthComparison = a.length - b.length;
-
   if (lengthComparison !== 0) {
     return lengthComparison;
   }
 
-  // If lengths are equal, sort alphabetically using localeCompare()
   return a.localeCompare(b);
 };
 
@@ -221,6 +210,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
+    const dash = document.getElementById("statsDash");
+    dash.style.display = "none";
   }
 
   function switchToList() {
@@ -243,6 +234,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
+    const dash = document.getElementById("statsDash");
+    dash.style.display = "none";
   }
 
   function switchToPicks() {
@@ -265,6 +258,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     picksToggle.style.display = "flex";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
+    const dash = document.getElementById("statsDash");
+    dash.style.display = "none";
   }
 
   function switchToTop25() {
@@ -289,6 +284,30 @@ document.addEventListener("DOMContentLoaded", (event) => {
     ballot.style.display = "flex";
     // add submitted eq true
     fetchD1().then((res) => { TEAMS = res; AUTHED_USER && fetchTop25().then((res2) => { populateMockDB(res2.data); initSortable(); renderBallot(true); }); });
+    const dash = document.getElementById("statsDash");
+    dash.style.display = "none";
+  }
+
+  function switchToStats() {
+    listBtn.classList.remove("active");
+    gridBtn.classList.remove("active");
+    picksBtn.classList.remove("active");
+    top25Btn.classList.remove("active");
+
+    const table = document.querySelector(".table-container");
+    table.style.display = "none";
+    const list = document.querySelector(".list-container");
+    list.style.display = "none";
+    const fab = document.querySelector(".Fab-Wrapper");
+    fab.style.display = "none";
+    const picks = document.querySelector(".Picks-Container");
+    picks.style.display = "none";
+    const picksToggle = document.getElementById("picksMenu");
+    picksToggle.style.display = "none";
+    const ballot = document.querySelector(".Top25-Container");
+    ballot.style.display = "none";
+    const dash = document.getElementById("statsDash");
+    dash.style.display = "flex";
   }
 
   gridBtn.addEventListener("click", switchToGrid);
@@ -316,6 +335,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         switchToTop25();
         break;
       case "statsViewBtn":
+        switchToStats();
         break;
       default:
         switchToGrid();
@@ -1720,346 +1740,650 @@ function initSortable() {
 }
 
 function renderBallot(initialLoad = false, submitted = false) {
-            container.innerHTML = '';
+    container.innerHTML = '';
+    
+    // Determine which data to show
+    let dataToShow = [];
+    let isReadOnly = false;
+
+    if (currentView === 'DRAFT') {
+        dataToShow = draftBallot;
+        isReadOnly = isSubmitted;
+        //saveBtn.classList.remove('hidden');
+        if(sortableInstance) sortableInstance.option("disabled", false);
+    } else {
+        dataToShow = MOCK_DB[currentView].slice(0,25);
+        isReadOnly = true;
+        //saveBtn.classList.add('hidden');
+        if(sortableInstance) sortableInstance.option("disabled", true);
+    }
+
+    if (currentView === 'OFFICIAL') {
+      container.classList.add('mode-official');
+      container.classList.add('is-creative');
+    } else {
+      container.classList.remove('mode-official');
+      container.classList.remove('is-creative');
+    }
+    !initialLoad && updateTop25(AUTHED_USER.sub, 'week10', draftBallot, submitted);
+
+    updateHeaderControls(isReadOnly);
+
+    dataToShow.forEach((team, index) => {
+        const teamKey = currentView === 'OFFICIAL' ? team.key : team;
+        const teamVotes = team.totalVotes ?? '25';
+        const firstPlaceVotes = team.firstPlace ?? '25';
+        const rank = index + 1;
+        const isFilled = teamKey != 0;
+        const rowClass = isFilled ? 'is-filled' : 'is-empty';
+        
+        let contentHTML = '';
+        let controlsHTML = '';
+
+        const handleHTML = isReadOnly ? '' : `<div class="Drag-Handle"><i class="fa-solid fa-grip-lines"></i></div>`;
+
+        if (isFilled) {
+            const team = TEAMS.find(team => team.id == teamKey);
+            contentHTML = `
+                <div class="Team-Info">
+                    <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200" class="Team-Logo" alt="${team.name}">
+                    <div class="Team-Name">${team.name}</div>
+                </div>
+            `;
             
-            // Determine which data to show
-            let dataToShow = [];
-            let isReadOnly = false;
-
-            if (currentView === 'DRAFT') {
-                dataToShow = draftBallot;
-                isReadOnly = isSubmitted;
-                //saveBtn.classList.remove('hidden');
-                if(sortableInstance) sortableInstance.option("disabled", false);
-            } else {
-                dataToShow = MOCK_DB[currentView].slice(0,25);
-                isReadOnly = true;
-                //saveBtn.classList.add('hidden');
-                if(sortableInstance) sortableInstance.option("disabled", true);
+            // CONTROLS (Only in Draft Mode)
+            if (!isReadOnly) {
+                const upVisibility = index === 0 ? 'hidden' : '';
+                const downVisibility = index === 24 ? 'hidden' : '';
+                controlsHTML = `
+                    <div class="Row__Controls">
+                        <button class="Control-Btn ${upVisibility}" onclick="moveTeam(${index}, -1)">
+                            <i class="fa-solid fa-chevron-up"></i>
+                        </button>
+                        <!--
+                        <button class="Control-Btn remove" onclick="clearRow(${index})">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                        -->
+                        <button class="Control-Btn ${downVisibility}" onclick="moveTeam(${index}, 1)">
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
+                    </div>
+                `;
+            } else if (currentView === 'OFFICIAL') {
+                controlsHTML = `<p style="color: gray; font-family:'Oswald'; width: 70px;">${teamVotes} ${firstPlaceVotes > 0 ? '(' + firstPlaceVotes.toString() + ')' : ''}</p>`
             }
+        } else {
+            // EMPTY STATE (Only in Draft Mode)
+            contentHTML = `<div class="Placeholder-Text">${isReadOnly ? '-' : 'Tap to Select'}</div>`;
+        }
 
-            if (currentView === 'OFFICIAL') {
-              container.classList.add('mode-official');
-              container.classList.add('is-creative');
-            } else {
-              container.classList.remove('mode-official');
-              container.classList.remove('is-creative');
-            }
-            !initialLoad && updateTop25(AUTHED_USER.sub, 'week10', draftBallot, submitted);
-
-            updateHeaderControls(isReadOnly);
-
-            dataToShow.forEach((team, index) => {
-                const teamKey = currentView === 'OFFICIAL' ? team.key : team;
-                const teamVotes = team.totalVotes ?? '25';
-                const firstPlaceVotes = team.firstPlace ?? '25';
-                const rank = index + 1;
-                const isFilled = teamKey != 0;
-                const rowClass = isFilled ? 'is-filled' : 'is-empty';
-                
-                let contentHTML = '';
-                let controlsHTML = '';
-
-                const handleHTML = isReadOnly ? '' : `<div class="Drag-Handle"><i class="fa-solid fa-grip-lines"></i></div>`;
-
-                if (isFilled) {
-                    const team = TEAMS.find(team => team.id == teamKey);
-                    contentHTML = `
-                        <div class="Team-Info">
-                            <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200" class="Team-Logo" alt="${team.name}">
-                            <div class="Team-Name">${team.name}</div>
-                        </div>
-                    `;
-                    
-                    // CONTROLS (Only in Draft Mode)
-                    if (!isReadOnly) {
-                        const upVisibility = index === 0 ? 'hidden' : '';
-                        const downVisibility = index === 24 ? 'hidden' : '';
-                        controlsHTML = `
-                            <div class="Row__Controls">
-                                <button class="Control-Btn ${upVisibility}" onclick="moveTeam(${index}, -1)">
-                                    <i class="fa-solid fa-chevron-up"></i>
-                                </button>
-                                <!--
-                                <button class="Control-Btn remove" onclick="clearRow(${index})">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </button>
-                                -->
-                                <button class="Control-Btn ${downVisibility}" onclick="moveTeam(${index}, 1)">
-                                    <i class="fa-solid fa-chevron-down"></i>
-                                </button>
-                            </div>
-                        `;
-                    } else if (currentView === 'OFFICIAL') {
-                        controlsHTML = `<p style="color: gray; font-family:'Oswald'; width: 70px;">${teamVotes} ${firstPlaceVotes > 0 ? '(' + firstPlaceVotes.toString() + ')' : ''}</p>`
-                    }
-                } else {
-                    // EMPTY STATE (Only in Draft Mode)
-                    contentHTML = `<div class="Placeholder-Text">${isReadOnly ? '-' : 'Tap to Select'}</div>`;
-                }
-
-                // Handle Click (Disable in ReadOnly)
-                const clickAction = (!isReadOnly) ? `onclick="openSelector(${index})"` : '';
-                const readonlyClass = isReadOnly ? 'readonly' : '';
+        // Handle Click (Disable in ReadOnly)
+        const clickAction = (!isReadOnly) ? `onclick="openSelector(${index})"` : '';
+        const readonlyClass = isReadOnly ? 'readonly' : '';
 
 
-                if (currentView !== 'OFFICIAL') {
-                  const html = `
-                      <div class="Ballot-Row ${rowClass}">
-                          ${handleHTML}
-                          <div class="Row__Rank">${rank}</div>
-                          <div class="Row__Content ${readonlyClass}" ${clickAction}>
-                              ${contentHTML}
-                          </div>
-                          ${controlsHTML}
-                      </div>
-                  `;
-                  container.insertAdjacentHTML('beforeend', html);
-                } else {
-                // --- VIEW 2: OFFICIAL (Colored Creative Grid) ---
-                //document.body.classList.add('mode-official');
-                //listElement.classList.add('is-creative');
-                
-                if(sortableInstance) sortableInstance.option("disabled", true);
+        if (currentView !== 'OFFICIAL') {
+          const html = `
+              <div class="Ballot-Row ${rowClass}">
+                  ${handleHTML}
+                  <div class="Row__Rank">${rank}</div>
+                  <div class="Row__Content ${readonlyClass}" ${clickAction}>
+                      ${contentHTML}
+                  </div>
+                  ${controlsHTML}
+              </div>
+          `;
+          container.insertAdjacentHTML('beforeend', html);
+        } else {
+        // --- VIEW 2: OFFICIAL (Colored Creative Grid) ---
+        //document.body.classList.add('mode-official');
+        //listElement.classList.add('is-creative');
+        
+        if(sortableInstance) sortableInstance.option("disabled", true);
 
-                const data = MOCK_DB['OFFICIAL'];
-               
-                //${data[0].totalVotes} ${firstPlace > 0 ? ("(" + firstplace ")") : ""}
-                if (index === 0) {
-                  renderCreativeCard(data[0].key, 1, data[0].totalVotes, data[0].firstPlace, 'rank-1');
-                } else {
-                  renderCreativeCard(data[index].key, index + 1, data[index].totalVotes, data[index].firstPlace, 'rank-grid');
-                }
-              }
-            });
+        const data = MOCK_DB['OFFICIAL'];
+       
+        //${data[0].totalVotes} ${firstPlace > 0 ? ("(" + firstplace ")") : ""}
+        if (index === 0) {
+          renderCreativeCard(data[0].key, 1, data[0].totalVotes, data[0].firstPlace, 'rank-1');
+        } else {
+          renderCreativeCard(data[index].key, index + 1, data[index].totalVotes, data[index].firstPlace, 'rank-grid');
+        }
+      }
+    });
 
 const listHTML = currentView === 'OFFICIAL' ? `
-    <div class="ORV-Container">
-        <span class="ORV-Label">Others receiving votes:</span> 
-        ${MOCK_DB[currentView].slice(25).map(t => `${TEAMS.find(team => team.id == t.key).name} ${t.totalVotes}`).join(', ')}
-    </div>
+<div class="ORV-Container">
+<span class="ORV-Label">Others receiving votes:</span> 
+${MOCK_DB[currentView].slice(25).map(t => `${TEAMS.find(team => team.id == t.key).name} ${t.totalVotes}`).join(', ')}
+</div>
 ` : '';
 
 container.insertAdjacentHTML('beforeend', listHTML);
 
+}
+
+// Helper for Creative Cards
+function renderCreativeCard(teamKey, rank, votes, firstPlace, className) {
+    let teamName = TEAMS.find(team => team.id == teamKey).name;
+    if (teamName === 'North Carolina Tar Heels') teamName = 'UNC Tar Heels';
+    const firstPlaceHTML = firstPlace > 0 ? '<span class="Votes-First">(' + firstPlace  + ')</span>' : '';
+    container.insertAdjacentHTML('beforeend', `
+        <div class="Creative-Card ${className}">
+            <div class="Creative-Content">
+                <div class="Creative-Rank">${rank}</div>
+                <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${teamKey}.png&h=200&w=200" class="Creative-Logo Team-Logo" alt="Test">
+                <div class="Creative-Name">${teamName}</div>
+<div class="Creative-Votes">
+<span class="Votes-Total">${votes}</span>
+${firstPlaceHTML}
+</div>
+        </div>
+    `);
+}
+
+function switchView(newView) {
+    currentView = newView;
+    renderBallot(true);
+}
+
+// --- MODAL & SEARCH ---
+
+function openSelector(index) {
+    activeRowIndex = index;
+    document.getElementById('teamSearch').value = ''; // Reset Search
+    renderTeamGrid();
+    modal1.classList.add('active');
+    setTimeout(() => document.getElementById('teamSearch').focus(), 100);
+}
+
+function filterTeams() {
+    const query = document.getElementById('teamSearch').value.toLowerCase();
+    const items = document.querySelectorAll('.Selectable-Team');
+    
+    items.forEach(item => {
+        const name = item.getAttribute('data-name').toLowerCase();
+        if (name.includes(query)) {
+            item.classList.remove('hidden');
+        } else {
+            item.classList.add('hidden');
         }
+    });
+}
 
-        // Helper for Creative Cards
-        function renderCreativeCard(teamKey, rank, votes, firstPlace, className) {
-            let teamName = TEAMS.find(team => team.id == teamKey).name;
-            if (teamName === 'North Carolina Tar Heels') teamName = 'UNC Tar Heels';
-            const firstPlaceHTML = firstPlace > 0 ? '<span class="Votes-First">(' + firstPlace  + ')</span>' : '';
-            container.insertAdjacentHTML('beforeend', `
-                <div class="Creative-Card ${className}">
-                    <div class="Creative-Content">
-                        <div class="Creative-Rank">${rank}</div>
-                        <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${teamKey}.png&h=200&w=200" class="Creative-Logo Team-Logo" alt="Test">
-                        <div class="Creative-Name">${teamName}</div>
-    <div class="Creative-Votes">
-        <span class="Votes-Total">${votes}</span>
-        ${firstPlaceHTML}
-    </div>
-                </div>
-            `);
-        }
+function renderTeamGrid() {
+    const grid = document.getElementById('teamGrid');
+    grid.innerHTML = '';
 
-        function switchView(newView) {
-            currentView = newView;
-            renderBallot(true);
-        }
+    const usedTeams = draftBallot.filter(t => t != 0);
 
-        // --- MODAL & SEARCH ---
+    for (team of TEAMS) {
+        // Determine disabled state
+        const isUsed = usedTeams.includes(team.id) && draftBallot[activeRowIndex] != team.id;
+        const disabledClass = isUsed ? 'disabled' : '';
+        const style = isUsed ? 'opacity: 0.4;' : '';
 
-        function openSelector(index) {
-            activeRowIndex = index;
-            document.getElementById('teamSearch').value = ''; // Reset Search
-            renderTeamGrid();
-            modal1.classList.add('active');
-            setTimeout(() => document.getElementById('teamSearch').focus(), 100);
-        }
+        const html = `
+            <div class="Selectable-Team ${disabledClass}" 
+                 style="${style}" 
+                 onclick="selectTeam('${team.id}')"
+                 data-name="${team.name}">
+                <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200">
+                <span>${team.name}</span>
+                ${isUsed ? '<i class="fa-solid fa-check" style="margin-left:auto; color:#b2bec3;"></i>' : ''}
+            </div>
+        `;
+        grid.insertAdjacentHTML('beforeend', html);
+    }
+}
 
-        function filterTeams() {
-            const query = document.getElementById('teamSearch').value.toLowerCase();
-            const items = document.querySelectorAll('.Selectable-Team');
-            
-            items.forEach(item => {
-                const name = item.getAttribute('data-name').toLowerCase();
-                if (name.includes(query)) {
-                    item.classList.remove('hidden');
-                } else {
-                    item.classList.add('hidden');
-                }
-            });
-        }
+function selectTeam(teamKey) {
+    draftBallot[activeRowIndex] = teamKey;
+    closeModal();
+    renderBallot();
+}
 
-        function renderTeamGrid() {
-            const grid = document.getElementById('teamGrid');
-            grid.innerHTML = '';
+function closeModal(e) {
+    if (e && !e.target.classList.contains('Modal-Overlay') && !e.target.classList.contains('Modal-Close')) return;
+    modal1.classList.remove('active');
+}
 
-            const usedTeams = draftBallot.filter(t => t != 0);
+// --- DRAFT MANIPULATION ---
 
-            for (team of TEAMS) {
-                // Determine disabled state
-                const isUsed = usedTeams.includes(team.id) && draftBallot[activeRowIndex] != team.id;
-                const disabledClass = isUsed ? 'disabled' : '';
-                const style = isUsed ? 'opacity: 0.4;' : '';
+function clearRow(index) {
+    event.stopPropagation();
+    draftBallot[index] = 0;
+    renderBallot();
+}
 
-                const html = `
-                    <div class="Selectable-Team ${disabledClass}" 
-                         style="${style}" 
-                         onclick="selectTeam('${team.id}')"
-                         data-name="${team.name}">
-                        <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200">
-                        <span>${team.name}</span>
-                        ${isUsed ? '<i class="fa-solid fa-check" style="margin-left:auto; color:#b2bec3;"></i>' : ''}
-                    </div>
-                `;
-                grid.insertAdjacentHTML('beforeend', html);
-            }
-        }
+function moveTeam(index, direction) {
+    event.stopPropagation();
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= draftBallot.length) return;
+    const temp = draftBallot[index];
+    draftBallot[index] = draftBallot[newIndex];
+    draftBallot[newIndex] = temp;
+    renderBallot();
+}
 
-        function selectTeam(teamKey) {
-            draftBallot[activeRowIndex] = teamKey;
-            closeModal();
-            renderBallot();
-        }
+function saveBallot() {
+    return;
+    // Validate
+    const filledCount = draftBallot.filter(t => t !== null).length;
+    if (filledCount === 0) {
+        alert("Please select at least one team.");
+        return;
+    }
 
-        function closeModal(e) {
-            if (e && !e.target.classList.contains('Modal-Overlay') && !e.target.classList.contains('Modal-Close')) return;
-            modal1.classList.remove('active');
-        }
+    // 1. Save logic (mocking DB save)
+    // We update 'DRAFT' view or create a 'MY_SAVED' view. 
+    // For demo, let's pretend we submitted to Official.
+    
+    alert(`Ballot Submitted! Switching to Official Rankings.`);
 
-        // --- DRAFT MANIPULATION ---
+    // 2. Transition View
+    viewSelector.value = "OFFICIAL";
+    switchView("OFFICIAL");
+}
 
-        function clearRow(index) {
-            event.stopPropagation();
-            draftBallot[index] = 0;
-            renderBallot();
-        }
+function updateHeaderControls(readOnly) {
+    const btnSubmit = document.getElementById('btnSubmit');
+    const badge = document.getElementById('badgeSubmitted');
 
-        function moveTeam(index, direction) {
-            event.stopPropagation();
-            const newIndex = index + direction;
-            if (newIndex < 0 || newIndex >= draftBallot.length) return;
-            const temp = draftBallot[index];
-            draftBallot[index] = draftBallot[newIndex];
-            draftBallot[newIndex] = temp;
-            renderBallot();
-        }
+        Object.keys(MOCK_DB).sort(idCompareSort).forEach((picker, idx) => {
+          if (idx > 0 && !viewSelector.options[idx+1]) {
+          viewSelector.options.add(new Option(MOCK_USERS.find(u => u.id === picker)?.username ?? picker,picker));
+          }
+        });
+    
+    // If we are looking at Official data, hide everything
+    if (currentView !== 'DRAFT') {
+        btnSubmit.classList.add('hidden');
+        badge.classList.add('hidden');
+        viewSelector.options[0].text = "My Ballot";
+        return;
+    }
 
-        function saveBallot() {
-            return;
-            // Validate
-            const filledCount = draftBallot.filter(t => t !== null).length;
-            if (filledCount === 0) {
-                alert("Please select at least one team.");
-                return;
-            }
-
-            // 1. Save logic (mocking DB save)
-            // We update 'DRAFT' view or create a 'MY_SAVED' view. 
-            // For demo, let's pretend we submitted to Official.
-            
-            alert(`Ballot Submitted! Switching to Official Rankings.`);
-
-            // 2. Transition View
-            viewSelector.value = "OFFICIAL";
-            switchView("OFFICIAL");
-        }
-
-        function updateHeaderControls(readOnly) {
-            const btnSubmit = document.getElementById('btnSubmit');
-            const badge = document.getElementById('badgeSubmitted');
-
-                Object.keys(MOCK_DB).sort(idCompareSort).forEach((picker, idx) => {
-                  if (idx > 0 && !viewSelector.options[idx+1]) {
-                  viewSelector.options.add(new Option(MOCK_USERS.find(u => u.id === picker)?.username ?? picker,picker));
-                  }
-                });
-            
-            // If we are looking at Official data, hide everything
-            if (currentView !== 'DRAFT') {
-                btnSubmit.classList.add('hidden');
-                badge.classList.add('hidden');
-                viewSelector.options[0].text = "My Ballot";
-                return;
-            }
-
-            // If Draft mode, toggle based on submission state
-            if (isSubmitted) {
-                viewSelector.disabled = false;
-                viewSelector.options[0].text = "My Ballot";
-                btnSubmit.classList.add('hidden');
-                badge.classList.remove('hidden');
-            } else {
-                viewSelector.disabled = true;
-                viewSelector.options[0].text = "My Draft Ballot";
-                btnSubmit.classList.remove('hidden');
-                badge.classList.add('hidden');
-            }
+    // If Draft mode, toggle based on submission state
+    if (isSubmitted) {
+        viewSelector.disabled = false;
+        viewSelector.options[0].text = "My Ballot";
+        btnSubmit.classList.add('hidden');
+        badge.classList.remove('hidden');
+    } else {
+        viewSelector.disabled = true;
+        viewSelector.options[0].text = "My Draft Ballot";
+        btnSubmit.classList.remove('hidden');
+        badge.classList.add('hidden');
+    }
 
 
-        }
+}
 
-        function submitBallot() {
-            // Check validation
-            const filledCount = draftBallot.filter(x => x != 0).length;
-            if (filledCount !== 25) return alert("You must complete entire ballot before submitting!");
+function submitBallot() {
+    const filledCount = draftBallot.filter(x => x != 0).length;
+    if (filledCount !== 25) return alert("You must complete entire ballot before submitting!");
 
-            // Lock the state
-            isSubmitted = true;
-            
-            // Set Time
-            const now = new Date();
-            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            //document.getElementById('submissionTime').innerText = `Submitted ${timeString}`;
+    isSubmitted = true;
+    
+    // TODO: Set Time
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    //document.getElementById('submissionTime').innerText = `Submitted ${timeString}`;
 
-            // Re-render to lock rows
-            renderBallot(false, true);
-            setTimeout( () => {fetchD1().then((res) => { TEAMS = res; AUTHED_USER && fetchTop25().then((res2) => { populateMockDB(res2.data); initSortable(); renderBallot(true); }); });}, 1000 );
-        }
-        
-        function toggleUnsubmitMenu() {
-            const menu = document.getElementById('unsubmitDropdown');
-            menu.classList.toggle('active');
-            
-            // Auto close if clicking elsewhere
-            if(menu.classList.contains('active')) {
-                setTimeout(() => {
-                    document.addEventListener('click', closeMenuOutside, {once:true});
-                }, 0);
-            }
-        }
+    renderBallot(false, true);
+    setTimeout( () => {fetchD1().then((res) => { TEAMS = res; AUTHED_USER && fetchTop25().then((res2) => { populateMockDB(res2.data); initSortable(); renderBallot(true); }); });}, 1000 );
+}
 
-        function closeMenuOutside(e) {
-            if (!e.target.closest('.Badge-Submitted')) {
-                document.getElementById('unsubmitDropdown').classList.remove('active');
-            }
-        }
+function toggleUnsubmitMenu() {
+    const menu = document.getElementById('unsubmitDropdown');
+    menu.classList.toggle('active');
+    
+    // Auto close if clicking elsewhere
+    if(menu.classList.contains('active')) {
+        setTimeout(() => {
+            document.addEventListener('click', closeMenuOutside, {once:true});
+        }, 0);
+    }
+}
 
-        function unsubmitBallot() {
-            isSubmitted = false;
-            document.getElementById('unsubmitDropdown').classList.remove('active');
-            renderBallot(false, false); // Re-render to unlock rows
-        }
+function closeMenuOutside(e) {
+  if (!e.target.closest('.Badge-Submitted')) {
+    document.getElementById('unsubmitDropdown').classList.remove('active');
+  }
+}
+
+function unsubmitBallot() {
+  isSubmitted = false;
+  document.getElementById('unsubmitDropdown').classList.remove('active');
+  renderBallot(false, false); 
+}
 
 // AUTH LOGIC
 const isUserLoggedIn = false;
-        if (!isUserLoggedIn) {
-            document.getElementById('gatekeeper').classList.add('active');
-            const cont = document.querySelector('.Picks-Container');
-            cont.classList.add('is-locked');
+if (!isUserLoggedIn) {
+  document.getElementById('gatekeeper').classList.add('active');
+  const cont = document.querySelector('.Picks-Container');
+  cont.classList.add('is-locked');
+}
+
+function simulateLogin() {
+  const btn = document.querySelector('.GK__Button');
+  btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
+  setTimeout(() => {
+    document.getElementById('lockIcon').classList.replace('locked','unlocked');
+    document.getElementById('iconSymbol').classList.replace('fa-lock','fa-lock-open');
+    btn.style.background = '#00b894'; btn.innerText = "Welcome!";
+    setTimeout(() => {
+      document.getElementById('gatekeeper').style.transform = 'translateY(-100%)';
+      document.body.classList.remove('is-locked');
+    }, 800);
+  }, 1000);
+}
+
+
+        const USER_STATS = {
+            'JD': {
+                hot: [
+                    { name: 'Boston Celtics', logo: 'https://upload.wikimedia.org/wikipedia/en/8/8f/Boston_Celtics.svg', record: '10-1', pct: '91%' },
+                    { name: 'KC Chiefs', logo: 'https://upload.wikimedia.org/wikipedia/en/e/e1/Kansas_City_Chiefs_logo.svg', record: '8-2', pct: '80%' },
+                    { name: 'NY Knicks', logo: 'https://upload.wikimedia.org/wikipedia/en/2/25/New_York_Knicks_logo.svg', record: '7-2', pct: '77%' }
+                ],
+                cold: [
+                    { name: 'Chicago Bulls', logo: 'https://upload.wikimedia.org/wikipedia/en/6/67/Chicago_Bulls_logo.svg', record: '0-7', pct: '0%' },
+                    { name: 'Dallas Cowboys', logo: 'https://upload.wikimedia.org/wikipedia/en/1/15/Dallas_Cowboys.svg', record: '1-6', pct: '14%' },
+                    { name: 'LA Lakers', logo: 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Los_Angeles_Lakers_logo.svg', record: '2-8', pct: '20%' }
+                ]
+            },
+            'AS': {
+                hot: [
+                    { name: 'SF 49ers', logo: 'https://upload.wikimedia.org/wikipedia/commons/b/b8/San_Francisco_49ers_logo.svg', record: '9-0', pct: '100%' },
+                    { name: 'GS Warriors', logo: 'https://upload.wikimedia.org/wikipedia/en/0/01/Golden_State_Warriors_logo.svg', record: '11-3', pct: '79%' }
+                ],
+                cold: [
+                    { name: 'NY Jets', logo: 'https://upload.wikimedia.org/wikipedia/en/6/6b/New_York_Jets_logo.svg', record: '0-9', pct: '0%' },
+                    { name: 'Detroit Pistons', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Pistons_logo17.svg', record: '1-8', pct: '11%' }
+                ]
+            },
+            'FT': {
+                hot: [
+                    { name: 'Miami Heat', logo: 'https://upload.wikimedia.org/wikipedia/en/f/fb/Miami_Heat_logo.svg', record: '12-2', pct: '86%' }
+                ],
+                cold: [
+                    { name: 'Cleveland Browns', logo: 'https://upload.wikimedia.org/wikipedia/en/d/d9/Cleveland_Browns_logo.svg', record: '0-10', pct: '0%' }
+                ]
+            }
+        };
+
+        // --- 2. RENDER FUNCTIONS ---
+
+        function updateUserStats(userId) {
+            const data = USER_STATS[userId];
+            const hotContainer = document.getElementById('hotList');
+            const coldContainer = document.getElementById('coldList');
+
+            // Render Hot
+            hotContainer.innerHTML = data.hot.map(team => `
+                <div class="Team-Record-Item">
+                    <div class="Team-Identity">
+                        <img src="${team.logo}" class="Team-Logo">
+                        <div class="Team-Name">${team.name}</div>
+                    </div>
+                    <div>
+                        <div class="Record-Badge">${team.record}</div>
+                        <div class="Win-Pct">${team.pct}</div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Render Cold
+            coldContainer.innerHTML = data.cold.map(team => `
+                <div class="Team-Record-Item">
+                    <div class="Team-Identity">
+                        <img src="${team.logo}" class="Team-Logo">
+                        <div class="Team-Name">${team.name}</div>
+                    </div>
+                    <div>
+                        <div class="Record-Badge">${team.record}</div>
+                        <div class="Win-Pct">${team.pct}</div>
+                    </div>
+                </div>
+            `).join('');
         }
-        function simulateLogin() {
-            const btn = document.querySelector('.GK__Button');
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
-            setTimeout(() => {
-                document.getElementById('lockIcon').classList.replace('locked','unlocked');
-                document.getElementById('iconSymbol').classList.replace('fa-lock','fa-lock-open');
-                btn.style.background = '#00b894'; btn.innerText = "Welcome!";
-                setTimeout(() => {
-                    document.getElementById('gatekeeper').style.transform = 'translateY(-100%)';
-                    document.body.classList.remove('is-locked');
-                }, 800);
-            }, 1000);
+
+        // --- 3. CHART CONFIGURATION ---
+
+        function initCharts() {
+            // GLOBAL CONFIG
+            Chart.defaults.font.family = "'Segoe UI', sans-serif";
+            Chart.defaults.color = '#64748b';
+
+            // --- A. LINE CHART (The Race) ---
+            const ctxRace = document.getElementById('raceChart').getContext('2d');
+            new Chart(ctxRace, {
+                type: 'line',
+                data: {
+                    labels: ['Wk 9', 'Wk 10', 'Wk 11'],
+                    datasets: [
+                        {
+                            label: 'fearthebeak',
+                            data: [62.07, 64.17, 64.17],
+                            borderColor: '#6c5ce7', 
+                            //backgroundColor: 'rgba(204, 0, 51, 0.1)',
+                            borderWidth: 3,
+                            tension: 0.4, // Curvy lines
+                            pointRadius: 4,
+                            fill: true
+                        },
+                        {
+                            label: 'notflorida',
+                            data: [66.34, 68.13, 68.13],
+                            borderColor: '#fab1a0', 
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 3
+                        },
+                        {
+                            label: 'Gayson Tatum',
+                            data: [64.36, 69.38, 69.38],
+                            borderColor: '#00cec9', 
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 3
+                        },
+                        {
+                            label: 'cookedbycapjack',
+                            data: [68.32, 69.38, 69.38],
+                            borderColor: '#d63031', 
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true } },
+                        tooltip: { 
+                            backgroundColor: '#1e293b', 
+                            titleFont: { family: 'Oswald' },
+                            callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw}%` }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: false, min: 45, max: 75, grid: { color: '#f1f5f9' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // --- B. RADAR CHART (League Proficiency) ---
+            /*
+            const ctxRadar = document.getElementById('radarChart').getContext('2d');
+            new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: ['NBA', 'NFL', 'NCAA B', 'NCAA F', 'MLB', 'NHL'],
+                    datasets: [
+                        {
+                            label: 'JD',
+                            data: [85, 60, 70, 90, 55, 40],
+                            borderColor: '#CC0033',
+                            backgroundColor: 'rgba(204, 0, 51, 0.2)',
+                            pointBackgroundColor: '#CC0033',
+                            borderWidth: 2
+                        },
+                        {
+                            label: 'ArchStep',
+                            data: [50, 85, 60, 50, 75, 80],
+                            borderColor: '#003366', // Husker Blue
+                            backgroundColor: 'rgba(0, 51, 102, 0.2)',
+                            pointBackgroundColor: '#003366',
+                            borderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#e2e8f0' },
+                            pointLabels: {
+                                font: { size: 12, weight: '700', family: 'Oswald' },
+                                color: '#1e293b'
+                            },
+                            ticks: { display: false } // Hide numbers on axis
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+            */
         }
+
+// --- HELPER: Create Fading Gradient ---
+function createGradient(ctx, color) {
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    // Top color: 20% opacity
+    gradient.addColorStop(0, color.replace(')', ', 0.2)').replace('rgb', 'rgba'));
+    // Bottom color: 0% opacity (fades out)
+    gradient.addColorStop(1, color.replace(')', ', 0.0)').replace('rgb', 'rgba'));
+    return gradient;
+}
+
+const ctxRace = document.getElementById('raceChart').getContext('2d');
+
+// Define Colors
+const c_fear = 'rgb(108, 92, 231)'; // #6c5ce7
+const c_notf = 'rgb(250, 177, 160)'; // #fab1a0
+const c_gays = 'rgb(0, 206, 201)';   // #00cec9
+const c_cook = 'rgb(214, 48, 49)';   // #d63031
+
+new Chart(ctxRace, {
+    type: 'line',
+    data: {
+        // SCALABLE: Add more weeks here in the future
+        labels: ['Wk 9', 'Wk 10', 'Wk 11'], 
+        datasets: [
+            {
+                label: ' fearthebeak',
+                data: [62.07, 64.17, 64.17],
+                borderColor: c_fear,
+                backgroundColor: createGradient(ctxRace, c_fear),
+                borderWidth: 3,
+                tension: 0,
+                pointRadius: 4,
+                pointHoverRadius: 8, 
+                fill: true
+            },
+            {
+                label: ' notflorida',
+                data: [66.34, 68.13, 68.13],
+                borderColor: c_notf,
+                backgroundColor: createGradient(ctxRace, c_notf),
+                borderWidth: 3,
+                tension: 0,
+                pointRadius: 4,
+                pointHoverRadius: 8,
+                fill: true
+            },
+            {
+                label: ' Gayson Tatum',
+                data: [64.36, 69.38, 69.38],
+                borderColor: c_gays,
+                backgroundColor: createGradient(ctxRace, c_gays),
+                borderWidth: 3,
+                tension: 0,
+                pointRadius: 4,
+                pointHoverRadius: 8,
+                fill: true
+            },
+            {
+                label: ' cookedbycapjack',
+                data: [68.32, 69.38, 69.38],
+                borderColor: c_cook,
+                backgroundColor: createGradient(ctxRace, c_cook),
+                borderWidth: 3,
+                tension: 0,
+                pointRadius: 4,
+                pointHoverRadius: 8,
+                fill: true
+            }
+        ]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false, // CRITICAL for mobile responsiveness
+        interaction: {
+            mode: 'index',
+            intersect: false,
+        },
+        plugins: {
+            legend: { 
+                position: 'top', 
+                align: 'end', 
+                labels: { 
+                    usePointStyle: true,
+                    boxWidth: 8,
+                    font: { family: 'Oswald', size: 12 }
+                } 
+            },
+            tooltip: { 
+                backgroundColor: 'rgba(30, 41, 59, 0.9)', 
+                titleFont: { family: 'Oswald', size: 14 },
+                bodyFont: { family: 'Segoe UI', size: 13 },
+                padding: 10,
+                cornerRadius: 8,
+                callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw}%` }
+            }
+        },
+        scales: {
+            y: { 
+                beginAtZero: false, 
+                min: 55, 
+                max: 75, 
+                grid: { color: '#f1f5f9', borderDash: [5, 5] },
+                ticks: { font: { family: 'Oswald' }, color: '#94a3b8' }
+            },
+            x: { 
+                grid: { display: false },
+                ticks: { 
+                    font: { family: 'Oswald' }, 
+                    color: '#94a3b8',
+                    maxTicksLimit: 6 // Prevents overcrowding if you add 20 weeks
+                } 
+            }
+        }
+    }
+});
+
+        // --- INIT ---
+        //updateUserStats('JD'); // Load default user
+        //initCharts();          // Load charts
