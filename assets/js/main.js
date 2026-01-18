@@ -22,7 +22,9 @@ let AUTHED_USER = null;
 let currentCellId = null;
 let queryString;
 
+var ALL_GAMES = [];
 var GAMES = [];
+var FILTER = null;
 const PICKERS = [
   { uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9', id: 'FE', color: '#6c5ce7' }, // Purple
   { uuid: 'c310b6e4-1827-4df6-a65d-42e6f7523f58', id: 'GA', color: '#00cec9' }, // Teal
@@ -397,6 +399,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         confCheckboxes.forEach(box => box.checked = true);
         otherCheckboxes.forEach(box => box.checked = false);
         setConferenceState(false); // Enable conferences
+        filterGames('all');
       }
     }
 
@@ -406,6 +409,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
         // If specific view selected, uncheck "All" and DISABLE conferences
         allCheckbox.checked = false;
         setConferenceState(true);
+        console.log(target);
+        filterGames(target.id);
       } else {
         // If unchecking an "Other", we must check if ANY others are still active
         const isAnyOtherActive = Array.from(otherCheckboxes).some(box => box.checked);
@@ -417,6 +422,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
           // Check if we effectively returned to "All" state
           if (areAllConfsChecked()) {
             allCheckbox.checked = true;
+            filterGames('all');
           }
         }
       }
@@ -501,6 +507,22 @@ window.onclick = function(event) {
       }
     }
   }
+}
+
+function filterGames(filterId) {
+  if (filterId === 'SOJRFilter') {
+    FILTER = 'SOJR';
+    GAMES = ALL_GAMES;
+    GAMES = GAMES.filter(game => game.rothstein).sort((a, b) => -1 * a.rothstein.localeCompare(b.rothstein));
+    document.getElementById('sojrTweet').style.display = 'block';
+    renderAll();
+  } else {
+    FILTER = null;
+    GAMES = ALL_GAMES;
+    document.getElementById('sojrTweet').style.display = 'none';
+    renderAll();
+  }
+  return;
 }
 
 /* TABLE GRID FORMAT HELPER */
@@ -1558,11 +1580,17 @@ function switchPick(gameId, targetSide) {
             const awayLog = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${game.away_id}.png&h=200&w=200`;
             const homeLog = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${game.home_id}.png&h=200&w=200`;
 
+            const awayScore = game.away_score ? `<div class="Score-Badge">${game.away_score}</div>` : '';
+            const homeScore = game.home_score ? `<div class="Score-Badge">${game.home_score}</div>` : '';
+
+            const tv = game.tv ? `<div class="Broadcast-Badge"><i class="fa-solid fa-tv"></i> <span>${game.tv}</span></div>` : '';  
+
             return `
             <div class="Game-Slip" id="game-${game.id}">
                 <div class="Slip__Meta">
-                    <span><i class="fa-solid fa-basketball"></i> ${game.league}</span>
-                    <span>${gameTime}</span>
+                    <span class="Meta-Item"><i class="fa-solid fa-basketball"></i>${game.league}</span>
+                    ${tv}
+                    <span class="Meta-Item">${gameTime}</span>
                 </div>
 
                 <div class="Team-Section ${awayClass}" ${awayClickFn}>
@@ -1573,6 +1601,7 @@ function switchPick(gameId, targetSide) {
                             <span class="Team__Record">${game.away_record}</span>
                         </div>
                     </div>
+                    ${awayScore}
                     <div class="Picker-Row">
                         ${createAvatarHTML(game.away_picks?.sort())}
                     </div>
@@ -1589,6 +1618,7 @@ function switchPick(gameId, targetSide) {
                             <span class="Team__Record">${game.home_record}</span>
                         </div>
                     </div>
+                    ${homeScore}
                     <div class="Picker-Row">
                         ${createAvatarHTML(game.home_picks?.sort())}
                     </div>
@@ -1621,11 +1651,12 @@ function switchPick(gameId, targetSide) {
             
             if (GAMES.length === 0 || forceRefresh) {
               const g = await fetchPicks(week);
-              GAMES = g.data.filter( game => game['quality'] !== '*' ); // TODO: filter out bad games
+              GAMES = g.data.filter( game => game['quality'] !== '*'); // TODO: filter out bad games
               GAMES.forEach((game, index) => {
                 game['home_picks'] = game['home_picks']?.map(uuid => MOCK_USERS.find(user => user.id === uuid)?.username?.slice(0,2).toUpperCase() ?? '?');
                 game['away_picks'] = game['away_picks']?.map(uuid => MOCK_USERS.find(user => user.id === uuid)?.username?.slice(0,2).toUpperCase() ?? '?');
               });
+              ALL_GAMES = GAMES;
             }
 
             // TODO: remove; only showing games I picked for fun
@@ -1634,15 +1665,21 @@ function switchPick(gameId, targetSide) {
             let lastDate = '';
             let days = 0;
             let indexBrk = 0;
+
+            let sojrLast = null;
+
             GAMES.forEach((game, index) => {
+              let sep = false;
+              let separatorHTML = '';
+              let filterHTML = '';
+
               const d = new Date(game.time);
               const date = d.toLocaleString(navigator.language, { month: "short", day: "numeric", weekday: "long" });
               const notCompleted = currentDate < d || date === currentDate.toLocaleString(navigator.language, { month: "short", day: "numeric", weekday: "long" });
-
               if (date !== lastDate) {
                 indexBrk = index;
                 days += 1;
-                const separatorHTML = `
+                separatorHTML = `
                 <div class="Date-Separator">
                     <div class="Date-Separator__Text">
                         <i class="fa-regular fa-calendar"></i> ${date}
@@ -1650,18 +1687,36 @@ function switchPick(gameId, targetSide) {
                 </div>
                 `;
                 lastDate = date;
+                sep = true;
+              }
+              
+              if (FILTER === 'SOJR' && game.rothstein && game.rothstein != sojrLast) {
+                indexBrk = index;
+                filterHTML = `
+                  <div class="tweet-content">
+                    ${game.rothstein === "watch" ? "TODAY'S GAMES TO WATCH" : "TODAY'S UNDER-THE-RADAR GAMES"}:
+                  </div>
+                `;
+                  sojrLast = game.rothstein;
+                  sep = true;
+              }
+
+              if (sep) {
                 if (notCompleted) {
                   list.insertAdjacentHTML('beforeend', separatorHTML);
-                  list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column" id="${days}-col-1"></div>`);
-                  list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column" id="${days}-col-2"></div>`);
+                  list.insertAdjacentHTML('beforeend', filterHTML);
+                  list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-1"></div>`);
+                  list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-2"></div>`);
                 } else {
-                  finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column" id="${days}-col-2"></div>`);
-                  finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column" id="${days}-col-1"></div>`);
+                  finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-2"></div>`);
+                  finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-1"></div>`);
+                  finalList.insertAdjacentHTML('afterbegin', filterHTML);
                   finalList.insertAdjacentHTML('afterbegin', separatorHTML);
                 }
               }
-                const colA = document.getElementById(`${days}-col-1`);
-                const colB = document.getElementById(`${days}-col-2`);
+              
+                const colA = document.getElementById(`${days}-${sojrLast}-col-1`);
+                const colB = document.getElementById(`${days}-${sojrLast}-col-2`);
 
                 const cardHTML = renderCardHTML(game, week);
                 if ((index - indexBrk) % 2 === 0) {
@@ -2084,36 +2139,511 @@ function simulateLogin() {
 
 
         const USER_STATS = {
-            'JD': {
-                hot: [
-                    { name: 'Boston Celtics', logo: 'https://upload.wikimedia.org/wikipedia/en/8/8f/Boston_Celtics.svg', record: '10-1', pct: '91%' },
-                    { name: 'KC Chiefs', logo: 'https://upload.wikimedia.org/wikipedia/en/e/e1/Kansas_City_Chiefs_logo.svg', record: '8-2', pct: '80%' },
-                    { name: 'NY Knicks', logo: 'https://upload.wikimedia.org/wikipedia/en/2/25/New_York_Knicks_logo.svg', record: '7-2', pct: '77%' }
-                ],
-                cold: [
-                    { name: 'Chicago Bulls', logo: 'https://upload.wikimedia.org/wikipedia/en/6/67/Chicago_Bulls_logo.svg', record: '0-7', pct: '0%' },
-                    { name: 'Dallas Cowboys', logo: 'https://upload.wikimedia.org/wikipedia/en/1/15/Dallas_Cowboys.svg', record: '1-6', pct: '14%' },
-                    { name: 'LA Lakers', logo: 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Los_Angeles_Lakers_logo.svg', record: '2-8', pct: '20%' }
-                ]
-            },
-            'AS': {
-                hot: [
-                    { name: 'SF 49ers', logo: 'https://upload.wikimedia.org/wikipedia/commons/b/b8/San_Francisco_49ers_logo.svg', record: '9-0', pct: '100%' },
-                    { name: 'GS Warriors', logo: 'https://upload.wikimedia.org/wikipedia/en/0/01/Golden_State_Warriors_logo.svg', record: '11-3', pct: '79%' }
-                ],
-                cold: [
-                    { name: 'NY Jets', logo: 'https://upload.wikimedia.org/wikipedia/en/6/6b/New_York_Jets_logo.svg', record: '0-9', pct: '0%' },
-                    { name: 'Detroit Pistons', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Pistons_logo17.svg', record: '1-8', pct: '11%' }
-                ]
-            },
-            'FT': {
-                hot: [
-                    { name: 'Miami Heat', logo: 'https://upload.wikimedia.org/wikipedia/en/f/fb/Miami_Heat_logo.svg', record: '12-2', pct: '86%' }
-                ],
-                cold: [
-                    { name: 'Cleveland Browns', logo: 'https://upload.wikimedia.org/wikipedia/en/d/d9/Cleveland_Browns_logo.svg', record: '0-10', pct: '0%' }
-                ]
-            }
+            'JD': 
+{
+    "hot": [
+        {
+            "name": "San Diego State",
+            "id": "21",
+            "record": "2-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "UC San Diego",
+            "id": "28",
+            "record": "2-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Vanderbilt",
+            "id": "238",
+            "record": "2-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Virginia",
+            "id": "258",
+            "record": "2-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Purdue",
+            "id": "2509",
+            "record": "2-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Stephen F. Austin",
+            "id": "2617",
+            "record": "2-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Texas Tech",
+            "id": "2641",
+            "record": "2-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Arkansas",
+            "id": "8",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Arizona",
+            "id": "12",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "UConn",
+            "id": "41",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Georgia Tech",
+            "id": "59",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Georgia",
+            "id": "61",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Iowa State",
+            "id": "66",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Louisville",
+            "id": "97",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Duke",
+            "id": "150",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Nebraska",
+            "id": "158",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Bowling Green",
+            "id": "189",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Oklahoma",
+            "id": "201",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Villanova",
+            "id": "222",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Clemson",
+            "id": "228",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Houston",
+            "id": "248",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "UT Arlington",
+            "id": "250",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "BYU",
+            "id": "252",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Alabama",
+            "id": "333",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Illinois",
+            "id": "356",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Buffalo",
+            "id": "2084",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Fordham",
+            "id": "2230",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Hofstra",
+            "id": "2275",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Liberty",
+            "id": "2335",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Charlotte",
+            "id": "2429",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Providence",
+            "id": "2507",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        },
+        {
+            "name": "Saint Mary's",
+            "id": "2608",
+            "record": "1-0",
+            "pct": "100%",
+            "losses": 0
+        }
+    ],
+    "cold": [
+        {
+            "name": "Boston College",
+            "id": "103",
+            "record": "0-2",
+            "pct": "0%",
+            "losses": 2
+        },
+        {
+            "name": "Oklahoma State",
+            "id": "197",
+            "record": "0-2",
+            "pct": "0%",
+            "losses": 2
+        },
+        {
+            "name": "Penn State",
+            "id": "213",
+            "record": "0-2",
+            "pct": "0%",
+            "losses": 2
+        },
+        {
+            "name": "Auburn",
+            "id": "2",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Arizona State",
+            "id": "9",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Stanford",
+            "id": "24",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "UC Riverside",
+            "id": "27",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Florida State",
+            "id": "52",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Hawai'i",
+            "id": "62",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Boise State",
+            "id": "68",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Indiana",
+            "id": "84",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Kentucky",
+            "id": "96",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "LSU",
+            "id": "99",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Massachusetts",
+            "id": "113",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Michigan",
+            "id": "130",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Ole Miss",
+            "id": "145",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "NC State",
+            "id": "152",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "St. Bonaventure",
+            "id": "179",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Pittsburgh",
+            "id": "221",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Southern Utah",
+            "id": "253",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Utah",
+            "id": "254",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Washington State",
+            "id": "265",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Marquette",
+            "id": "269",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Fresno State",
+            "id": "278",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Ball State",
+            "id": "2050",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Cincinnati",
+            "id": "2132",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Houston Christian",
+            "id": "2277",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Kansas State",
+            "id": "2306",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Monmouth",
+            "id": "2405",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Sam Houston",
+            "id": "2534",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "SE Louisiana",
+            "id": "2545",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "South Carolina",
+            "id": "2579",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "St. John's",
+            "id": "2599",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Tennessee",
+            "id": "2633",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Wichita State",
+            "id": "2724",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Xavier",
+            "id": "2752",
+            "record": "0-1",
+            "pct": "0%",
+            "losses": 1
+        },
+        {
+            "name": "Colorado",
+            "id": "38",
+            "record": "1-1",
+            "pct": "50%",
+            "losses": 1
+        },
+        {
+            "name": "Wisconsin",
+            "id": "275",
+            "record": "1-1",
+            "pct": "50%",
+            "losses": 1
+        },
+        {
+            "name": "DePaul",
+            "id": "305",
+            "record": "1-1",
+            "pct": "50%",
+            "losses": 1
+        }
+    ]
+}
+
         };
 
         // --- 2. RENDER FUNCTIONS ---
@@ -2127,7 +2657,7 @@ function simulateLogin() {
             hotContainer.innerHTML = data.hot.map(team => `
                 <div class="Team-Record-Item">
                     <div class="Team-Identity">
-                        <img src="${team.logo}" class="Team-Logo">
+                        <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200" class="Team-Logo">
                         <div class="Team-Name">${team.name}</div>
                     </div>
                     <div>
@@ -2141,7 +2671,7 @@ function simulateLogin() {
             coldContainer.innerHTML = data.cold.map(team => `
                 <div class="Team-Record-Item">
                     <div class="Team-Identity">
-                        <img src="${team.logo}" class="Team-Logo">
+                        <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200" class="Team-Logo">
                         <div class="Team-Name">${team.name}</div>
                     </div>
                     <div>
@@ -2294,7 +2824,7 @@ new Chart(ctxRace, {
         datasets: [
             {
                 label: ' fearthebeak',
-                data: [62.07, 64.17, 64.17],
+                data: [62.07, 64.17, 65.66],
                 borderColor: c_fear,
                 backgroundColor: createGradient(ctxRace, c_fear),
                 borderWidth: 3,
@@ -2305,7 +2835,7 @@ new Chart(ctxRace, {
             },
             {
                 label: ' notflorida',
-                data: [66.34, 68.13, 68.13],
+                data: [66.34, 68.13, 65.87],
                 borderColor: c_notf,
                 backgroundColor: createGradient(ctxRace, c_notf),
                 borderWidth: 3,
@@ -2316,7 +2846,7 @@ new Chart(ctxRace, {
             },
             {
                 label: ' Gayson Tatum',
-                data: [64.36, 69.38, 69.38],
+                data: [64.36, 69.38, 68.27],
                 borderColor: c_gays,
                 backgroundColor: createGradient(ctxRace, c_gays),
                 borderWidth: 3,
@@ -2327,7 +2857,7 @@ new Chart(ctxRace, {
             },
             {
                 label: ' cookedbycapjack',
-                data: [68.32, 69.38, 69.38],
+                data: [68.32, 69.38, 67.31],
                 borderColor: c_cook,
                 backgroundColor: createGradient(ctxRace, c_cook),
                 borderWidth: 3,
@@ -2385,5 +2915,5 @@ new Chart(ctxRace, {
 });
 
         // --- INIT ---
-        //updateUserStats('JD'); // Load default user
+        updateUserStats('JD'); // Load default user
         //initCharts();          // Load charts

@@ -671,6 +671,15 @@ opacity: 0.9;
         --card-bg: #ffffff;
         --text-main: #1e293b;
         --text-muted: #64748b;
+
+            --bg-color: #000000;
+            --card1-bg: #000000;
+            --border-color: #2F3336;
+            --text-primary: #E7E9EA;
+            --text-secondary: #71767B;
+            --accent-blue: #1D9BF0;
+            --accent-red: #F91880; /* For "Brutal" text */
+            --hover-bg: #16181C;
 }
 
 .Header-Menu {
@@ -1937,6 +1946,74 @@ max-height: 100px;
 .Unauthed-Picks {
   display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px;
 }
+        .tweet-sojr {
+            display: none;
+        }
+
+        .tweet-header {
+            display: flex;
+            align-items: flex-start;
+            padding: 12px 16px 0 16px;
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            margin-right: 12px;
+            object-fit: cover;
+            /* Rothstein Image */
+            background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSK-GLEyxQeYeypGDHHmlP17b-LADb52rM4TQ&s');
+            background-size: cover;
+            flex-shrink: 0;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .name-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .display-name {
+            font-weight: 700;
+            font-size: 15px;
+            color: black;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .verified-icon {
+            color: var(--accent-blue); /* Blue check */
+            font-size: 14px;
+        }
+        
+        /* Gold check variation for organizations if desired: color: #E7B416; */
+
+        .handle {
+            color: var(--text-secondary);
+            font-size: 15px;
+            font-weight: 400;
+        }
+
+        .tweet-content {
+            min-width: 500px;
+            padding: 4px 16px 12px 64px;
+            font-size: 17px;
+            color: black;
+            line-height: 1.4;
+        }
+
+        .hashtag {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
 
 .Toggle-Container {
         display: flex; align-items: center; gap: 8px; font-family: 'Oswald', sans-serif;
@@ -2011,6 +2088,23 @@ max-height: 100px;
         font-family: 'Oswald', sans-serif;
     }
 
+
+.Broadcast-Badge {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* Space between icon and text */
+  color: #2d3436;
+  
+  background-color: #dfe6e9; /* Light gray pill background */
+  padding: 2px 8px;
+  border-radius: 12px; /* Rounded pill shape */
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.Broadcast-Badge i {
+  color: #636e72;
+}
+
     /* --- TEAM SECTION STYLING --- */
     .Team-Section {
         padding: 8px 10px;
@@ -2064,6 +2158,22 @@ max-height: 100px;
         font-weight: 500;
         transition: color 0.3s ease;
     }
+
+.Score-Badge {
+  display: flex;
+  justify-content: flex-end;
+
+  font-weight: 500;
+  color: #b2bec3; 
+  
+  font-family: 'Oswald', sans-serif;
+  line-height: 1;
+}
+.is-winner .Score-Badge {
+  font-weight: 700;
+  color: #2d3436;
+  text-shadow: 2px 2px 0px rgba(0,0,0,0.05); 
+}
 
     /* --- PICKER AVATARS --- */
     .Picker-Row {
@@ -2351,7 +2461,7 @@ max-height: 100px;
     display: none;
     flex-direction: column;
     align-items: center;
-    margin-top: 15px;
+    margin-bottom: 8px;
 }
 
 .Legend-Toggle-Btn {
@@ -2854,7 +2964,7 @@ max-height: 100px;
     /* --- DASHBOARD GRID --- */
     .Dashboard-Container {
         max-width: 800px; margin: 0 auto; padding: 20px;
-        display: grid; gap: 20px;
+        display: grid; gap: 20px; flex-direction: column;
     }
 
     /* --- CARDS (Base Style) --- */
@@ -2871,7 +2981,7 @@ max-height: 100px;
 
     /* --- SECTION 1: HOT & COLD (User Specific) --- */
     .Split-Grid {
-        display: none; /* grid; */
+        display: grid;
         grid-template-columns: 1fr 1fr; gap: 15px;
     }
     
