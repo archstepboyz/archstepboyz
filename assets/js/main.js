@@ -513,7 +513,7 @@ function filterGames(filterId) {
   if (filterId === 'SOJRFilter') {
     FILTER = 'SOJR';
     GAMES = ALL_GAMES;
-    GAMES = GAMES.filter(game => game.rothstein).sort((a, b) => -1 * a.rothstein.localeCompare(b.rothstein));
+    GAMES = GAMES.filter(game => game.rothstein)//.sort((a, b) => -1 * a.rothstein.localeCompare(b.rothstein));
     document.getElementById('sojrTweet').style.display = 'block';
     renderAll();
   } else {
@@ -1664,9 +1664,11 @@ function switchPick(gameId, targetSide) {
 
             let lastDate = '';
             let days = 0;
-            let indexBrk = 0;
+            let indexBrk = { 'all': 0 };
 
-            let sojrLast = null;
+            let sojrLast = 'all';
+
+            let dayHTML = '';
 
             GAMES.forEach((game, index) => {
               let sep = false;
@@ -1677,10 +1679,9 @@ function switchPick(gameId, targetSide) {
               const date = d.toLocaleString(navigator.language, { month: "short", day: "numeric", weekday: "long" });
               const notCompleted = currentDate < d || date === currentDate.toLocaleString(navigator.language, { month: "short", day: "numeric", weekday: "long" });
               if (date !== lastDate) {
-                indexBrk = index;
                 days += 1;
                 separatorHTML = `
-                <div class="Date-Separator">
+                <div class="Date-Separator" id="${days}-date-sep">
                     <div class="Date-Separator__Text">
                         <i class="fa-regular fa-calendar"></i> ${date}
                     </div>
@@ -1691,14 +1692,18 @@ function switchPick(gameId, targetSide) {
               }
               
               if (FILTER === 'SOJR' && game.rothstein && game.rothstein != sojrLast) {
-                indexBrk = index;
+                if (!document.getElementById(`${days}-${game.rothstein}-col-1`)) {
                 filterHTML = `
                   <div class="tweet-content">
                     ${game.rothstein === "watch" ? "TODAY'S GAMES TO WATCH" : "TODAY'S UNDER-THE-RADAR GAMES"}:
                   </div>
                 `;
-                  sojrLast = game.rothstein;
                   sep = true;
+                }
+                sojrLast = game.rothstein;
+                if (!indexBrk[sojrLast]) {
+                  indexBrk[sojrLast] = 1;
+                }
               }
 
               if (sep) {
@@ -1707,22 +1712,39 @@ function switchPick(gameId, targetSide) {
                   list.insertAdjacentHTML('beforeend', filterHTML);
                   list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-1"></div>`);
                   list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-2"></div>`);
+                  if (separatorHTML !== '') {
+                    indexBrk = { 'all': 0 };
+                    indexBrk[sojrLast] =  1;
+                  }
                 } else {
-                  finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-2"></div>`);
-                  finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-1"></div>`);
-                  finalList.insertAdjacentHTML('afterbegin', filterHTML);
-                  finalList.insertAdjacentHTML('afterbegin', separatorHTML);
+                  if (separatorHTML !== '') {
+                    finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-2"></div>`);
+                    finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-1"></div>`);
+                    finalList.insertAdjacentHTML('afterbegin', filterHTML);
+                    finalList.insertAdjacentHTML('afterbegin', separatorHTML);
+                    indexBrk = { 'all': 0 };
+                    indexBrk[sojrLast] =  1;
+                  } else {
+                    tempList = document.getElementById(`${days}-date-sep`);
+                    tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-2"></div>`);
+                    tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-1"></div>`);
+                    tempList.insertAdjacentHTML('afterend', filterHTML);
+                  }
                 }
               }
               
                 const colA = document.getElementById(`${days}-${sojrLast}-col-1`);
                 const colB = document.getElementById(`${days}-${sojrLast}-col-2`);
 
+                console.log(indexBrk);
+
                 const cardHTML = renderCardHTML(game, week);
-                if ((index - indexBrk) % 2 === 0) {
+                if ((indexBrk[sojrLast] + 1) % 2 === 0) {
                     colA.insertAdjacentHTML(notCompleted ? 'beforeend' : 'afterbegin', cardHTML);
+                    indexBrk[sojrLast] += 1;
                 } else {
                     colB.insertAdjacentHTML(notCompleted ? 'beforeend' : 'afterbegin', cardHTML);
+                    indexBrk[sojrLast] += 1;
                 }
             });
         }
