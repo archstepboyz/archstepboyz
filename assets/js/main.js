@@ -2653,6 +2653,8 @@ const USERS = ['Alice', 'Bob', 'Charlie', 'Dave', 'Eve', 'Frank'];
         function showPopularChart() {
             const start = currentPage * itemsPerPage;
             const end = start + itemsPerPage;
+            const globalMax = Math.max(...TOP_TEAMS1.map(team => team[1].total)); 
+            const totalPages = Math.ceil(TOP_TEAMS1.length / itemsPerPage);
         
           const topTeams = TOP_TEAMS1.sort((a,b)=>b[1].total - a[1].total).slice(start,end);
         const labels = topTeams.map(d=>d[0]);
@@ -2712,7 +2714,8 @@ const USERS = ['Alice', 'Bob', 'Charlie', 'Dave', 'Eve', 'Frank'];
                     y: { 
                         stacked: true, 
                         beginAtZero: true,
-                        grid: { color: '#e2e8f0' }
+                        grid: { color: '#e2e8f0' },
+                        max: globalMax + 1
                     }
                 },
                 plugins: {
