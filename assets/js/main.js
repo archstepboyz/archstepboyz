@@ -1887,6 +1887,8 @@ function renderBallot(initialLoad = false, submitted = false) {
 
     updateHeaderControls(isReadOnly);
 
+    let lastVotes = [-1, -1]; // for ties
+
     dataToShow.forEach((team, index) => {
         const teamKey = currentView === 'OFFICIAL' ? team.key : team;
         const teamVotes = team.totalVotes ?? '25';
@@ -1966,7 +1968,11 @@ function renderBallot(initialLoad = false, submitted = false) {
         if (index === 0) {
           renderCreativeCard(data[0].key, 1, data[0].totalVotes, data[0].firstPlace, 'rank-1');
         } else {
-          renderCreativeCard(data[index].key, index + 1, data[index].totalVotes, data[index].firstPlace, 'rank-grid');
+          renderCreativeCard(data[index].key, data[index].totalVotes === lastVotes[0] ? lastVotes[1] : index + 1, data[index].totalVotes, data[index].firstPlace, 'rank-grid');
+        }
+        if (data[index].totalVotes !== lastVotes[0]) {
+          lastVotes[0] = data[index].totalVotes;
+          lastVotes[1] = index + 1;
         }
       }
     });
