@@ -3011,29 +3011,29 @@ max-height: 100px;
 
 /* The anchor for our absolute positioning */
 .Name-Container {
-  position: relative; 
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .Team-Name {
   font-weight: bold;
   font-size: 16px;
-  margin-right: 8px; /* Space between name and the start of the logos */
+  margin-right: 8px; 
 }
 
 /* --- HISTORY TRACKS --- */
 .History-Track {
-    position: absolute;
-    left: 100%;
     display: flex;
-    gap: 4px; /* Gap between individual game chips */
-    align-items: center;
+    flex-wrap: wrap; /* THIS IS KEY: Allows wrapping to next line */
+    gap: 4px; /* Space between chips */
+    
+    max-width: 220px; /* Constrain width so it forces a wrap */
+    
+    /* Optional: Limit to approx 3 rows height then hide overflow */
+    max-height: 65px; 
+    overflow: hidden;
 }
-
-/* Position Adjustments */
-.History-Track.is-loss { bottom: -10px; }
-.History-Track.is-win  { top: -10px; }
 
 /* --- THE GAME CHIP (The Box) --- */
 .Mini-Game {

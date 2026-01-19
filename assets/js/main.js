@@ -1494,7 +1494,11 @@ async function removeValueFromArray(columnName, valueToRemove, rowId) {
 }
 
 async function fetchPicks(week) {
-  return db_client.from("Picks").select("*").eq('week',week).order('time').order('id');
+  if (week === 'all') {
+    return db_client.from("Picks").select("*").order('time').order('id');
+  } else {
+    return db_client.from("Picks").select("*").eq('week',week).order('time').order('id');
+  }
 }
 
 // TODO: make this more scalable for many users
