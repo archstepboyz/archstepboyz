@@ -38,7 +38,16 @@ const PICKERS = [
   { uuid: '', id: 'BOOTS', username: 'Boots Radford', color: '#e84393', icon: 'fa-solid fa-shoe-prints' },  // Pink
 ];
 let showingAllPicks = false;
-const CURRENT_WEEK = 11;
+let CURRENT_WEEK = 12;
+function changeWeekView(week) {
+  CURRENT_WEEK = week;
+  renderAll(true);
+  const ballot = document.querySelector(".Top25-Container");
+  ballot.style.display = "none";
+  if (CURRENT_WEEK >= 11) {
+    showTop25Rankings();
+  }
+}
 
 let currentView = 'DRAFT';
 let draftBallot = new Array(25).fill(null); 
@@ -64,27 +73,48 @@ function calculateIdIndexSums(arraysWithIds) {
 }
 
 function populateMockDB(ballots) {
-  const submittedBallots = ballots.filter(ballot => ballot.submitted);
+  if (CURRENT_WEEK < 11) return; // should say no data for selected week
+  const submittedBallots = ballots.filter(ballot => ballot[`submitted${CURRENT_WEEK}`]);
   const myBallot = ballots.find(ballot => ballot.id === AUTHED_USER.sub);
 
   const all = submittedBallots.reduce((acc, curr) => {
-    const { id, week10 } = curr;
-    acc[id] = week10;
+    const id = curr.id;
+    const total = curr[`week${CURRENT_WEEK}`];
+    acc[id] = total;
     return acc;
   }, {});
 
-  const arr = calculateIdIndexSums(submittedBallots.map(ballot => ballot.week10));
+  const arr = calculateIdIndexSums(submittedBallots.map(ballot => ballot[`week${CURRENT_WEEK}`]));
 
   all['OFFICIAL'] = arr;
   MOCK_DB = { ...all };
   delete MOCK_DB[AUTHED_USER.sub];
 
-  isSubmitted = myBallot.submitted;
+  isSubmitted = myBallot[`submitted${CURRENT_WEEK}`];
   if (isSubmitted) {
     currentView = 'OFFICIAL';
     viewSelector.options[1].selected = true;
+  } else {
+    currentView = 'DRAFT';
+    viewSelector.options[0].selected = true;
   }
-  draftBallot = myBallot.week10;
+  draftBallot = myBallot[`week${CURRENT_WEEK}`];
+}
+
+async function showTop25Rankings() {
+    // add submitted eq true
+    fetchD1().then((res) => { 
+      TEAMS = res; 
+      AUTHED_USER && fetchTop25().then((res2) => { 
+        populateMockDB(res2.data); 
+        initSortable(); 
+        setTimeout(() => {
+          renderBallot(true);
+          const ballot = document.querySelector(".Top25-Container");
+          ballot.style.display = "flex";
+        }, 200);
+      }); 
+    });
 }
 
 /* HELPER METHODS */
@@ -150,8 +180,8 @@ async function fetchTop25() {
   return db_client.from("Top25").select('*');
 }
 
-async function updateTop25(user_id, week, rankings, submitted = false) {
-  const data = { [week]: rankings, submitted };
+async function updateTop25(user_id, week, rankings, submit_week, submitted = false) {
+  const data = { [week]: rankings, [submit_week]: submitted };
   console.log('updated db top 25');
   return db_client.from("Top25").update(data).eq("id", user_id);
 }
@@ -287,10 +317,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
     picks.style.display = "none";
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
-    const ballot = document.querySelector(".Top25-Container");
-    ballot.style.display = "flex";
-    // add submitted eq true
-    fetchD1().then((res) => { TEAMS = res; AUTHED_USER && fetchTop25().then((res2) => { populateMockDB(res2.data); initSortable(); renderBallot(true); }); });
+    if (CURRENT_WEEK >= 11) {
+      const ballot = document.querySelector(".Top25-Container");
+      ballot.style.display = "flex";
+      showTop25Rankings();
+    }
     const dash = document.getElementById("statsDash");
     dash.style.display = "none";
   }
@@ -1839,7 +1870,7 @@ function renderBallot(initialLoad = false, submitted = false) {
         //saveBtn.classList.remove('hidden');
         if(sortableInstance) sortableInstance.option("disabled", false);
     } else {
-        dataToShow = MOCK_DB[currentView].slice(0,25);
+        dataToShow = MOCK_DB[currentView]?.slice(0,25);
         isReadOnly = true;
         //saveBtn.classList.add('hidden');
         if(sortableInstance) sortableInstance.option("disabled", true);
@@ -1852,7 +1883,7 @@ function renderBallot(initialLoad = false, submitted = false) {
       container.classList.remove('mode-official');
       container.classList.remove('is-creative');
     }
-    !initialLoad && updateTop25(AUTHED_USER.sub, 'week10', draftBallot, submitted);
+    !initialLoad && updateTop25(AUTHED_USER.sub, `week${CURRENT_WEEK}`, draftBallot, `submitted${CURRENT_WEEK}`, submitted);
 
     updateHeaderControls(isReadOnly);
 
@@ -1887,11 +1918,9 @@ function renderBallot(initialLoad = false, submitted = false) {
                         <button class="Control-Btn ${upVisibility}" onclick="moveTeam(${index}, -1)">
                             <i class="fa-solid fa-chevron-up"></i>
                         </button>
-                        <!--
                         <button class="Control-Btn remove" onclick="clearRow(${index})">
                             <i class="fa-solid fa-xmark"></i>
                         </button>
-                        -->
                         <button class="Control-Btn ${downVisibility}" onclick="moveTeam(${index}, 1)">
                             <i class="fa-solid fa-chevron-down"></i>
                         </button>
@@ -2007,7 +2036,7 @@ function renderTeamGrid() {
 
     for (team of TEAMS) {
         // Determine disabled state
-        const isUsed = usedTeams.includes(team.id) && draftBallot[activeRowIndex] != team.id;
+        const isUsed = (usedTeams.includes(team.id) || usedTeams.includes(team.id.toString())) && draftBallot[activeRowIndex] != team.id;
         const disabledClass = isUsed ? 'disabled' : '';
         const style = isUsed ? 'opacity: 0.4;' : '';
 
@@ -2089,6 +2118,7 @@ function updateHeaderControls(readOnly) {
         btnSubmit.classList.add('hidden');
         badge.classList.add('hidden');
         viewSelector.options[0].text = "My Ballot";
+        viewSelector.disabled = false;
         return;
     }
 
@@ -2450,7 +2480,6 @@ function calculateWinPercentage() {
         }
     }
 
-    console.log(results);
     return results;
 }
 //const winPercentages = calculateWinPercentage();
