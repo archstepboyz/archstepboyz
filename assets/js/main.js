@@ -1703,11 +1703,11 @@ function switchPick(gameId, targetSide) {
                 sep = true;
               }
               
-              if (FILTER === 'SOJR' && game.rothstein && game.rothstein != sojrLast) {
+              if (FILTER === 'SOJR' && game.rothstein && (game.rothstein != sojrLast || sep)) {
                 if (!document.getElementById(`${days}-${game.rothstein}-col-1`)) {
                 filterHTML = `
                   <div class="tweet-content">
-                    ${game.rothstein === "watch" ? "TODAY'S GAMES TO WATCH" : "TODAY'S UNDER-THE-RADAR GAMES"}:
+                    ${game.rothstein == "watch" ? "TODAY'S GAMES TO WATCH" : "TODAY'S UNDER-THE-RADAR GAMES"}:
                   </div>
                 `;
                   sep = true;
