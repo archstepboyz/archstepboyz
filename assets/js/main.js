@@ -42,7 +42,7 @@ let CURRENT_WEEK = 12;
 function changeWeekView(week) {
   CURRENT_WEEK = week;
   renderAll(true);
-  const ballot = document.querySelector(".Top25-Container");
+  const ballot = document.getElementById("top25Rankings");
   ballot.style.display = "none";
   if (CURRENT_WEEK >= 11) {
     showTop25Rankings();
@@ -110,8 +110,8 @@ async function showTop25Rankings() {
         initSortable(); 
         setTimeout(() => {
           renderBallot(true);
-          const ballot = document.querySelector(".Top25-Container");
-          ballot.style.display = "flex";
+          const ballot = document.getElementById("top25Rankings");
+          ballot.style.display = "block";
         }, 200);
       }); 
     });
