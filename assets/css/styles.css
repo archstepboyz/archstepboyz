@@ -2004,12 +2004,16 @@ max-height: 100px;
             gap: 4px;
         }
 
-        .verified-icon {
-            color: var(--accent-blue); /* Blue check */
-            font-size: 14px;
+        /* --- THE AUTHENTIC VERIFIED BADGE SVG --- */
+        .verified-badge {
+            width: 18px;
+            height: 18px;
+            fill: var(--accent-blue); /* Twitter Blue */
+            vertical-align: text-bottom;
         }
         
-        /* Gold check variation for organizations if desired: color: #E7B416; */
+        /* Optional: Gold badge class for organizations */
+        .verified-badge.gold { fill: #E7B416; }
 
         .handle {
             color: var(--text-secondary);
