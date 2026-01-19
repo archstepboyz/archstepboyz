@@ -863,7 +863,6 @@
     </div>
   </div>
 
-
     <div class="Dashboard-Container" id="statsDash">
 
         <div class="Split-Grid">
@@ -895,8 +894,7 @@
     </div>
 </div>
 
-        <!--
-        <div class="Stat-Card">
+        <div class="Stat-Card" style="display:none;">
             <div class="Card-Title">
                 <i class="fa-solid fa-crosshairs"></i> League Proficiency
             </div>
@@ -914,8 +912,25 @@
                 </div>
             </div>
         </div>
-        -->
 
+    <div class="card" style="grid-column: 1 / -1;">
+            <div class="card-title"><i class="fas fa-chart-bar" style="color: gray"></i> Popularly Picked Teams</div>
+            <p class="card-desc">Showing most frequently picked teams. Green = Team Won, Red = Team Lost.</p>
+            <div class="chart-box-tall">
+                <canvas id="popularityChart"></canvas>
+            </div>
+            <div class="pagination-container">
+                <button class="page-btn" id="prevBtn" onclick="changePage(-1)">
+                    <i class="fas fa-chevron-left"></i> Prev
+                </button>
+                <span class="page-info" id="pageIndicator">Page 1</span>
+                <button class="page-btn" id="nextBtn" onclick="changePage(1)">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
     </div>
+
+
 </body>
 </html>

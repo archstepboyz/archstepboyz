@@ -190,6 +190,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const listBtn = document.getElementById("listViewBtn");
   const picksBtn = document.getElementById("picksViewBtn");
   const top25Btn = document.getElementById("top25ViewBtn");
+  const statsBtn = document.getElementById("statsViewBtn");
   const mainContent = document.getElementById("MainContent");
 
   function switchToGrid() {
@@ -197,6 +198,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     listBtn.classList.remove("active");
     picksBtn.classList.remove("active");
     top25Btn.classList.remove("active");
+    statsBtn.classList.remove("active");
 
     const list = document.querySelector(".list-container");
     list.style.display = "none";
@@ -221,6 +223,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     gridBtn.classList.remove("active");
     picksBtn.classList.remove("active");
     top25Btn.classList.remove("active");
+    statsBtn.classList.remove("active");
 
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -245,6 +248,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     gridBtn.classList.remove("active");
     picksBtn.classList.add("active");
     top25Btn.classList.remove("active");
+    statsBtn.classList.remove("active");
 
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -269,6 +273,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     gridBtn.classList.remove("active");
     picksBtn.classList.remove("active");
     top25Btn.classList.add("active");
+    statsBtn.classList.remove("active");
     
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -295,6 +300,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     gridBtn.classList.remove("active");
     picksBtn.classList.remove("active");
     top25Btn.classList.remove("active");
+    statsBtn.classList.add("active");
 
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -362,6 +368,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
     case "top25":
       switchToTop25();
       break;
+    case "stats":
+      switchToStats();
+      break;
     default:
       switchToGrid();
   }
@@ -409,7 +418,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         // If specific view selected, uncheck "All" and DISABLE conferences
         allCheckbox.checked = false;
         setConferenceState(true);
-        console.log(target);
         filterGames(target.id);
       } else {
         // If unchecking an "Other", we must check if ANY others are still active
@@ -1543,8 +1551,8 @@ function switchPick(gameId, targetSide) {
 
         function renderCardHTML(game, week) {
             // Check Consensus (5 pickers total)
-            const isAwayConsensus = game.away_picks?.length === 4;
-            const isHomeConsensus = game.home_picks?.length === 4;
+            const isAwayConsensus = game.away_picks?.length >= 4;
+            const isHomeConsensus = game.home_picks?.length >= 4;
 
             let awayClasses = [];
             let homeClasses = [];
@@ -1657,10 +1665,10 @@ function switchPick(gameId, targetSide) {
                 game['away_picks'] = game['away_picks']?.map(uuid => MOCK_USERS.find(user => user.id === uuid)?.username?.slice(0,2).toUpperCase() ?? '?');
               });
               ALL_GAMES = GAMES;
+              USER_STATS['all'] = getHotColdReport(GAMES);
+              updateUserStats('all');
+              getPopularPicks(GAMES);
             }
-
-            // TODO: remove; only showing games I picked for fun
-            //GAMES = GAMES.filter(game => game.away_picks?.includes('FE') || game.home_picks?.includes('FE'));
 
             let lastDate = '';
             let days = 0;
@@ -1735,8 +1743,6 @@ function switchPick(gameId, targetSide) {
               
                 const colA = document.getElementById(`${days}-${sojrLast}-col-1`);
                 const colB = document.getElementById(`${days}-${sojrLast}-col-2`);
-
-                console.log(indexBrk);
 
                 const cardHTML = renderCardHTML(game, week);
                 if ((indexBrk[sojrLast] + 1) % 2 === 0) {
@@ -2159,680 +2165,153 @@ function simulateLogin() {
   }, 1000);
 }
 
+/* ANALYTICS DASHBOARD */
+const USER_STATS = {
+  'all': {}
+};
 
-        const USER_STATS = {
-            'JD': 
-{
-    "hot": [
-        {
-            "name": "San Diego State",
-            "id": "21",
-            "record": "2-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "UC San Diego",
-            "id": "28",
-            "record": "2-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Vanderbilt",
-            "id": "238",
-            "record": "2-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Virginia",
-            "id": "258",
-            "record": "2-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Purdue",
-            "id": "2509",
-            "record": "2-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Stephen F. Austin",
-            "id": "2617",
-            "record": "2-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Texas Tech",
-            "id": "2641",
-            "record": "2-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Arkansas",
-            "id": "8",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Arizona",
-            "id": "12",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "UConn",
-            "id": "41",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Georgia Tech",
-            "id": "59",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Georgia",
-            "id": "61",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Iowa State",
-            "id": "66",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Louisville",
-            "id": "97",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Duke",
-            "id": "150",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Nebraska",
-            "id": "158",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Bowling Green",
-            "id": "189",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Oklahoma",
-            "id": "201",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Villanova",
-            "id": "222",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Clemson",
-            "id": "228",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Houston",
-            "id": "248",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "UT Arlington",
-            "id": "250",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "BYU",
-            "id": "252",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Alabama",
-            "id": "333",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Illinois",
-            "id": "356",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Buffalo",
-            "id": "2084",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Fordham",
-            "id": "2230",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Hofstra",
-            "id": "2275",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Liberty",
-            "id": "2335",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Charlotte",
-            "id": "2429",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Providence",
-            "id": "2507",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        },
-        {
-            "name": "Saint Mary's",
-            "id": "2608",
-            "record": "1-0",
-            "pct": "100%",
-            "losses": 0
-        }
-    ],
-    "cold": [
-        {
-            "name": "Boston College",
-            "id": "103",
-            "record": "0-2",
-            "pct": "0%",
-            "losses": 2
-        },
-        {
-            "name": "Oklahoma State",
-            "id": "197",
-            "record": "0-2",
-            "pct": "0%",
-            "losses": 2
-        },
-        {
-            "name": "Penn State",
-            "id": "213",
-            "record": "0-2",
-            "pct": "0%",
-            "losses": 2
-        },
-        {
-            "name": "Auburn",
-            "id": "2",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Arizona State",
-            "id": "9",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Stanford",
-            "id": "24",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "UC Riverside",
-            "id": "27",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Florida State",
-            "id": "52",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Hawai'i",
-            "id": "62",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Boise State",
-            "id": "68",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Indiana",
-            "id": "84",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Kentucky",
-            "id": "96",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "LSU",
-            "id": "99",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Massachusetts",
-            "id": "113",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Michigan",
-            "id": "130",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Ole Miss",
-            "id": "145",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "NC State",
-            "id": "152",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "St. Bonaventure",
-            "id": "179",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Pittsburgh",
-            "id": "221",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Southern Utah",
-            "id": "253",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Utah",
-            "id": "254",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Washington State",
-            "id": "265",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Marquette",
-            "id": "269",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Fresno State",
-            "id": "278",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Ball State",
-            "id": "2050",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Cincinnati",
-            "id": "2132",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Houston Christian",
-            "id": "2277",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Kansas State",
-            "id": "2306",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Monmouth",
-            "id": "2405",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Sam Houston",
-            "id": "2534",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "SE Louisiana",
-            "id": "2545",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "South Carolina",
-            "id": "2579",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "St. John's",
-            "id": "2599",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Tennessee",
-            "id": "2633",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Wichita State",
-            "id": "2724",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Xavier",
-            "id": "2752",
-            "record": "0-1",
-            "pct": "0%",
-            "losses": 1
-        },
-        {
-            "name": "Colorado",
-            "id": "38",
-            "record": "1-1",
-            "pct": "50%",
-            "losses": 1
-        },
-        {
-            "name": "Wisconsin",
-            "id": "275",
-            "record": "1-1",
-            "pct": "50%",
-            "losses": 1
-        },
-        {
-            "name": "DePaul",
-            "id": "305",
-            "record": "1-1",
-            "pct": "50%",
-            "losses": 1
-        }
-    ]
+function updateUserStats(userId) {
+    const data = USER_STATS[userId];
+    const hotContainer = document.getElementById('hotList');
+    const coldContainer = document.getElementById('coldList');
+
+    hotContainer.innerHTML = data.hot.map(team => {
+      const victories = team.victory.map(w => `
+                <div class="Mini-Game">
+                    ${w.venue === 'away' ? `<span class="Loc-Badge">@</span>` : ''}
+                    <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${w.id}.png&h=50&w=50" class="Mini-Logo" title="">
+                </div>
+          `).join('');
+      const defeats = team.defeat.map(l => `
+                <div class="Mini-Game">
+                    ${l.venue === 'home' ? `<span class="Loc-Badge">@</span>` : ''}
+                    <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${l.id}.png&h=50&w=50" class="Mini-Logo" title="">
+                </div>
+          `).join('');
+      return `
+        <div class="Team-Record-Item">
+            <div class="Team-Identity">
+                <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200" class="Team-Logo">
+<div class="Name-Container">
+      <div class="Team-Name">${team.name}</div>
+
+      <div class="History-Track is-loss">
+      ${defeats}
+            </div>
+
+            <div class="History-Track is-win">
+      ${victories}
+                
+            </div>
+      
+    </div>
+            </div>
+            <div>
+                <div class="Record-Badge">${team.record}</div>
+                <div class="Win-Pct">${team.pct}</div>
+            </div>
+        </div>
+    `; 
+    }).join('');
+
+    coldContainer.innerHTML = data.cold.map(team => {
+      const victories = team.victory.map(w => `
+                <div class="Mini-Game">
+                    ${w.venue === 'away' ? `<span class="Loc-Badge">@</span>` : ''}
+                    <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${w.id}.png&h=50&w=50" class="Mini-Logo" title="">
+                </div>
+          `).join('');
+      const defeats = team.defeat.map(l => `
+                <div class="Mini-Game">
+                    ${l.venue === 'home' ? `<span class="Loc-Badge">@</span>` : ''}
+                    <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${l.id}.png&h=50&w=50" class="Mini-Logo" title="">
+                </div>
+          `).join('');
+    return `
+        <div class="Team-Record-Item">
+            <div class="Team-Identity">
+                <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200" class="Team-Logo">
+<div class="Name-Container">
+      <div class="Team-Name">${team.name}</div>
+
+      <div class="History-Track is-loss">
+      ${defeats}
+            </div>
+
+            <div class="History-Track is-win">
+      ${victories}
+            </div>
+      
+    </div>
+            </div>
+            <div>
+                <div class="Record-Badge">${team.record}</div>
+                <div class="Win-Pct">${team.pct}</div>
+            </div>
+        </div>
+    `;
+    }).join('');
 }
 
-        };
+function initCharts() {
+    Chart.defaults.font.family = "'Segoe UI', sans-serif";
+    Chart.defaults.color = '#64748b';
 
-        // --- 2. RENDER FUNCTIONS ---
-
-        function updateUserStats(userId) {
-            const data = USER_STATS[userId];
-            const hotContainer = document.getElementById('hotList');
-            const coldContainer = document.getElementById('coldList');
-
-            // Render Hot
-            hotContainer.innerHTML = data.hot.map(team => `
-                <div class="Team-Record-Item">
-                    <div class="Team-Identity">
-                        <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200" class="Team-Logo">
-                        <div class="Team-Name">${team.name}</div>
-                    </div>
-                    <div>
-                        <div class="Record-Badge">${team.record}</div>
-                        <div class="Win-Pct">${team.pct}</div>
-                    </div>
-                </div>
-            `).join('');
-
-            // Render Cold
-            coldContainer.innerHTML = data.cold.map(team => `
-                <div class="Team-Record-Item">
-                    <div class="Team-Identity">
-                        <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200" class="Team-Logo">
-                        <div class="Team-Name">${team.name}</div>
-                    </div>
-                    <div>
-                        <div class="Record-Badge">${team.record}</div>
-                        <div class="Win-Pct">${team.pct}</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // --- 3. CHART CONFIGURATION ---
-
-        function initCharts() {
-            // GLOBAL CONFIG
-            Chart.defaults.font.family = "'Segoe UI', sans-serif";
-            Chart.defaults.color = '#64748b';
-
-            // --- A. LINE CHART (The Race) ---
-            const ctxRace = document.getElementById('raceChart').getContext('2d');
-            new Chart(ctxRace, {
-                type: 'line',
-                data: {
-                    labels: ['Wk 9', 'Wk 10', 'Wk 11'],
-                    datasets: [
-                        {
-                            label: 'fearthebeak',
-                            data: [62.07, 64.17, 64.17],
-                            borderColor: '#6c5ce7', 
-                            //backgroundColor: 'rgba(204, 0, 51, 0.1)',
-                            borderWidth: 3,
-                            tension: 0.4, // Curvy lines
-                            pointRadius: 4,
-                            fill: true
-                        },
-                        {
-                            label: 'notflorida',
-                            data: [66.34, 68.13, 68.13],
-                            borderColor: '#fab1a0', 
-                            borderWidth: 2,
-                            tension: 0.4,
-                            pointRadius: 3
-                        },
-                        {
-                            label: 'Gayson Tatum',
-                            data: [64.36, 69.38, 69.38],
-                            borderColor: '#00cec9', 
-                            borderWidth: 2,
-                            tension: 0.4,
-                            pointRadius: 3
-                        },
-                        {
-                            label: 'cookedbycapjack',
-                            data: [68.32, 69.38, 69.38],
-                            borderColor: '#d63031', 
-                            borderWidth: 2,
-                            tension: 0.4,
-                            pointRadius: 3
-                        }
-                    ]
+    /* RADAR CHART */
+    const ctxRadar = document.getElementById('radarChart').getContext('2d');
+    new Chart(ctxRadar, {
+        type: 'radar',
+        data: {
+            labels: ['NBA', 'NFL', 'NCAA B', 'NCAA F', 'MLB', 'NHL'],
+            datasets: [
+                {
+                    label: 'JD',
+                    data: [85, 60, 70, 90, 55, 40],
+                    borderColor: '#CC0033',
+                    backgroundColor: 'rgba(204, 0, 51, 0.2)',
+                    pointBackgroundColor: '#CC0033',
+                    borderWidth: 2
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true } },
-                        tooltip: { 
-                            backgroundColor: '#1e293b', 
-                            titleFont: { family: 'Oswald' },
-                            callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw}%` }
-                        }
-                    },
-                    scales: {
-                        y: { beginAtZero: false, min: 45, max: 75, grid: { color: '#f1f5f9' } },
-                        x: { grid: { display: false } }
-                    }
+                {
+                    label: 'ArchStep',
+                    data: [50, 85, 60, 50, 75, 80],
+                    borderColor: '#003366', // Husker Blue
+                    backgroundColor: 'rgba(0, 51, 102, 0.2)',
+                    pointBackgroundColor: '#003366',
+                    borderWidth: 2
                 }
-            });
-
-            // --- B. RADAR CHART (League Proficiency) ---
-            /*
-            const ctxRadar = document.getElementById('radarChart').getContext('2d');
-            new Chart(ctxRadar, {
-                type: 'radar',
-                data: {
-                    labels: ['NBA', 'NFL', 'NCAA B', 'NCAA F', 'MLB', 'NHL'],
-                    datasets: [
-                        {
-                            label: 'JD',
-                            data: [85, 60, 70, 90, 55, 40],
-                            borderColor: '#CC0033',
-                            backgroundColor: 'rgba(204, 0, 51, 0.2)',
-                            pointBackgroundColor: '#CC0033',
-                            borderWidth: 2
-                        },
-                        {
-                            label: 'ArchStep',
-                            data: [50, 85, 60, 50, 75, 80],
-                            borderColor: '#003366', // Husker Blue
-                            backgroundColor: 'rgba(0, 51, 102, 0.2)',
-                            pointBackgroundColor: '#003366',
-                            borderWidth: 2
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        r: {
-                            angleLines: { color: '#e2e8f0' },
-                            grid: { color: '#e2e8f0' },
-                            pointLabels: {
-                                font: { size: 12, weight: '700', family: 'Oswald' },
-                                color: '#1e293b'
-                            },
-                            ticks: { display: false } // Hide numbers on axis
-                        }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: { color: '#e2e8f0' },
+                    grid: { color: '#e2e8f0' },
+                    pointLabels: {
+                        font: { size: 12, weight: '700', family: 'Oswald' },
+                        color: '#1e293b'
                     },
-                    plugins: {
-                        legend: { position: 'bottom' }
-                    }
+                    ticks: { display: false } // Hide numbers on axis
                 }
-            });
-            */
+            },
+            plugins: {
+                legend: { position: 'bottom' }
+            }
         }
+    });
+}
 
-// --- HELPER: Create Fading Gradient ---
 function createGradient(ctx, color) {
     const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    // Top color: 20% opacity
     gradient.addColorStop(0, color.replace(')', ', 0.2)').replace('rgb', 'rgba'));
-    // Bottom color: 0% opacity (fades out)
     gradient.addColorStop(1, color.replace(')', ', 0.0)').replace('rgb', 'rgba'));
     return gradient;
 }
 
 const ctxRace = document.getElementById('raceChart').getContext('2d');
 
-// Define Colors
 const c_fear = 'rgb(108, 92, 231)'; // #6c5ce7
 const c_notf = 'rgb(250, 177, 160)'; // #fab1a0
 const c_gays = 'rgb(0, 206, 201)';   // #00cec9
@@ -2936,6 +2415,326 @@ new Chart(ctxRace, {
     }
 });
 
-        // --- INIT ---
-        updateUserStats('JD'); // Load default user
-        //initCharts();          // Load charts
+function calculateWinPercentage() {
+  const us = {};
+  PICKERS.forEach(picker => {us[picker.id] = [0,0];});
+  GAMES.forEach(game => {
+    if (!game) return;
+    if (game.winner === 'away') {
+        game.away_picks?.forEach(pick => { if(pick in us) {us[pick][0] += 1;} });
+        game.home_picks?.forEach(pick => { if(pick in us) {us[pick][1] += 1;} });
+    } else if (game.winner === 'home') {
+        game.away_picks?.forEach(pick => { if(pick in us) {us[pick][1] += 1;} });
+        game.home_picks?.forEach(pick => { if(pick in us) {us[pick][0] += 1;} });
+    }
+  });
+    const results = {};
+
+    for (const team in us) {
+        if (us.hasOwnProperty(team)) {
+            const wins = us[team][0];
+            const losses = us[team][1];
+            const totalGames = wins + losses;
+
+            if (totalGames > 0) {
+                // Calculate percentage and round to two decimal places
+                const winPercentage = ((wins / totalGames) * 100).toFixed(2);
+                results[team] = `${winPercentage}%`;
+            } else {
+                results[team] = "0.00%"; // Handle cases with zero total games
+            }
+        }
+    }
+
+    console.log(results);
+    return results;
+}
+//const winPercentages = calculateWinPercentage();
+
+function getHotColdReport(games) {
+  const records = {};
+
+  // 1. Tally Wins and Losses
+  games.forEach(game => {
+    const homePicks = game.home_picks || [];
+    const awayPicks = game.away_picks || [];
+
+    if (homePicks.length > 3 || awayPicks.length > 3) {
+      const pick = homePicks.length > 3 ? 'home' : 'away';
+      let corr = pick === game.winner;
+      let winnerId, loserId, winnerName, loserName;
+
+      if (game.winner === 'home') {
+        winnerId = game.home_id;
+        winnerName = game.home;
+        loserId = game.away_id;
+        loserName = game.away;
+      } else if (game.winner === 'away') {
+        winnerId = game.away_id;
+        winnerName = game.away;
+        loserId = game.home_id;
+        loserName = game.home;
+      }
+
+      if (winnerId && loserId) {
+
+        if (corr) {
+          if (!records[winnerId]) records[winnerId] = { name: winnerName, wins: 0, losses: 0, id: winnerId, victory: [], defeat: []};
+          records[winnerId].wins++;
+          records[winnerId].victory.push({'id': loserId, 'venue': game.winner});
+        } else {
+          if (!records[loserId]) records[loserId] = { name: loserName, wins: 0, losses: 0, id: loserId, victory: [], defeat: []};
+          records[loserId].losses++;
+          records[loserId].defeat.push({'id': winnerId, 'venue': game.winner});
+        }
+      }
+    }
+  });
+
+  // 2. Format Data
+  const teamArray = Object.values(records).map(team => {
+    const total = team.wins + team.losses;
+    const rawPct = total === 0 ? 0 : (team.wins / total);
+    
+    return {
+      name: team.name,
+      id: String(team.id),
+      record: `${team.wins}-${team.losses}`,
+      pct: `${Math.round(rawPct * 100)}%`,
+      rawPct: rawPct,
+      wins: team.wins, losses: team.losses, victory: team.victory, defeat: team.defeat,
+    };
+  });
+
+  // 3. Split by 60% Threshold
+  // Hot: >= 0.6 | Cold: < 0.6
+  const hotList = teamArray.filter(t => t.rawPct >= 0.60);
+  const coldList = teamArray.filter(t => t.rawPct < 0.60);
+
+  // 4. Sort Hot List
+  // Primary: Pct Descending | Secondary: Wins Descending
+  hotList.sort((a, b) => {
+    if (b.rawPct !== a.rawPct) {
+      return b.rawPct - a.rawPct;
+    }
+    return b.wins - a.wins; 
+  });
+
+  // 5. Sort Cold List
+  // Primary: Pct Ascending | Secondary: Wins Ascending (Fewer wins = "colder")
+  coldList.sort((a, b) => {
+    if (a.rawPct !== b.rawPct) {
+      return a.rawPct - b.rawPct;
+    }
+    return b.losses - a.losses;
+  });
+
+  // 6. Cleanup helper properties
+  const clean = (list) => list.map(({ rawPct, wins, ...item }) => item);
+
+  const result = {
+    hot: clean(hotList),
+    cold: clean(coldList)
+  };
+  return result;
+} 
+
+//initCharts();
+
+let TOP_TEAMS1 = [];
+
+function getPopularPicks(games) {
+  let records = {};
+  games.forEach(game => {
+    const homePicks = game.home_picks || [];
+    const awayPicks = game.away_picks || [];
+
+      let winnerId, loserId, winnerName, loserName, loser;
+
+      if (game.winner === 'home') {
+        loser = 'away';
+        winnerId = game.home_id;
+        winnerName = game.home;
+        loserId = game.away_id;
+        loserName = game.away;
+      } else if (game.winner === 'away') {
+        loser = 'home';
+        winnerId = game.away_id;
+        winnerName = game.away;
+        loserId = game.home_id;
+        loserName = game.home;
+      }
+
+      if (winnerId && loserId) {
+          if (!records[winnerName]) records[winnerName] = { name: winnerName, wins: 0, losses: 0, id: winnerId, total: 0};
+          if (!records[loserName]) records[loserName] = { name: loserName, wins: 0, losses: 0, id: loserId, total: 0};
+
+
+          records[winnerName].wins += game[`${game.winner}_picks`]?.length ?? 0;
+          records[winnerName].total += game[`${game.winner}_picks`]?.length ?? 0;
+          records[loserName].losses += game[`${loser}_picks`]?.length ?? 0;
+          records[loserName].total += game[`${loser}_picks`]?.length ?? 0;
+      }
+  });
+  TOP_TEAMS1 = Object.entries(records);
+  showPopularChart();
+}
+
+// --- CONFIG & LOGOS ---
+        const PALETTE = ["#6c5ce7", "#00cec9", "#fab1a0", "#fdcb6e", "#d63031", "#0984e3", "#00b894", "#e17055", "#e84393"];
+        
+        const LOGO_MAP = {
+            'Lakers': { type: 'nba', id: 'lal' }, 'Celtics': { type: 'nba', id: 'bos' },
+            'Warriors': { type: 'nba', id: 'gsw' }, 'Bulls': { type: 'nba', id: 'chi' },
+            'Heat': { type: 'nba', id: 'mia' }, 'Knicks': { type: 'nba', id: 'nyk' },
+            'Purdue': { type: 'ncaa', id: '2509' }, 'Texas Tech': { type: 'ncaa', id: '2641' },
+            'Suns': { type: 'nba', id: 'phx' }, 'Bucks': { type: 'nba', id: 'mil' },
+            'Sixers': { type: 'nba', id: 'phi' }, 'Nuggets': { type: 'nba', id: 'den' }
+        };
+
+        function getTeamLogo(name) {
+          return `https://a.espncdn.com/i/teamlogos/ncaa/500/${name}.png`;
+        }
+
+const USERS = ['Alice', 'Bob', 'Charlie', 'Dave', 'Eve', 'Frank'];
+        const TEAMS1 = Object.keys(LOGO_MAP);
+        const DATABASE = [];
+
+        for(let w=9; w<=12; w++) {
+            for(let i=0; i<5; i++) { // More games to fill chart
+                let h = TEAMS1[Math.floor(Math.random()*TEAMS1.length)];
+                let a = TEAMS1[Math.floor(Math.random()*TEAMS1.length)];
+                while(h===a) a = TEAMS1[Math.floor(Math.random()*TEAMS1.length)];
+
+                let winner = Math.random() > 0.5 ? h : a;
+                let hPicks = [], aPicks = [];
+
+                // Scenarios
+                if(h === 'Lakers') { winner = a; hPicks = [...USERS]; } // Lakers always lose
+                else if (w === 11 && i === 0) { h='Bulls'; a='Heat'; winner='Bulls'; hPicks=['Dave']; aPicks=['Alice','Bob']; }
+                else {
+                    USERS.forEach(u => {
+                        if(Math.random()>0.3) (Math.random()>0.5 ? hPicks : aPicks).push(u);
+                    });
+                }
+                DATABASE.push({ week:w, home:h, away:a, winner, hPicks, aPicks });
+            }
+        }
+
+        // --- DATA PROCESSING ---
+        const lossCounts = {};
+        const teamPickStats = {}; // { Lakers: { wins: 10, losses: 5, total: 15 } }
+
+        DATABASE.forEach(g => {
+            const loser = g.winner === g.home ? g.away : g.home;
+            const loserPicks = g.winner === g.home ? g.aPicks.length : g.hPicks.length;
+            lossCounts[loser] = (lossCounts[loser] || 0) + loserPicks;
+
+            // Popularity & Outcome
+            const processTeam = (team, picks, didWin) => {
+                if(!teamPickStats[team]) teamPickStats[team] = { wins: 0, losses: 0, total: 0 };
+                const count = picks.length;
+                teamPickStats[team].total += count;
+                if(didWin) teamPickStats[team].wins += count;
+                else teamPickStats[team].losses += count;
+            };
+
+            processTeam(g.home, g.hPicks, g.winner === g.home);
+            processTeam(g.away, g.aPicks, g.winner === g.away);
+        });
+
+        Chart.defaults.font.family = "'Oswald', sans-serif";
+        let currentPage = 0;
+        const itemsPerPage = 10;
+        const totalPages = 100;
+        let popularityChartInstance = null; // Stores the active chart object
+        
+        // 2. Stacked Bar with Logo Axis
+        function showPopularChart() {
+            const start = currentPage * itemsPerPage;
+            const end = start + itemsPerPage;
+        
+          const topTeams = TOP_TEAMS1.sort((a,b)=>b[1].total - a[1].total).slice(start,end);
+        const labels = topTeams.map(d=>d[0]);
+        const ids = topTeams.map(d=>d[1].id);
+        const dataWins = topTeams.map(d=>d[1].wins);
+        const dataLosses = topTeams.map(d=>d[1].losses);
+        const images = ids.map(l => {
+            const img = new Image();
+            img.src = getTeamLogo(l);
+            return img;
+        });
+            if (popularityChartInstance) {
+                popularityChartInstance.destroy();
+            }
+
+        // Custom Plugin for Logos
+        const logoAxis = {
+            id: 'logoAxis',
+            afterDraw(chart) {
+                const { ctx, scales: { x, y } } = chart;
+                const xAxis = chart.scales['x'];
+                const yAxis = chart.scales['y'];
+                
+                xAxis.ticks.forEach((value, index) => {
+                    const x = xAxis.getPixelForTick(index);
+                    const img = images[index];
+                    // Draw image centered on tick
+                    if (img.complete) {
+                        ctx.drawImage(img, x - 15, yAxis.bottom + 10, 30, 30);
+                    } else {
+                        img.onload = () => chart.draw();
+                    }
+                });
+            }
+        };
+
+        popularityChartInstance = new Chart(document.getElementById('popularityChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Picks Won', data: dataWins, backgroundColor: '#00b894', stack: 'Stack 0', borderRadius: 4 },
+                    { label: 'Picks Lost', data: dataLosses, backgroundColor: '#d63031', stack: 'Stack 0', borderRadius: 4 }
+                ]
+            },
+            plugins: [logoAxis],
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: { padding: { bottom: 30 } }, // Make room for logos
+                scales: {
+                    x: { 
+                        stacked: true, 
+                        grid: { display: false },
+                        ticks: { display: false } // Hide text labels
+                    },
+                    y: { 
+                        stacked: true, 
+                        beginAtZero: true,
+                        grid: { color: '#e2e8f0' }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: (ctx) => labels[ctx[0].dataIndex] // Show name in tooltip
+                        }
+                    }
+                }
+            }
+        });
+
+            document.getElementById('pageIndicator').innerText = `Page ${currentPage + 1} of ${totalPages}`;
+            document.getElementById('prevBtn').disabled = currentPage === 0;
+            document.getElementById('nextBtn').disabled = currentPage === totalPages - 1;
+        }
+
+        function changePage(direction) {
+            currentPage += direction;
+            // Clamp values
+            if(currentPage < 0) currentPage = 0;
+            if(currentPage >= totalPages) currentPage = totalPages - 1;
+            
+            showPopularChart();
+        }
