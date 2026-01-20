@@ -1,6 +1,6 @@
-/* GLOBAL VARS */
+import { getCityFromIP } from './utils.js';
 
-// comment
+/* GLOBAL VARS */
 
 const currentDate = new Date();
 
@@ -22,8 +22,11 @@ let AUTHED_USER = null;
 let currentCellId = null;
 let queryString;
 
+var scrollPosition;
+
 var ALL_GAMES = [];
 var GAMES = [];
+var TEAMS;
 var FILTER = null;
 const PICKERS = [
   { uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9', id: 'FE', color: '#6c5ce7' }, // Purple
@@ -37,8 +40,11 @@ const PICKERS = [
   { uuid: '', id: 'ARCH', username: 'ArchStepBoy', color: '#e17055', icon: 'fa-solid fa-user-astronaut' },  // Orange
   { uuid: '', id: 'BOOTS', username: 'Boots Radford', color: '#e84393', icon: 'fa-solid fa-shoe-prints' },  // Pink
 ];
+
 let showingAllPicks = false;
 let CURRENT_WEEK = 12;
+// should make this const and introduce SELECTED_WEEK
+
 function changeWeekView(week) {
   CURRENT_WEEK = week;
   renderAll(true);
@@ -48,6 +54,7 @@ function changeWeekView(week) {
     showTop25Rankings();
   }
 }
+window.changeWeekView = changeWeekView;
 
 let currentView = 'DRAFT';
 let draftBallot = new Array(25).fill(null); 
@@ -128,18 +135,6 @@ function idCompareSort(a, b) {
 
   return a.localeCompare(b);
 };
-
-async function getCityFromIP() {
-  try {
-    const response = await fetch("https://ipapi.co/json");
-    const data = await response.json();
-    const city = data.city;
-    const region = data.region;
-    return `${city}/${region}`;
-  } catch (e) {
-    return "New York/New York";
-  }
-}
 
 /* DB API Requests */
 async function apiReq(url, method, data) {
@@ -380,6 +375,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         switchToGrid();
     }
   };
+  window.setActive = setActive;
 
   queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
@@ -506,15 +502,17 @@ document.addEventListener("DOMContentLoaded", (event) => {
       const cells = document.querySelectorAll(".Table__TD");
       cells.forEach((cell) => {
         const team = cell.getAttribute("data-cell-name");
-        if (
-          CACHED_COMMENTS_DB?.filter((comment) => comment.team === team)
-            .length > 0
-        ) {
-          cell.classList.add("has-comments");
-        }
-        cell.addEventListener("click", () => openDrawer(cell));
-        if (chat && team === chat) {
-          cell.click();
+        if (team) {
+          if (
+            CACHED_COMMENTS_DB?.filter((comment) => comment.team === team)
+              .length > 0
+          ) {
+            cell.classList.add("has-comments");
+          }
+          cell.addEventListener("click", () => openDrawer(cell));
+          if (chat && team === chat) {
+            cell.click();
+          }
         }
       });
     });
@@ -534,6 +532,7 @@ function toggleFilters() {
   const menu = document.getElementById('filterMenu');
   menu.classList.toggle('show');
 }
+window.toggleFilters = toggleFilters;
 
 // Close the dropdown if the user clicks outside of it
 window.onclick = function(event) {
@@ -646,6 +645,7 @@ function closeDrawer() {
   drawer.classList.remove("open");
   currentCellId = null;
 }
+window.closeDrawer = closeDrawer;
 
 async function openDrawer(cell) {
   if (event.target.closest("a")) return;
@@ -823,6 +823,7 @@ async function submitComment() {
   await renderComments();
   updateCellIndicator();
 }
+window.submitComment = submitComment;
 
 async function submitReply(parentId) {
   const input = document.getElementById(`reply-text-${parentId}`);
@@ -1062,6 +1063,7 @@ function openAddModal(teamIdToEdit = null) {
   modal.classList.add("open");
   setTimeout(() => inputName.focus(), 100);
 }
+window.openAddModal = openAddModal;
 
 function closeAddModal(e) {
   // If e is passed (click event), only close if clicking overlay background
@@ -1075,6 +1077,7 @@ function closeAddModal(e) {
     document.getElementById("inputStreak").value = "";
   }, 300);
 }
+window.closeAddModal = closeAddModal;
 
 function toggleDrawer(id) {
   const row = document.getElementById(id);
@@ -1084,6 +1087,7 @@ function toggleDrawer(id) {
   });
   row.classList.toggle("drawer-open");
 }
+window.toggleDrawer = toggleDrawer;
 
 // TODO: implement
 function deleteTeam(id) {
@@ -1096,6 +1100,7 @@ function deleteTeam(id) {
   }
   return;
 }
+window.deleteTeam = deleteTeam;
 
 function handleNewTeam(event) {
   event.preventDefault();
@@ -1156,6 +1161,7 @@ function openLoginModal() {
   document.body.classList.add("drawer-open");
   document.body.style.top = `-${scrollPosition}px`;
 }
+window.openLoginModal = openLoginModal;
 
 function closeLoginModal(event) {
   if (event && !event.target.classList.contains("Modal-Overlay")) {
@@ -1169,6 +1175,7 @@ function closeLoginModal(event) {
   document.body.style.top = "";
   window.scrollTo(0, scrollPosition);
 }
+window.closeLoginModal = closeLoginModal;
 
 function authedUserDisplay() {
   /*
@@ -1190,7 +1197,7 @@ function authedUserDisplay() {
   const userDisplay = document.getElementById('userDisplay');
   const userAvatar = document.getElementById('userAvatarInitials');
 
-  color = PICKERS.find(p => p.uuid === AUTHED_USER.sub)?.color;
+  const color = PICKERS.find(p => p.uuid === AUTHED_USER.sub)?.color;
   if (color) {
     menuContainer.style.setProperty('--user-theme', color);
     userDisplay.textContent = AUTHED_USER.username;
@@ -1271,6 +1278,7 @@ async function handleLogin(event) {
       modalBox.classList.add('mode-login');
     }
   }
+  window.toggleAuthMode = toggleAuthMode;
 
   function handleForgotSubmit(e) {
     e.preventDefault();
@@ -1293,6 +1301,7 @@ function toggleUserDropdown(event) {
     document.addEventListener("click", closeDropdownOnClickOutside);
   }
 }
+window.toggleUserDropdown = toggleUserDropdown;
 
 function closeDropdown() {
   const menu = document.getElementById("userDropdown");
@@ -1377,6 +1386,7 @@ async function handleSignup(event) {
     }, 1000); // Fake delay for realism
   }
 }
+window.handleSignup = handleSignup;
 
 async function signUpWithReferral(email, password, username, referralCode) {
   const { data: validCode, codeError } = await db_client.rpc(
@@ -1466,6 +1476,7 @@ function validateInputs() {
 
   return true;
 }
+window.validateInputs = validateInputs;
 
 async function handleLogout() {
   const { error } = await db_client.auth.signOut();
@@ -1479,6 +1490,7 @@ async function handleLogout() {
     AUTHED_USER = null; // TODO: don't rely on this global
   }
 }
+window.handleLogout = handleLogout;
 
 async function forgotPassword(email) {
   const { error } = await db_client.auth.resetPasswordForEmail(email, {
@@ -1542,6 +1554,7 @@ function toggleView() {
   renderAll();
   toggleLegend();
 }
+window.toggleView = toggleView;
 
 function switchPick(gameId, targetSide) {
     const gamePicks = GAMES.find( game => game.id ===  gameId );
@@ -1566,6 +1579,7 @@ function switchPick(gameId, targetSide) {
     // Re-render only this card
     renderCardToDOM(gameId);
 }
+window.switchPick = switchPick;
 
         function createAvatarHTML(pickerIds) {
             if (pickerIds == null) return '';
@@ -2011,6 +2025,7 @@ function switchView(newView) {
     currentView = newView;
     renderBallot(true);
 }
+window.switchView = switchView;
 
 // --- MODAL & SEARCH ---
 
@@ -2172,18 +2187,21 @@ function toggleUnsubmitMenu() {
         }, 0);
     }
 }
+window.toggleUnsubmitMenu = toggleUnsubmitMenu;
 
 function closeMenuOutside(e) {
   if (!e.target.closest('.Badge-Submitted')) {
     document.getElementById('unsubmitDropdown').classList.remove('active');
   }
 }
+window.closeMenuOutside = closeMenuOutside;
 
 function unsubmitBallot() {
   isSubmitted = false;
   document.getElementById('unsubmitDropdown').classList.remove('active');
   renderBallot(false, false); 
 }
+window.unsubmitBallot = unsubmitBallot;
 
 // AUTH LOGIC
 const isUserLoggedIn = false;
@@ -2782,3 +2800,4 @@ const USERS = ['Alice', 'Bob', 'Charlie', 'Dave', 'Eve', 'Frank'];
             
             showPopularChart();
         }
+        window.changePage = changePage;

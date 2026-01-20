@@ -30,7 +30,7 @@
 
   <script src=
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/main.js" type="module"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src=
   "https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -688,11 +688,11 @@
         <form class="Login-Form" onsubmit="handleLogin(event)">
           <div class="Input-Wrapper">
             <label>Email</label> 
-            <input type="text" id="username" placeholder="Email" required="">
+            <input type="text" id="username" placeholder="Email" required="" autocomplete="email">
           </div>
           <div class="Input-Wrapper">
             <label>Password</label> 
-            <input type="password" id="password" placeholder="Password" required="">
+            <input type="password" id="password" placeholder="Password" required="" autocomplete="current-password">
           </div>
           <button type="submit" class="Submit-Btn">Sign In</button>
         </form>
@@ -712,7 +712,7 @@
         <form class="Login-Form" onsubmit="handleForgotSubmit(event)">
           <div class="Input-Wrapper">
             <label>Email Address</label> 
-            <input type="email" id="forgot-email" placeholder="you@example.com" required="">
+            <input type="email" id="forgot-email" placeholder="you@example.com" required="" autocomplete="email">
           </div>
           <button type="submit" class="Submit-Btn">Send Link</button>
         </form>
@@ -734,11 +734,11 @@
             </div>
             <div class="Input-Wrapper">
               <label>Email Address <span class="req">*</span></label> 
-              <input type="email" id="new-email" placeholder="you@example.com" required="">
+              <input type="email" id="new-email" placeholder="you@example.com" required="" autocomplete="email">
             </div>
             <div class="Input-Wrapper">
               <label>Password <span class="req">*</span></label>
-              <input type="password" id="new-password" placeholder="••••••••" required="" onblur="validateInputs()">
+              <input type="password" id="new-password" placeholder="••••••••" required="" autocomplete="new-password" onblur="validateInputs()">
               <div class="Input-Help">Must be at least 8 characters.</div>
             </div>
             <div class="Input-Wrapper">
