@@ -2039,6 +2039,7 @@ function openSelector(index) {
     modal1.classList.add('active');
     setTimeout(() => document.getElementById('teamSearch').focus(), 100);
 }
+window.openSelector = openSelector;
 
 function filterTeams() {
     const query = document.getElementById('teamSearch').value.toLowerCase();
@@ -2053,6 +2054,7 @@ function filterTeams() {
         }
     });
 }
+window.filterTeams = filterTeams;
 
 function renderTeamGrid() {
     const grid = document.getElementById('teamGrid');
@@ -2060,7 +2062,7 @@ function renderTeamGrid() {
 
     const usedTeams = draftBallot.filter(t => t != 0);
 
-    for (team of TEAMS) {
+    for (const team of TEAMS) {
         // Determine disabled state
         const isUsed = (usedTeams.includes(team.id) || usedTeams.includes(team.id.toString())) && draftBallot[activeRowIndex] != team.id;
         const disabledClass = isUsed ? 'disabled' : '';
@@ -2085,11 +2087,13 @@ function selectTeam(teamKey) {
     closeModal();
     renderBallot();
 }
+window.selectTeam = selectTeam;
 
 function closeModal(e) {
     if (e && !e.target.classList.contains('Modal-Overlay') && !e.target.classList.contains('Modal-Close')) return;
     modal1.classList.remove('active');
 }
+window.closeModal = closeModal;
 
 // --- DRAFT MANIPULATION ---
 
@@ -2098,6 +2102,7 @@ function clearRow(index) {
     draftBallot[index] = 0;
     renderBallot();
 }
+window.clearRow = clearRow;
 
 function moveTeam(index, direction) {
     event.stopPropagation();
@@ -2108,6 +2113,7 @@ function moveTeam(index, direction) {
     draftBallot[newIndex] = temp;
     renderBallot();
 }
+window.moveTeam = moveTeam;
 
 function saveBallot() {
     return;
@@ -2178,6 +2184,7 @@ function submitBallot() {
     renderBallot(false, true);
     setTimeout( () => {fetchD1().then((res) => { TEAMS = res; AUTHED_USER && fetchTop25().then((res2) => { populateMockDB(res2.data); initSortable(); renderBallot(true); }); });}, 1000 );
 }
+window.submitBallot = submitBallot;
 
 function toggleUnsubmitMenu() {
     const menu = document.getElementById('unsubmitDropdown');
