@@ -790,6 +790,7 @@ function toggleReply(commentId) {
     el.style.display = "flex";
   }
 }
+window.toggleReply = toggleReply;
 
 async function deleteCommentModal(commentId) {
   const children = CACHED_COMMENTS_DB.filter(
@@ -803,6 +804,7 @@ async function deleteCommentModal(commentId) {
   await renderComments();
   updateCellIndicator();
 }
+window.deleteCommentModal = deleteCommentModal;
 
 async function submitComment() {
   const input = document.getElementById("commentInput");
@@ -977,6 +979,7 @@ function insertMention(name) {
   inputField.focus();
   hideSuggestions();
 }
+window.insertMention = insertMention;
 
 function formatMentions(text) {
   if (!text) return "";
