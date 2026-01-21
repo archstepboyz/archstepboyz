@@ -37,7 +37,7 @@ const PICKERS = [
   { uuid: '1bca9cd2-5e27-4942-97d7-29c2e0bc70cc', id: 'CB', color: '#0984e3' },  // Blue
   { uuid: '72cee94c-8f10-4005-94df-c21995d44bae', id: 'JO', color: '#00b894' },  // Green
   /* unused */
-  { uuid: '', id: 'ARCH', username: 'ArchStepBoy', color: '#e17055', icon: 'fa-solid fa-user-astronaut' },  // Orange
+  { uuid: 'f5d64492-737d-48a7-939a-d75449e21ca2', id: 'CR', color: '#e17055', }, //icon: 'fa-solid fa-user-astronaut' },  // Orange
   { uuid: '', id: 'BOOTS', username: 'Boots Radford', color: '#e84393', icon: 'fa-solid fa-shoe-prints' },  // Pink
 ];
 
