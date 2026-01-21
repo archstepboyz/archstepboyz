@@ -1192,7 +1192,6 @@ function authedUserDisplay() {
     
     loginBtn.onclick = null;
     */
-  console.log('test');
 
   document.getElementById("loginBtn").style.display = "none";
   document.querySelector('.Unauthed-Picks').style.display = "flex";
@@ -1787,7 +1786,7 @@ window.switchPick = switchPick;
                     indexBrk = { 'all': 0 };
                     indexBrk[sojrLast] =  1;
                   } else {
-                    tempList = document.getElementById(`${days}-date-sep`);
+                    const tempList = document.getElementById(`${days}-date-sep`);
                     tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-2"></div>`);
                     tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-1"></div>`);
                     tempList.insertAdjacentHTML('afterend', filterHTML);
