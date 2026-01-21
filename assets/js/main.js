@@ -1192,6 +1192,7 @@ function authedUserDisplay() {
     
     loginBtn.onclick = null;
     */
+  console.log('test');
 
   document.getElementById("loginBtn").style.display = "none";
   document.querySelector('.Unauthed-Picks').style.display = "flex";
@@ -1254,6 +1255,7 @@ async function handleLogin(event) {
   usernameInput.value = "";
   passwordInput.value = "";
 }
+window.handleLogin = handleLogin;
 
   function toggleAuthMode(mode) {
     const loginView = document.getElementById('view-login');
