@@ -1669,7 +1669,7 @@ window.switchPick = switchPick;
                     <div class="Consensus-Badge"> <i class="fa-solid fa-check"></i></div>
                 </div>
 
-                <div class="Slip__Divider"><span>VS</span></div>
+                <div class="Slip__Divider"><span style="color:#4A505E;">VS</span></div>
 
                 <div class="Team-Section ${homeClass}" ${homeClickFn}>
                     <div class="Team__Header">
@@ -1771,24 +1771,24 @@ window.switchPick = switchPick;
                 if (notCompleted) {
                   list.insertAdjacentHTML('beforeend', separatorHTML);
                   list.insertAdjacentHTML('beforeend', filterHTML);
-                  list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-1"></div>`);
-                  list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-2"></div>`);
+                  list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column matchupsA" id="${days}-${sojrLast}-col-1"></div>`);
+                  list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column matchupsB" id="${days}-${sojrLast}-col-2"></div>`);
                   if (separatorHTML !== '') {
                     indexBrk = { 'all': 0 };
                     indexBrk[sojrLast] =  1;
                   }
                 } else {
                   if (separatorHTML !== '') {
-                    finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-2"></div>`);
-                    finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-1"></div>`);
+                    finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column matchupsB" id="${days}-${sojrLast}-col-2"></div>`);
+                    finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column matchupsA" id="${days}-${sojrLast}-col-1"></div>`);
                     finalList.insertAdjacentHTML('afterbegin', filterHTML);
                     finalList.insertAdjacentHTML('afterbegin', separatorHTML);
                     indexBrk = { 'all': 0 };
                     indexBrk[sojrLast] =  1;
                   } else {
                     const tempList = document.getElementById(`${days}-date-sep`);
-                    tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-2"></div>`);
-                    tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column" id="${days}-${sojrLast}-col-1"></div>`);
+                    tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column matchupsB" id="${days}-${sojrLast}-col-2"></div>`);
+                    tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column matchupsA" id="${days}-${sojrLast}-col-1"></div>`);
                     tempList.insertAdjacentHTML('afterend', filterHTML);
                   }
                 }

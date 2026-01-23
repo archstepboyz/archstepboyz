@@ -2078,6 +2078,9 @@ max-height: 100px;
 
         min-width: 0;
     }
+    .matchupsB {
+      margin-top: 16px;
+    }
 
     /*
     @media(min-width: 150px) {
@@ -2089,24 +2092,26 @@ max-height: 100px;
     .Game-Slip {
         background: #ffffff;
         border-radius: 12px;
-        box-shadow: 6px 6px 15px rgba(0,0,0,0.03), -6px -6px 15px rgba(255,255,255,0.9);
         padding: 8px;
-        border: 1px solid rgba(0,0,0,0.02);
+        border: 1px solid #4A505E;
+
+        box-shadow: 6px 6px 0px #dfe6e9;
         position: relative;
     }
 
-    .Slip__Meta {
-        display: flex;
-        justify-content: space-between;
-        font-size: 9px;
-        color: #b2bec3;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        margin-bottom: 8px;
-        font-family: 'Oswald', sans-serif;
-    }
-
+.Slip__Meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    font-size: 10px;
+    color: #4A505E;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'Oswald', sans-serif;
+    position: relative;
+}
 
 .Broadcast-Badge {
   display: flex;
@@ -2129,7 +2134,8 @@ max-height: 100px;
         padding: 8px 10px;
         border-radius: 10px;
         transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        border: 2px solid transparent; 
+        /* border: 2px solid transparent; */
+        border-left: 1px solid #4A505E;
         margin-bottom: 4px;
         position: relative;
         overflow: hidden;
