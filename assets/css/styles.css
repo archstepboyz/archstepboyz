@@ -3255,10 +3255,6 @@ max-height: 100px;
         align-items: start; /* Allows cards to have different heights */
     }
 
-    @media (max-width: 768px) {
-        .Wolf-Box { grid-template-columns: 1fr; }
-    }
-
     /* --- CARD CONTAINER --- */
     .Wolf-Card {
         background: var(--card-bg);
@@ -3304,16 +3300,16 @@ max-height: 100px;
     }
 
     .Avatar-Wolf {
-        width: 44px;
-        height: 44px;
+        width: 30px;
+        height: 30px;
         border-radius: 50%;
         color: white;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 800;
+        font-weight: 700;
         font-family: 'Oswald', sans-serif;
-        font-size: 15px;
+        font-size: 13px;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         border: 2px solid white;
     }
@@ -3326,36 +3322,39 @@ max-height: 100px;
 
     /* --- RECORD --- */
     .Record-Box {
-        text-align: right;
-        z-index: 1;
+    text-align: right;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; 
+    max-width: 50%;
     }
     .Record-Text { font-family: 'Oswald', sans-serif; font-size: 18px; font-weight: 700; color: var(--text-main); }
     
     .Micro-Graph {
-        display: flex;
-        gap: 2px; /* Tight gap */
-        margin-top: 5px;
-        align-items: flex-end;
-        height: 10px;
-        justify-content: flex-end;
-        
-        /* SCALABILITY FIXES */
-        max-width: 120px; /* 1. Constraint: Limit width */
-        overflow: hidden; /* 2. Safety: Hide bars if they truly don't fit */
-        
-        /* 3. Polish: Fade out the oldest games (left side) */
-        mask-image: linear-gradient(to right, transparent, black 15px);
-        -webkit-mask-image: linear-gradient(to right, transparent, black 15px);
+      display: flex;
+    
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      height: auto;
+      mask-image: none;
+      -webkit-mask-image: none;
+    
+      gap: 2px;
+      row-gap: 3px;
+      margin-top: 6px;
+    
+      max-width: 140px;          
     }
 
     .Bar { 
-        width: 5px; /* Ideal width */
-        min-width: 2px; /* Absolute minimum width */
-        border-radius: 3px;
-        flex-shrink: 1; /* Allow bars to squish if needed */
+      width: 5px; 
+      border-radius: 3px;
+      flex-shrink: 0;
+      margin-top: auto;
     }
-    .b-win { background-color: var(--win-color); height: 100%; }
-    .b-loss { background-color: var(--loss-color); height: 50%; opacity: 0.4; }
+    .b-win { background-color: var(--win-color); height: 12px;; }
+    .b-loss { background-color: var(--loss-color); height: 6px; opacity: 0.5; }
 
 
     /* --- DATA ROWS --- */
@@ -3388,7 +3387,7 @@ max-height: 100px;
         display: flex;
         align-items: center;
         gap: 12px;
-        font-size: 11px;
+        font-size: 9px;
         font-weight: 700;
         color: var(--text-main);
         transition: all 0.2s;
