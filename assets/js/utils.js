@@ -1,8 +1,13 @@
-export function add(a, b) {
-  return a + b;
-}
+/* Sort by string length then alphabetically in case of tie */
+export function idCompareSort(a, b) {
+  const lengthComparison = a.length - b.length;
+  if (lengthComparison !== 0) {
+    return lengthComparison;
+  }
 
-export const PI = 3.14159;
+  return a.localeCompare(b);
+};
+
 
 export async function getCityFromIP() {
   try {

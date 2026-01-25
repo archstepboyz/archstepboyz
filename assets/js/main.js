@@ -1,8 +1,11 @@
-import { getCityFromIP } from './utils.js';
+import { idCompareSort, getCityFromIP } from './utils.js';
+import { calculateIdIndexSums } from './ballot.js';
 
 /* GLOBAL VARS */
 
 const currentDate = new Date();
+// should make this const and introduce SELECTED_WEEK
+let CURRENT_WEEK = 12;
 
 const DB_URL = "https://qeuvposbesblckyuflbd.supabase.co";
 const TEAMS_ENDPOINT =
@@ -19,6 +22,7 @@ const db_client = supabase.createClient(DB_URL, ANON_API_KEY);
 
 let CACHED_COMMENTS_DB = [];
 let AUTHED_USER = null;
+
 let currentCellId = null;
 let queryString;
 
@@ -28,6 +32,7 @@ var ALL_GAMES = [];
 var GAMES = [];
 var TEAMS;
 var FILTER = null;
+
 const PICKERS = [
   { uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9', id: 'FE', username: 'fearthebeak', color: '#6c5ce7' }, // Purple
   { uuid: 'c310b6e4-1827-4df6-a65d-42e6f7523f58', id: 'GA', username: 'Gayson Tatum', color: '#00cec9' }, // Teal
@@ -42,8 +47,6 @@ const PICKERS = [
 ];
 
 let showingAllPicks = false;
-let CURRENT_WEEK = 12;
-// should make this const and introduce SELECTED_WEEK
 
 function changeWeekView(week) {
   CURRENT_WEEK = week;
@@ -62,22 +65,6 @@ let isSubmitted = false;
 let activeRowIndex = null;
 let sortableInstance = null; // Store the sortable object
 let MOCK_DB = {};
-
-function calculateIdIndexSums(arraysWithIds) {
-  const idSumMap = new Map();
-  arraysWithIds.forEach(innerArray => {
-    innerArray.forEach((id, idx) => {
-      if (id != 0) {
-        const curr = idSumMap.get(id) ?? [0,0]; 
-        idSumMap.set(id, [curr[0] + (25 - idx), idx === 0 ? curr[1] + 1 : curr[1]]);
-      }
-    });
-  });
-
-  const resultPioneerArray = Array.from(idSumMap, ([key, votes]) => ({ key, totalVotes: votes[0], firstPlace: votes[1] }));
-  resultPioneerArray.sort((a, b) => b.totalVotes - a.totalVotes);
-  return resultPioneerArray;
-}
 
 function populateMockDB(ballots) {
   if (CURRENT_WEEK < 11) return; // should say no data for selected week
@@ -125,16 +112,6 @@ async function showTop25Rankings() {
 }
 
 /* HELPER METHODS */
-
-/* Sort by string length then alphabetically in case of tie */
-function idCompareSort(a, b) {
-  const lengthComparison = a.length - b.length;
-  if (lengthComparison !== 0) {
-    return lengthComparison;
-  }
-
-  return a.localeCompare(b);
-};
 
 /* DB API Requests */
 async function apiReq(url, method, data) {
@@ -200,7 +177,6 @@ async function isUserSignedIn() {
 
 let setActive;
 
-document.addEventListener("DOMContentLoaded", (event) => {
   const inputField = document.getElementById("commentInput");
   const sendButton = document.getElementById("sendBtn");
 
@@ -526,7 +502,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
   });
 
   isUserSignedIn();
-});
 
 function toggleFilters() {
   const menu = document.getElementById('filterMenu');
@@ -616,6 +591,21 @@ const appendTeamCells = (data) => {
     item.insertAdjacentHTML("beforeend", htmlString);
   });
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* COMMENTS */
 
@@ -858,7 +848,6 @@ const MOCK_USERS2 = db_client
     renderAll();
   });
 
-const inputField = document.getElementById("commentInput");
 const mentionList = document.getElementById("mentionList");
 
 inputField.addEventListener("input", (e) => {
@@ -1153,6 +1142,26 @@ function handleNewTeam(event) {
             */
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* LOGIN */
 
 function openLoginModal() {
@@ -1181,18 +1190,6 @@ function closeLoginModal(event) {
 window.closeLoginModal = closeLoginModal;
 
 function authedUserDisplay() {
-  /*
-    const loginBtn = document.querySelector('.Login-Trigger');
-    
-    loginBtn.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#2ed573"></i> ${AUTHED_USER.username}`;
-    
-    loginBtn.style.cursor = 'default';
-    loginBtn.style.borderColor = '#2ed573'; 
-    loginBtn.style.background = 'rgba(46, 213, 115, 0.1)'; 
-    
-    loginBtn.onclick = null;
-    */
-
   document.getElementById("loginBtn").style.display = "none";
   document.querySelector('.Unauthed-Picks').style.display = "flex";
 
@@ -1508,6 +1505,26 @@ async function forgotPassword(email) {
     alert('Password reset email sent. Check your inbox!');
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* PICKS */
 
@@ -1839,6 +1856,24 @@ function renderLegend() {
         `;
     }).join('');
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Top 25 */
 const container = document.getElementById('ballotContainer');
@@ -2215,6 +2250,22 @@ function unsubmitBallot() {
 }
 window.unsubmitBallot = unsubmitBallot;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // AUTH LOGIC
 const isUserLoggedIn = false;
 if (!isUserLoggedIn) {
@@ -2236,6 +2287,29 @@ function simulateLogin() {
     }, 800);
   }, 1000);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* ANALYTICS DASHBOARD */
 const USER_STATS = {
