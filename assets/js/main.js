@@ -29,11 +29,11 @@ var GAMES = [];
 var TEAMS;
 var FILTER = null;
 const PICKERS = [
-  { uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9', id: 'FE', color: '#6c5ce7' }, // Purple
-  { uuid: 'c310b6e4-1827-4df6-a65d-42e6f7523f58', id: 'GA', color: '#00cec9' }, // Teal
-  { uuid: '61e46342-e00e-4ed6-ab69-cd3b060e54cd', id: 'NO', color: '#fab1a0' }, // Peach
+  { uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9', id: 'FE', username: 'fearthebeak', color: '#6c5ce7' }, // Purple
+  { uuid: 'c310b6e4-1827-4df6-a65d-42e6f7523f58', id: 'GA', username: 'Gayson Tatum', color: '#00cec9' }, // Teal
+  { uuid: '61e46342-e00e-4ed6-ab69-cd3b060e54cd', id: 'NO', username: 'notflorida', color: '#fab1a0' }, // Peach
   { uuid: '0372871d-2f06-444b-835b-599383550980', id: 'BI', color: '#fdcb6e' }, // Yellow
-  { uuid: 'fa3d35cd-6495-4893-a704-cad39542533f', id: 'CO', color: '#d63031' },  // Red
+  { uuid: 'fa3d35cd-6495-4893-a704-cad39542533f', id: 'CO', username: 'cookedbycapjack', color: '#d63031' },  // Red
   { uuid: '1bca9cd2-5e27-4942-97d7-29c2e0bc70cc', id: 'CB', color: '#0984e3' },  // Blue
   { uuid: '72cee94c-8f10-4005-94df-c21995d44bae', id: 'JO', color: '#00b894' },  // Green
   /* unused */
@@ -1721,6 +1721,7 @@ window.switchPick = switchPick;
               USER_STATS['all'] = getHotColdReport(GAMES);
               updateUserStats('all');
               getPopularPicks(GAMES);
+              showLoneWolfDisplay(getLoneWolfStats(GAMES));
             }
 
             let lastDate = '';
@@ -2650,165 +2651,234 @@ function getPopularPicks(games) {
   showPopularChart();
 }
 
-// --- CONFIG & LOGOS ---
-        const PALETTE = ["#6c5ce7", "#00cec9", "#fab1a0", "#fdcb6e", "#d63031", "#0984e3", "#00b894", "#e17055", "#e84393"];
+function getTeamLogo(name) {
+  return `https://a.espncdn.com/i/teamlogos/ncaa/500/${name}.png`;
+}
+
+const TEAMS1 = [];
+
+Chart.defaults.font.family = "'Oswald', sans-serif";
+let currentPage = 0;
+const itemsPerPage = 10;
+const totalPages = 100;
+let popularityChartInstance = null; // Stores the active chart object
+
+// 2. Stacked Bar with Logo Axis
+function showPopularChart() {
+  const start = currentPage * itemsPerPage;
+  const end = start + itemsPerPage;
+  const globalMax = Math.max(...TOP_TEAMS1.map(team => team[1].total)); 
+  const totalPages = Math.ceil(TOP_TEAMS1.length / itemsPerPage);
+
+  const topTeams = TOP_TEAMS1.sort((a,b)=>b[1].total - a[1].total).slice(start,end);
+  const labels = topTeams.map(d=>d[0]);
+  const ids = topTeams.map(d=>d[1].id);
+  const dataWins = topTeams.map(d=>d[1].wins);
+  const dataLosses = topTeams.map(d=>d[1].losses);
+  const images = ids.map(l => {
+    const img = new Image();
+    img.src = getTeamLogo(l);
+    return img;
+  });
+
+  if (popularityChartInstance) {
+    popularityChartInstance.destroy();
+  }
+
+  // Custom Plugin for Logos
+  const logoAxis = {
+    id: 'logoAxis',
+    afterDraw(chart) {
+        const { ctx, scales: { x, y } } = chart;
+        const xAxis = chart.scales['x'];
+        const yAxis = chart.scales['y'];
         
-        const LOGO_MAP = {
-            'Lakers': { type: 'nba', id: 'lal' }, 'Celtics': { type: 'nba', id: 'bos' },
-            'Warriors': { type: 'nba', id: 'gsw' }, 'Bulls': { type: 'nba', id: 'chi' },
-            'Heat': { type: 'nba', id: 'mia' }, 'Knicks': { type: 'nba', id: 'nyk' },
-            'Purdue': { type: 'ncaa', id: '2509' }, 'Texas Tech': { type: 'ncaa', id: '2641' },
-            'Suns': { type: 'nba', id: 'phx' }, 'Bucks': { type: 'nba', id: 'mil' },
-            'Sixers': { type: 'nba', id: 'phi' }, 'Nuggets': { type: 'nba', id: 'den' }
-        };
-
-        function getTeamLogo(name) {
-          return `https://a.espncdn.com/i/teamlogos/ncaa/500/${name}.png`;
-        }
-
-const USERS = ['Alice', 'Bob', 'Charlie', 'Dave', 'Eve', 'Frank'];
-        const TEAMS1 = Object.keys(LOGO_MAP);
-        const DATABASE = [];
-
-        for(let w=9; w<=12; w++) {
-            for(let i=0; i<5; i++) { // More games to fill chart
-                let h = TEAMS1[Math.floor(Math.random()*TEAMS1.length)];
-                let a = TEAMS1[Math.floor(Math.random()*TEAMS1.length)];
-                while(h===a) a = TEAMS1[Math.floor(Math.random()*TEAMS1.length)];
-
-                let winner = Math.random() > 0.5 ? h : a;
-                let hPicks = [], aPicks = [];
-
-                // Scenarios
-                if(h === 'Lakers') { winner = a; hPicks = [...USERS]; } // Lakers always lose
-                else if (w === 11 && i === 0) { h='Bulls'; a='Heat'; winner='Bulls'; hPicks=['Dave']; aPicks=['Alice','Bob']; }
-                else {
-                    USERS.forEach(u => {
-                        if(Math.random()>0.3) (Math.random()>0.5 ? hPicks : aPicks).push(u);
-                    });
-                }
-                DATABASE.push({ week:w, home:h, away:a, winner, hPicks, aPicks });
+        xAxis.ticks.forEach((value, index) => {
+            const x = xAxis.getPixelForTick(index);
+            const img = images[index];
+            // Draw image centered on tick
+            if (img.complete) {
+                ctx.drawImage(img, x - 15, yAxis.bottom + 10, 30, 30);
+            } else {
+                img.onload = () => chart.draw();
             }
-        }
-
-        // --- DATA PROCESSING ---
-        const lossCounts = {};
-        const teamPickStats = {}; // { Lakers: { wins: 10, losses: 5, total: 15 } }
-
-        DATABASE.forEach(g => {
-            const loser = g.winner === g.home ? g.away : g.home;
-            const loserPicks = g.winner === g.home ? g.aPicks.length : g.hPicks.length;
-            lossCounts[loser] = (lossCounts[loser] || 0) + loserPicks;
-
-            // Popularity & Outcome
-            const processTeam = (team, picks, didWin) => {
-                if(!teamPickStats[team]) teamPickStats[team] = { wins: 0, losses: 0, total: 0 };
-                const count = picks.length;
-                teamPickStats[team].total += count;
-                if(didWin) teamPickStats[team].wins += count;
-                else teamPickStats[team].losses += count;
-            };
-
-            processTeam(g.home, g.hPicks, g.winner === g.home);
-            processTeam(g.away, g.aPicks, g.winner === g.away);
         });
+    }
+  };
 
-        Chart.defaults.font.family = "'Oswald', sans-serif";
-        let currentPage = 0;
-        const itemsPerPage = 10;
-        const totalPages = 100;
-        let popularityChartInstance = null; // Stores the active chart object
-        
-        // 2. Stacked Bar with Logo Axis
-        function showPopularChart() {
-            const start = currentPage * itemsPerPage;
-            const end = start + itemsPerPage;
-            const globalMax = Math.max(...TOP_TEAMS1.map(team => team[1].total)); 
-            const totalPages = Math.ceil(TOP_TEAMS1.length / itemsPerPage);
-        
-          const topTeams = TOP_TEAMS1.sort((a,b)=>b[1].total - a[1].total).slice(start,end);
-        const labels = topTeams.map(d=>d[0]);
-        const ids = topTeams.map(d=>d[1].id);
-        const dataWins = topTeams.map(d=>d[1].wins);
-        const dataLosses = topTeams.map(d=>d[1].losses);
-        const images = ids.map(l => {
-            const img = new Image();
-            img.src = getTeamLogo(l);
-            return img;
-        });
-            if (popularityChartInstance) {
-                popularityChartInstance.destroy();
-            }
-
-        // Custom Plugin for Logos
-        const logoAxis = {
-            id: 'logoAxis',
-            afterDraw(chart) {
-                const { ctx, scales: { x, y } } = chart;
-                const xAxis = chart.scales['x'];
-                const yAxis = chart.scales['y'];
-                
-                xAxis.ticks.forEach((value, index) => {
-                    const x = xAxis.getPixelForTick(index);
-                    const img = images[index];
-                    // Draw image centered on tick
-                    if (img.complete) {
-                        ctx.drawImage(img, x - 15, yAxis.bottom + 10, 30, 30);
-                    } else {
-                        img.onload = () => chart.draw();
-                    }
-                });
-            }
-        };
-
-        popularityChartInstance = new Chart(document.getElementById('popularityChart'), {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [
-                    { label: 'Picks Won', data: dataWins, backgroundColor: '#00b894', stack: 'Stack 0', borderRadius: 4 },
-                    { label: 'Picks Lost', data: dataLosses, backgroundColor: '#d63031', stack: 'Stack 0', borderRadius: 4 }
-                ]
+  popularityChartInstance = new Chart(document.getElementById('popularityChart'), {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [
+            { label: 'Picks Won', data: dataWins, backgroundColor: '#00b894', stack: 'Stack 0', borderRadius: 4 },
+            { label: 'Picks Lost', data: dataLosses, backgroundColor: '#d63031', stack: 'Stack 0', borderRadius: 4 }
+        ]
+    },
+    plugins: [logoAxis],
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { bottom: 30 } }, // Make room for logos
+        scales: {
+            x: { 
+                stacked: true, 
+                grid: { display: false },
+                ticks: { display: false } // Hide text labels
             },
-            plugins: [logoAxis],
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                layout: { padding: { bottom: 30 } }, // Make room for logos
-                scales: {
-                    x: { 
-                        stacked: true, 
-                        grid: { display: false },
-                        ticks: { display: false } // Hide text labels
-                    },
-                    y: { 
-                        stacked: true, 
-                        beginAtZero: true,
-                        grid: { color: '#e2e8f0' },
-                        max: globalMax + 1
-                    }
-                },
-                plugins: {
-                    tooltip: {
-                        callbacks: {
-                            title: (ctx) => labels[ctx[0].dataIndex] // Show name in tooltip
-                        }
-                    }
+            y: { 
+                stacked: true, 
+                beginAtZero: true,
+                grid: { color: '#e2e8f0' },
+                max: globalMax + 1
+            }
+        },
+        plugins: {
+            tooltip: {
+                callbacks: {
+                    title: (ctx) => labels[ctx[0].dataIndex] // Show name in tooltip
                 }
             }
-        });
-
-            document.getElementById('pageIndicator').innerText = `Page ${currentPage + 1} of ${totalPages}`;
-            document.getElementById('prevBtn').disabled = currentPage === 0;
-            document.getElementById('nextBtn').disabled = currentPage === totalPages - 1;
         }
+    }
+  });
 
-        function changePage(direction) {
-            currentPage += direction;
-            // Clamp values
-            if(currentPage < 0) currentPage = 0;
-            if(currentPage >= totalPages) currentPage = totalPages - 1;
-            
-            showPopularChart();
+  document.getElementById('pageIndicator').innerText = `Page ${currentPage + 1} of ${totalPages}`;
+  document.getElementById('prevBtn').disabled = currentPage === 0;
+  document.getElementById('nextBtn').disabled = currentPage === totalPages - 1;
+}
+
+function changePage(direction) {
+    currentPage += direction;
+    // Clamp values
+    if(currentPage < 0) currentPage = 0;
+    if(currentPage >= totalPages) currentPage = totalPages - 1;
+    
+    showPopularChart();
+}
+window.changePage = changePage;
+
+function getLoneWolfStats(games) {
+  // Key: "User_TeamID" -> Value: { user, teamName, wins, losses }
+  const tracker = {};
+
+  games.forEach(game => {
+    const homePicks = game.home_picks || [];
+    const awayPicks = game.away_picks || [];
+
+    let loneWolfUser = null;
+    let pickedSide = null; // 'home' or 'away'
+    
+    // 1. Identify Lone Wolf Scenarios
+    // Condition: One side has exactly 1 pick, the other has >= 3
+    if (homePicks.length === 1 && awayPicks.length >= 3) {
+      loneWolfUser = homePicks[0];
+      pickedSide = 'home';
+    } else if (awayPicks.length === 1 && homePicks.length >= 3) {
+      loneWolfUser = awayPicks[0];
+      pickedSide = 'away';
+    }
+
+    // 2. Process Result if Lone Wolf exists and Game is finished
+    if (loneWolfUser && game.winner) {
+      const pickedTeamId = pickedSide === 'home' ? game.home_id : game.away_id;
+      const pickedTeamName = pickedSide === 'home' ? game.home : game.away;
+      const pickedTeamScore = pickedSide === 'home' ? game.home_score : game.away_score;
+      const oppTeamId = pickedSide === 'away' ? game.home_id : game.away_id  
+      const oppTeamName = pickedSide === 'away' ? game.home : game.away;
+      const oppTeamScore = pickedSide === 'away' ? game.home_score : game.away_score;
+      let pickedWinner = false;
+      
+      // Create a unique key for this User + Team combo
+      const recordKey = `${loneWolfUser}`;
+
+      // Initialize if not exists
+      if (!tracker[recordKey]) {
+        tracker[recordKey] = {
+          user: loneWolfUser,
+          teams: [],
+          wins: 0,
+          losses: 0,
+          winsBarHTML: '',
+        };
+      }
+
+      // 3. Tally Win or Loss
+      // If the game winner matches the side the Lone Wolf picked
+      if (game.winner === pickedSide) {
+        tracker[recordKey].wins++;
+        tracker[recordKey].winsBarHTML += '<div class="Bar b-win"></div>';
+          
+        pickedWinner = true;
+      } else {
+        tracker[recordKey].losses++;
+        tracker[recordKey].winsBarHTML += '<div class="Bar b-loss"></div>'; 
+      }
+
+      tracker[recordKey].teams.push({ name: pickedTeamName, id: pickedTeamId, score: pickedTeamScore, oppName: oppTeamName, oppId: oppTeamId, oppScore: oppTeamScore, winner: pickedWinner });
+    }
+  });
+
+  // 4. Convert to Array and Sort
+  const results = Object.values(tracker).map(entry => ({
+    user: entry.user,
+    teams: entry.teams,
+    record: `${entry.wins}-${entry.losses}`,
+    wins: entry.wins,
+    winsBarHTML: entry.winsBarHTML,
+  }));
+
+  // Sort: Most Wins -> Fewest Wins
+  results.sort((a, b) => b.wins - a.wins);
+
+  // Remove the raw 'wins' property for cleaner final output
+  return results.map(({ wins, ...rest }) => rest);
+}
+window.getLoneWolfStats = getLoneWolfStats;
+
+function showLoneWolfDisplay(wolfStats) {
+    const wolfBox = document.getElementById('wolfBox');
+    wolfBox.innerHTML = '';
+    for (const userStat of wolfStats) {
+        let wolfPicksHTML = '';
+        for (const team of userStat.teams) {
+          wolfPicksHTML += `
+            <div class="Pick-Row ${team.winner ? 'is-win' : 'is-loss'}">
+                <div class="Status-Border"></div>
+                <div class="Team-Col User-Col"><img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=50&w=50">
+                <span>${team.name}</span>
+                </div>
+                <div class="Score-Wrapper"><div class="Score-Pill">${team.score}-${team.oppScore}</div></div>
+                <div class="Team-Col Opponent-Col"><img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.oppId}.png&h=50&w=50">
+                <span>${team.oppName}</span>
+                </div>
+            </div>
+          `;
         }
-        window.changePage = changePage;
+        const newCard = document.createElement('div');
+        newCard.classList.add('Wolf-Card');
+
+        const picker = PICKERS.find(p => p.id === userStat.user);
+        newCard.innerHTML = `
+        <div class="Card-Header">
+            <div class="User-Group">
+                <div class="Avatar" style="background-color: ${picker.color};">${picker.id}</div>
+                <div class="User-Meta">
+                    <span class="User-Name">${picker.username}</span>
+                </div>
+            </div>
+            <div class="Record-Box">
+                <div class="Record-Text">${userStat.record}</div>
+                <div class="Micro-Graph">${userStat.winsBarHTML}
+                </div>
+            </div>
+        </div>
+        <div class="Picks-Container">
+          ${wolfPicksHTML}
+        </div>
+        `;
+        wolfBox.append(newCard);
+
+    }
+}
+window.showLoneWolfDisplay = showLoneWolfDisplay;
