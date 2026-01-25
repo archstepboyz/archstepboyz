@@ -3333,13 +3333,27 @@ max-height: 100px;
     
     .Micro-Graph {
         display: flex;
-        gap: 3px;
+        gap: 2px; /* Tight gap */
         margin-top: 5px;
         align-items: flex-end;
         height: 10px;
-        justify-content: flex-end; /* Right align the bars */
+        justify-content: flex-end;
+        
+        /* SCALABILITY FIXES */
+        max-width: 120px; /* 1. Constraint: Limit width */
+        overflow: hidden; /* 2. Safety: Hide bars if they truly don't fit */
+        
+        /* 3. Polish: Fade out the oldest games (left side) */
+        mask-image: linear-gradient(to right, transparent, black 15px);
+        -webkit-mask-image: linear-gradient(to right, transparent, black 15px);
     }
-    .Bar { width: 5px; border-radius: 3px; }
+
+    .Bar { 
+        width: 5px; /* Ideal width */
+        min-width: 2px; /* Absolute minimum width */
+        border-radius: 3px;
+        flex-shrink: 1; /* Allow bars to squish if needed */
+    }
     .b-win { background-color: var(--win-color); height: 100%; }
     .b-loss { background-color: var(--loss-color); height: 50%; opacity: 0.4; }
 
