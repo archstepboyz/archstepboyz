@@ -2862,7 +2862,7 @@ function showLoneWolfDisplay(wolfStats) {
         newCard.innerHTML = `
         <div class="Card-Header">
             <div class="User-Group">
-                <div class="Avatar" style="background-color: ${picker.color};">${picker.id}</div>
+                <div class="Avatar-Wolf" style="background-color: ${picker.color};">${picker.id}</div>
                 <div class="User-Meta">
                     <span class="User-Name">${picker.username}</span>
                 </div>
