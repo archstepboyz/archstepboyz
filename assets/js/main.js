@@ -1430,8 +1430,6 @@ window.switchPick = switchPick;
                 homeClasses.push(game.winner === 'home' ? ' is-winner' : ' is-loser');
               }
             }
-            const awayClass = awayClasses.join(' ');
-            const homeClass = homeClasses.join(' ');
 
             const gameDate = new Date(game.time)
             const gameTime = gameDate.toLocaleString(navigator.language, {
@@ -1443,9 +1441,33 @@ window.switchPick = switchPick;
               timeZoneName: "short" 
             });
 
-            const awayClickFn = gameDate > currentDate ? `onclick="switchPick(${game.id}, 'away_picks')"` : '';
-            const homeClickFn = gameDate > currentDate ? `onclick="switchPick(${game.id}, 'home_picks')"` : '';
+            let gameClasses = '';
+            let loadingClass = '';
+            let loadingLabel = '';
+            const gameStarted = gameDate <= currentDate;
+            if (gameStarted) {
+                gameClasses = 'is-locked';
+                loadingClass = 'is-loading';
+                loadingLabel = `
+                    <div class="Lock-Indicator"><i class="fa-solid fa-lock"></i>
+                    <div class="Sketch-Label">Live</div>
+                    </div>
+                `;
+            }
+            if (game.winner) {
+              loadingClass = 'is-complete';
+                loadingLabel = `
+                    <div class="Lock-Indicator"><i class="fa-solid fa-check"></i>
+                    <div class="Sketch-Label">Final</div>
+                    </div>
+                `;
+            }
+            const awayClickFn = !gameStarted ? `onclick="switchPick(${game.id}, 'away_picks')"` : '';
+            const homeClickFn = !gameStarted ? `onclick="switchPick(${game.id}, 'home_picks')"` : '';
 
+            const awayClass = awayClasses.join(' ');
+            const homeClass = homeClasses.join(' ');
+            
             const awayLog = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${game.away_id}.png&h=200&w=200`;
             const homeLog = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${game.home_id}.png&h=200&w=200`;
 
@@ -1455,7 +1477,13 @@ window.switchPick = switchPick;
             const tv = game.tv ? `<div class="Broadcast-Badge"><i class="fa-solid fa-tv"></i> <span>${game.tv}</span></div>` : '';  
 
             return `
-            <div class="Game-Slip" id="game-${game.id}">
+            <div class="Game-Slip ${gameClasses}" id="game-${game.id}">
+                <div class="Sketch-Progress-Wrapper">
+                    <div class="Sketch-Box ${loadingClass}">
+                        <div class="Sketch-Fill"></div>
+                    </div>
+                    ${loadingLabel}
+                </div>
                 <div class="Slip__Meta">
                     <span class="Meta-Item"><i class="fa-solid fa-basketball"></i>${game.league}</span>
                     ${tv}

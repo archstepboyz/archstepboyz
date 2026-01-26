@@ -698,6 +698,10 @@ opacity: 0.9;
 
         --win-color: #10ac84; /* Jungle Green */
         --loss-color: #ff6b6b; /* Pastel Red */
+
+        --sketch-black: #2d3436;
+        --sketch-bg: #fff;
+        --bar-height: 30px;
 }
 
 .Header-Menu {
@@ -2100,6 +2104,103 @@ max-height: 100px;
 
         box-shadow: 6px 6px 0px #dfe6e9;
         position: relative;
+    }
+
+/* The Lock Icon/Badge */
+.Lock-Indicator {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+    color: #2d3436;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    text-transform: uppercase;
+}
+
+.Game-Slip.is-locked .Sketch-Progress-Wrapper {
+    display: flex; /* Show when locked */
+}
+
+    /* --- THE SKETCHY CONTAINER --- */
+    .Sketch-Progress-Wrapper {
+        display: none;
+        width: 100%;
+        max-width: 500px;
+        text-align: center;
+    }
+
+    .Sketch-Label {
+        font-size: 12px;
+        font-weight: 700;
+        font-family: 'Merriweather', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--sketch-black);
+    }
+
+    .Sketch-Box {
+        position: relative;
+        height: var(--bar-height);
+        background: var(--sketch-bg);
+        border: 2px solid var(--sketch-black);
+        padding: 4px; /* Creates the gap between outer box and inner bar */
+        
+        /* THE MAGIC: Irregular border radius creates the hand-drawn wobble
+        border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px; */
+        
+        /* Slight rotation for realism */
+        transform: rotate(-0.5deg);
+        box-shadow: 2px 3px 0px rgba(0,0,0,0.1);
+        width: 35%;
+    }
+
+    /* --- THE FILL PATTERN --- */
+    .Sketch-Fill {
+        height: 100%;
+        border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+        border: 1.5px solid var(--sketch-black);
+        box-sizing: border-box;
+        width: 0%; /* Default */
+        transition: width 1s ease-in-out;
+        
+        /* Diagonal Stripes Pattern */
+        background: repeating-linear-gradient(
+            -45deg,
+            var(--sketch-black),
+            var(--sketch-black) 3px,
+            transparent 3px,
+            transparent 9.62px
+        );
+    }
+
+    /* --- STATE: LOADING / LOCKED --- */
+    /* Adds animation to the stripes */
+    @keyframes sketchScroll {
+        0% { background-position: 0 0; }
+        100% { background-position: 49px 0; }
+    }
+
+    .is-loading .Sketch-Fill {
+        width: 45%; /* Example Percentage */
+        background-size: 200% 100%; /* Needed for animation */
+        animation: sketchScroll 1.5s linear infinite;
+        border-right: 2px solid var(--sketch-black); /* Cap the end */
+    }
+
+    /* --- STATE: COMPLETE --- */
+    .is-complete .Sketch-Fill {
+        width: 100%;
+        /* Make stripes tighter/denser for 'complete' look */
+        background: repeating-linear-gradient(
+            -45deg,
+            var(--sketch-black),
+            var(--sketch-black) 4px,
+            transparent 4px,
+            transparent 10px
+        );
     }
 
 .Slip__Meta {
