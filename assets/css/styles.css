@@ -2801,8 +2801,7 @@ max-height: 100px;
         box-shadow: 0 4px 8px -1px rgba(0, 0, 0, 0.1);
         background: white;
         height: 55px; /* Consistent height for grid */
-        /* Dark Blue Bottom Accent */
-        border-bottom: 4px solid #003366; 
+        border-bottom: 3px solid #2d3436; 
     }
     
     .Creative-Content {
@@ -2819,14 +2818,25 @@ max-height: 100px;
         grid-column: span 2; /* Span across both columns */
         height: 85px;
         /* Gradient: Red to Blue */
-        background: linear-gradient(135deg, #CC0033 0%, #003366 100%);
+        background: linear-gradient(135deg, #E41C38 0%, #ef5d67 50%, #FEFDFA 100%);
+        box-shadow: 0 12px 24px -8px rgba(228, 28, 56, 0.5), 0 4px 8px -4px rgba(0,0,0,0.1);
         border: none;
         margin-bottom: 5px;
+    }
+
+    .Creative-Card.rank-1 .Creative-Content::before {
+        content: ''; position: absolute;
+        right: 30px; bottom: -20px; width: 130px; height: 130px;
+        background-image: url('https://content.sportslogos.net/logos/33/766/full/nebraska_cornhuskers_logo_mascot_2023_sportslogosnet-7842.png');
+        background-size: contain; background-repeat: no-repeat;
+        opacity: 0.15; /* Slightly increased opacity for visibility */
+        z-index: 0; 
+        transform: rotate(-10deg);
     }
     
     .Creative-Card.rank-1 .Creative-Rank { 
         font-size: 48px; 
-        color: rgba(255,255,255,0.15); /* Subtle watermark effect */
+        color: rgba(255,255,255,0.75);
         position: absolute; right: 10px; top: -5px; 
         font-weight: 900; 
     }
@@ -2838,9 +2848,8 @@ max-height: 100px;
     
     .Creative-Card .Creative-Rank {
         font-family: 'Fugaz One';
-        font-size: 22px;
-        /* Cardinal Red Text for Ranks */
-        color: #CC0033; 
+        font-size: 18px;
+        color: #2d3436; 
         margin-right: 10px;
         min-width: 25px;
         text-align: center;
