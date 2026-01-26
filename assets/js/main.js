@@ -1864,10 +1864,14 @@ container.insertAdjacentHTML('beforeend', listHTML);
 // Helper for Creative Cards
 function renderCreativeCard(teamKey, rank, votes, firstPlace, className) {
     let teamName = TEAMS.find(team => team.id == teamKey).name;
+    let firstPlaceClass = className;
     if (teamName === 'North Carolina Tar Heels') teamName = 'UNC Tar Heels';
+    if (teamName === 'Nebraska Cornhuskers' && rank === 1) {
+      firstPlaceClass = 'rank-corn';
+    }
     const firstPlaceHTML = firstPlace > 0 ? '<span class="Votes-First">(' + firstPlace  + ')</span>' : '';
     container.insertAdjacentHTML('beforeend', `
-        <div class="Creative-Card ${className}">
+        <div class="Creative-Card ${firstPlaceClass}">
             <div class="Creative-Content">
                 <div class="Creative-Rank">${rank}</div>
                 <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${teamKey}.png&h=200&w=200" class="Creative-Logo Team-Logo" alt="Test">

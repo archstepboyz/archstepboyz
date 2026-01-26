@@ -2817,14 +2817,22 @@ max-height: 100px;
     .Creative-Card.rank-1 {
         grid-column: span 2; /* Span across both columns */
         height: 85px;
-        /* Gradient: Red to Blue */
-        background: linear-gradient(135deg, #E41C38 0%, #ef5d67 50%, #FEFDFA 100%);
-        box-shadow: 0 12px 24px -8px rgba(228, 28, 56, 0.5), 0 4px 8px -4px rgba(0,0,0,0.1);
+        background: linear-gradient(135deg, #CC0033 0%, #003366 100%);
         border: none;
         margin-bottom: 5px;
     }
 
-    .Creative-Card.rank-1 .Creative-Content::before {
+    .Creative-Card.rank-corn {
+        grid-column: span 2; /* Span across both columns */
+        height: 85px;
+        border: none;
+        margin-bottom: 5px;
+        
+        background: linear-gradient(135deg, #E41C38 0%, #ef5d67 50%, #FEFDFA 100%);
+        box-shadow: 0 12px 24px -8px rgba(228, 28, 56, 0.5), 0 4px 8px -4px rgba(0,0,0,0.1);
+    }
+
+    .Creative-Card.rank-corn .Creative-Content::before {
         content: ''; position: absolute;
         right: 30px; bottom: -20px; width: 130px; height: 130px;
         background-image: url('https://content.sportslogos.net/logos/33/766/full/nebraska_cornhuskers_logo_mascot_2023_sportslogosnet-7842.png');
@@ -2836,12 +2844,21 @@ max-height: 100px;
     
     .Creative-Card.rank-1 .Creative-Rank { 
         font-size: 48px; 
-        color: rgba(255,255,255,0.75);
+        color: rgba(255,255,255,0.15);
         position: absolute; right: 10px; top: -5px; 
         font-weight: 900; 
     }
     .Creative-Card.rank-1 .Creative-Name { font-size: 26px; color: white; font-weight: 700; letter-spacing: 0.5px; z-index: 2; }
     .Creative-Card.rank-1 .Creative-Logo { width: 55px; height: 55px; margin-right: 15px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); z-index: 2; }
+
+    .Creative-Card.rank-corn .Creative-Rank { 
+        font-size: 48px; 
+        color: rgba(255,255,255,0.75);
+        position: absolute; right: 10px; top: -5px; 
+        font-weight: 900; 
+    }
+    .Creative-Card.rank-corn .Creative-Name { font-size: 26px; color: white; font-weight: 700; letter-spacing: 0.5px; z-index: 2; }
+    .Creative-Card.rank-corn .Creative-Logo { width: 55px; height: 55px; margin-right: 15px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); z-index: 2; }
 
     /* --- RANKS 2-25 (Grid Items) --- */
     /* They inherit the base .Creative-Card styles (White bg, Blue border) */
@@ -2910,6 +2927,17 @@ max-height: 100px;
 }
 
 .Creative-Card.rank-1 .Votes-First {
+    color: rgba(255, 255, 255, 0.7);
+    padding-right: 40px;
+}
+.Creative-Card.rank-corn .Votes-Total {
+    color: #ffffff;
+    font-size: 16px; /* Slightly larger for #1 */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    padding-right: 40px;
+}
+
+.Creative-Card.rank-corn .Votes-First {
     color: rgba(255, 255, 255, 0.7);
     padding-right: 40px;
 }
