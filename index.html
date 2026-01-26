@@ -48,12 +48,10 @@
       </div>
     </div>
     <div class="Auth-Container">
-      <button id="loginBtn" class="Login-Trigger" onclick=
-      "openLoginModal()"><i class="fa-solid fa-user"></i>
+      <button id="loginBtn" class="Login-Trigger"><i class="fa-solid fa-user"></i>
       Login</button>
       <div id="userMenu" class="User-Menu" style="display: none;">
-        <button id="userTriggerBtn" class="User-Trigger" onclick=
-        "toggleUserDropdown(event)"><span class="User-Avatar-Small"
+        <button id="userTriggerBtn" class="User-Trigger"><span class="User-Avatar-Small"
         id="userAvatarInitials">?</span> <span id=
         "userDisplay">?</span> <i class=
         "fa-solid fa-caret-down"></i></button>
@@ -61,9 +59,8 @@
           <a href="#" class="Dropdown-Item" onclick=
           "alert('Settings...')"><i class="fa-solid fa-gear"></i>
           Settings</a>
-          <div class="Dropdown-Divider"></div><a href="#" class=
-          "Dropdown-Item is-danger" onclick=
-          "handleLogout()"><i class=
+          <div class="Dropdown-Divider"></div><a href="#" id="logoutBtn" class=
+          "Dropdown-Item is-danger"><i class=
           "fa-solid fa-right-from-bracket"></i> Sign Out</a>
         </div>
       </div>
@@ -674,9 +671,9 @@
     </div>
   </div>
 
-  <div id="loginOverlay" class="Modal-Overlay" onclick="closeLoginModal(event)">
+  <div id="loginOverlay" class="Modal-Overlay">
   <div class="Modal-Box Auth-Box mode-login" id="mainModalBox">
-    <button class="Modal-Close" onclick="closeLoginModal()"><i class="fa-solid fa-xmark"></i></button>
+    <button class="Modal-Close" id="loginCloseBtn"><i class="fa-solid fa-xmark"></i></button>
     
     <div class="Auth-Slider" id="authSlider">
       
@@ -685,7 +682,7 @@
           <h2>Welcome Back</h2>
           <p>Enter your credentials to access the full experience.</p>
         </div>
-        <form class="Login-Form" onsubmit="handleLogin(event)">
+        <form class="Login-Form" id="loginForm">
           <div class="Input-Wrapper">
             <label>Email</label> 
             <input type="text" id="username" placeholder="Email" required="" autocomplete="email">
@@ -697,10 +694,10 @@
           <button type="submit" class="Submit-Btn">Sign In</button>
         </form>
         <div class="Auth-Toggle">
-          <a onclick="toggleAuthMode('forgot')">Forgot password?</a>
+          <a id="forgotToggle">Forgot password?</a>
         </div>
         <div class="Auth-Toggle">
-          Don't have an account? <a onclick="toggleAuthMode('signup')">Sign Up</a>
+          Don't have an account? <a id="signupToggle">Sign Up</a>
         </div>
       </div>
 
@@ -709,7 +706,7 @@
           <h2>Reset Password</h2>
           <p>Enter your email and we'll send you a recovery link.</p>
         </div>
-        <form class="Login-Form" onsubmit="handleForgotSubmit(event)">
+        <form class="Login-Form" id="forgotPasswordForm">
           <div class="Input-Wrapper">
             <label>Email Address</label> 
             <input type="email" id="forgot-email" placeholder="you@example.com" required="" autocomplete="email">
@@ -717,7 +714,7 @@
           <button type="submit" class="Submit-Btn">Send Link</button>
         </form>
         <div class="Auth-Toggle">
-          <a onclick="toggleAuthMode('login')"><i class="fa-solid fa-arrow-left"></i> Back to Login</a>
+          <a id="loginToggle"><i class="fa-solid fa-arrow-left"></i> Back to Login</a>
         </div>
       </div>
 
@@ -727,7 +724,7 @@
             <h2>Join the Squad</h2>
             <p>Create an account to join the discussion.</p>
           </div>
-          <form class="Login-Form" onsubmit="handleSignup(event)">
+          <form class="Login-Form" id="signupForm">
             <div class="Input-Wrapper">
               <label>Choose Username <span class="req">*</span></label> 
               <input type="text" id="new-username" placeholder="CoolName123" required="">
@@ -738,7 +735,7 @@
             </div>
             <div class="Input-Wrapper">
               <label>Password <span class="req">*</span></label>
-              <input type="password" id="new-password" placeholder="••••••••" required="" autocomplete="new-password" onblur="validateInputs()">
+              <input type="password" id="new-password" placeholder="••••••••" required="" autocomplete="new-password">
               <div class="Input-Help">Must be at least 8 characters.</div>
             </div>
             <div class="Input-Wrapper">
@@ -749,7 +746,7 @@
             <button type="submit" class="Submit-Btn btn-secondary">Create Account</button>
           </form>
           <div class="Auth-Toggle">
-            Already a member? <a onclick="toggleAuthMode('login')">Sign In</a>
+            Already a member? <a id="signinToggle">Sign In</a>
           </div>
         </div>
         
@@ -759,7 +756,7 @@
           </div>
           <h2>Verify Email</h2>
           <p>Welcome to the team! We've sent a verification link to your inbox.</p>
-          <button class="Submit-Btn" onclick="resetSignupView()">Got it!</button>
+          <button class="Submit-Btn">Got it!</button>
         </div>
       </div>
 

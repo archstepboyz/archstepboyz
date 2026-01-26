@@ -1,13 +1,201 @@
 import { idCompareSort, getCityFromIP } from './utils.js';
 import { calculateIdIndexSums } from './ballot.js';
 
+import { getCurrentUser, setCurrentUser, handleLogin, authedUserDisplay, handleLogout, forgotPassword, validateInputs, handleSignup, toggleAuthMode } from './auth.js';
+
+import { db_client, PICKERS } from './db_init.js';
+
+/* INITIALIZE AUTHENTICATION UX */
+const userDisplay = document.getElementById('userDisplay');
+const menuContainer = document.getElementById('userMenu');
+const userDropdownMenu = document.getElementById("userDropdown");
+const userTrigger = document.querySelector(".User-Trigger");
+const userAvatar = document.getElementById('userAvatarInitials');
+
+const loginBtn = document.getElementById("loginBtn");
+const loginCloseBtn = document.getElementById("loginCloseBtn");
+
+const logoutBtn = document.getElementById("logoutBtn");
+
+const overlay = document.getElementById("loginOverlay");
+
+const authBox = document.querySelector(".Auth-Box");
+const signupForm = document.getElementById("signupForm");
+const signupSubmitBtn = signupForm.querySelector("button");
+const signupContent = document.getElementById("signup-content");
+
+const successContent = document.getElementById("signup-success");
+const successBtn = successContent.querySelector("button");
+
+const errorBox = document.getElementById("signup-error-msg");
+const newUsername = document.getElementById("new-username");
+const newEmail = document.getElementById("new-email");
+const newPassword = document.getElementById("new-password");
+const newReferral = document.getElementById("new-referral");
+
+const loginView = document.getElementById('view-login');
+const signupView = document.getElementById('view-signup');
+const forgotView = document.getElementById('view-forgot');
+const modalBox = document.getElementById('mainModalBox');
+
+const forgotToggle = document.getElementById('forgotToggle');
+const signupToggle = document.getElementById('signupToggle');
+const signinToggle = document.getElementById('signinToggle');
+const loginToggle = document.getElementById('loginToggle');
+
+const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+const forgotEmail = document.getElementById('forgot-email');
+
+const loginForm = document.getElementById("loginForm");
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+
+/* FORM */
+function openLoginModal() {
+  scrollPosition = window.scrollY;
+
+  overlay.classList.add("open");
+
+  document.body.classList.add("drawer-open");
+  document.body.style.top = `-${scrollPosition}px`;
+}
+loginBtn.addEventListener('click', function() {
+  openLoginModal();
+});
+
+function closeLoginModal(event) {
+  if (event && !event.target.classList.contains("Modal-Overlay")) {
+    return;
+  }
+
+  overlay.classList.remove("open");
+
+  document.body.classList.remove("drawer-open");
+  document.body.style.top = "";
+  window.scrollTo(0, scrollPosition);
+}
+loginCloseBtn.addEventListener('click', function() {
+  closeLoginModal();
+});
+overlay.addEventListener('click', function(event) {
+  closeLoginModal(event);
+});
+
+loginToggle.addEventListener('click', function() {
+  toggleAuthMode('login', loginView, signupView, forgotView, modalBox);
+});
+signinToggle.addEventListener('click', function() {
+  toggleAuthMode('login', loginView, signupView, forgotView, modalBox);
+});
+signupToggle.addEventListener('click', function() {
+  toggleAuthMode('signup', loginView, signupView, forgotView, modalBox);
+});
+forgotToggle.addEventListener('click', function() {
+  toggleAuthMode('forgot', loginView, signupView, forgotView, modalBox);
+});
+
+/* LOGIN */
+loginForm.addEventListener('submit', async function(event) {
+  event.preventDefault();
+  await handleLogin(usernameInput, passwordInput);
+  authedUserDisplay(loginBtn, unauthedPicksContainer, menuContainer, userDisplay, userAvatar, deleteCommentBtns);
+  closeLoginModal();
+});
+
+/* SIGN UP */
+signupForm.addEventListener('submit', function(event) {
+  event.preventDefault();
+  handleSignup(newUsername, newEmail, newPassword, newReferral, errorBox, signupSubmitBtn, signupContent, successContent, authBox);
+});
+newPassword.addEventListener('blur', function() {
+  validateInputs(errorBox, newReferral, newPassword);
+});
+newReferral.addEventListener('blur', function() {
+  validateInputs(errorBox, newReferral, newPassword);
+});
+
+function resetSignupView() {
+  closeLoginModal();
+
+  setTimeout(() => {
+    signupContent.style.display = "block";
+    successContent.style.display = "none";
+    toggleAuthMode("login", loginView, signupView, forgotView, modalBox);
+  }, 300);
+}
+successBtn.addEventListener('click', function() { 
+  resetSignupView();
+});
+
+/* FORGOT */
+forgotPasswordForm.addEventListener('submit', function(event) {
+  event.preventDefault();
+  forgotPassword(forgotEmail.value);
+  toggleAuthMode('login', loginView, signupView, forgotView, modalBox);
+});
+
+/* USER SETTINGS & LOGOUT */
+logoutBtn.addEventListener('click', function() {
+  handleLogout(menuContainer, loginBtn, userDropdownMenu);
+});
+
+function toggleUserDropdown(event) {
+  // Prevent the click from immediately bubbling up and closing the menu
+  if (event) event.stopPropagation();
+
+  const isActive = userDropdownMenu.classList.contains("active");
+
+  if (isActive) {
+    closeDropdown();
+  } else {
+    userDropdownMenu.classList.add("active");
+    document.addEventListener("click", closeDropdownOnClickOutside);
+  }
+}
+function closeDropdown() {
+  if (userDropdownMenu) {
+    userDropdownMenu.classList.remove("active");
+    document.removeEventListener("click", closeDropdownOnClickOutside);
+  }
+}
+function closeDropdownOnClickOutside(event) {
+  // If the click is NOT inside the menu AND NOT on the trigger button
+  if (userDropdownMenu && !userDropdownMenu.contains(event.target) && !userTrigger.contains(event.target)) {
+    closeDropdown();
+  }
+}
+userTrigger.addEventListener('click', function(event) { 
+  toggleUserDropdown(event);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* GLOBAL VARS */
 
 const currentDate = new Date();
 // should make this const and introduce SELECTED_WEEK
 let CURRENT_WEEK = 12;
 
-const DB_URL = "https://qeuvposbesblckyuflbd.supabase.co";
 const TEAMS_ENDPOINT =
   "https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Teams?order=conf.asc,conf_pos.asc";
 const D1_ENDPOINT =
@@ -18,10 +206,7 @@ const USERS_ENDPOINT = "https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Users";
 
 const ANON_API_KEY = "sb_publishable_mZVo1bfw-ChB9iCx1V5QwA_UUKrCx8o";
 
-const db_client = supabase.createClient(DB_URL, ANON_API_KEY);
-
 let CACHED_COMMENTS_DB = [];
-let AUTHED_USER = null;
 
 let currentCellId = null;
 let queryString;
@@ -32,19 +217,6 @@ var ALL_GAMES = [];
 var GAMES = [];
 var TEAMS;
 var FILTER = null;
-
-const PICKERS = [
-  { uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9', id: 'FE', username: 'fearthebeak', color: '#6c5ce7' }, // Purple
-  { uuid: 'c310b6e4-1827-4df6-a65d-42e6f7523f58', id: 'GA', username: 'Gayson Tatum', color: '#00cec9' }, // Teal
-  { uuid: '61e46342-e00e-4ed6-ab69-cd3b060e54cd', id: 'NO', username: 'notflorida', color: '#fab1a0' }, // Peach
-  { uuid: '0372871d-2f06-444b-835b-599383550980', id: 'BI', color: '#fdcb6e' }, // Yellow
-  { uuid: 'fa3d35cd-6495-4893-a704-cad39542533f', id: 'CO', username: 'cookedbycapjack', color: '#d63031' },  // Red
-  { uuid: '1bca9cd2-5e27-4942-97d7-29c2e0bc70cc', id: 'CB', color: '#0984e3' },  // Blue
-  { uuid: '72cee94c-8f10-4005-94df-c21995d44bae', id: 'JO', color: '#00b894' },  // Green
-  /* unused */
-  { uuid: 'f5d64492-737d-48a7-939a-d75449e21ca2', id: 'CR', color: '#e17055', }, //icon: 'fa-solid fa-user-astronaut' },  // Orange
-  { uuid: '', id: 'BOOTS', username: 'Boots Radford', color: '#e84393', icon: 'fa-solid fa-shoe-prints' },  // Pink
-];
 
 let showingAllPicks = false;
 
@@ -69,7 +241,7 @@ let MOCK_DB = {};
 function populateMockDB(ballots) {
   if (CURRENT_WEEK < 11) return; // should say no data for selected week
   const submittedBallots = ballots.filter(ballot => ballot[`submitted${CURRENT_WEEK}`]);
-  const myBallot = ballots.find(ballot => ballot.id === AUTHED_USER.sub);
+  const myBallot = ballots.find(ballot => ballot.id === getCurrentUser().sub);
 
   const all = submittedBallots.reduce((acc, curr) => {
     const id = curr.id;
@@ -82,7 +254,7 @@ function populateMockDB(ballots) {
 
   all['OFFICIAL'] = arr;
   MOCK_DB = { ...all };
-  delete MOCK_DB[AUTHED_USER.sub];
+  delete MOCK_DB[getCurrentUser().sub];
 
   isSubmitted = myBallot[`submitted${CURRENT_WEEK}`];
   if (isSubmitted) {
@@ -99,7 +271,7 @@ async function showTop25Rankings() {
     // add submitted eq true
     fetchD1().then((res) => { 
       TEAMS = res; 
-      AUTHED_USER && fetchTop25().then((res2) => { 
+      getCurrentUser() && fetchTop25().then((res2) => { 
         populateMockDB(res2.data); 
         initSortable(); 
         setTimeout(() => {
@@ -161,11 +333,11 @@ async function updateTop25(user_id, week, rankings, submit_week, submitted = fal
 async function isUserSignedIn() {
   const data = await db_client.auth.getSession();
   if (data?.session) {
-    AUTHED_USER = data.session.user?.user_metadata;
-    authedUserDisplay();
+    setCurrentUser(data.session.user?.user_metadata);
+    authedUserDisplay(loginBtn, unauthedPicksContainer, menuContainer, userDisplay, userAvatar, deleteCommentBtns);
   }
   // TODO: move
-  if (AUTHED_USER?.username === "fearthebeak") {
+  if (getCurrentUser()?.username === "fearthebeak") {
     document.getElementById("fabButton").style.display = "flex";
     document.querySelectorAll(".Row__Toggle").forEach((element) => {
       element.style.display = "block";
@@ -495,9 +667,9 @@ let setActive;
   });
 
   db_client.auth.onAuthStateChange((event, session) => {
-    AUTHED_USER = session?.user?.user_metadata;
-    if (AUTHED_USER) {
-      authedUserDisplay();
+    setCurrentUser(session?.user?.user_metadata);
+    if (getCurrentUser()) {
+      authedUserDisplay(loginBtn, unauthedPicksContainer, menuContainer, userDisplay, userAvatar, deleteCommentBtns);
     }
   });
 
@@ -704,7 +876,7 @@ async function renderComments() {
       : "";
 
     const deleteVisibilityClass =
-      AUTHED_USER != null && AUTHED_USER.username === "fearthebeak"
+      getCurrentUser() != null && getCurrentUser().username === "fearthebeak"
         ? "is-visible"
         : "";
 
@@ -782,6 +954,7 @@ function toggleReply(commentId) {
 }
 window.toggleReply = toggleReply;
 
+const deleteCommentBtns = document.querySelectorAll(".delete-btn");
 async function deleteCommentModal(commentId) {
   const children = CACHED_COMMENTS_DB.filter(
     (c) => c.reply_to_id === commentId,
@@ -805,7 +978,7 @@ async function submitComment() {
 
   const city = await getCityFromIP();
   await postComment({
-    author: AUTHED_USER != null ? AUTHED_USER.username : city,
+    author: getCurrentUser() != null ? getCurrentUser().username : city,
     message: text,
     team: currentCellId,
     mentions: mentions,
@@ -829,7 +1002,7 @@ async function submitReply(parentId) {
   if (parentComment) {
     const city = await getCityFromIP();
     await postComment({
-      author: AUTHED_USER != null ? AUTHED_USER.username : city,
+      author: getCurrentUser() != null ? getCurrentUser().username : city,
       message: text,
       team: currentCellId,
       reply_to_id: parentId,
@@ -1142,391 +1315,9 @@ function handleNewTeam(event) {
             */
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* LOGIN */
-
-function openLoginModal() {
-  scrollPosition = window.scrollY;
-
-  const overlay = document.getElementById("loginOverlay");
-  overlay.classList.add("open");
-
-  document.body.classList.add("drawer-open");
-  document.body.style.top = `-${scrollPosition}px`;
-}
-window.openLoginModal = openLoginModal;
-
-function closeLoginModal(event) {
-  if (event && !event.target.classList.contains("Modal-Overlay")) {
-    return;
-  }
-
-  const overlay = document.getElementById("loginOverlay");
-  overlay.classList.remove("open");
-
-  document.body.classList.remove("drawer-open");
-  document.body.style.top = "";
-  window.scrollTo(0, scrollPosition);
-}
-window.closeLoginModal = closeLoginModal;
-
-function authedUserDisplay() {
-  document.getElementById("loginBtn").style.display = "none";
-  document.querySelector('.Unauthed-Picks').style.display = "flex";
-
-  const menuContainer = document.getElementById('userMenu');
-  const userDisplay = document.getElementById('userDisplay');
-  const userAvatar = document.getElementById('userAvatarInitials');
-
-  const color = PICKERS.find(p => p.uuid === AUTHED_USER.sub)?.color;
-  if (color) {
-    menuContainer.style.setProperty('--user-theme', color);
-    userDisplay.textContent = AUTHED_USER.username;
-    userAvatar.textContent = AUTHED_USER.username.slice(0,2).toUpperCase();
-  }  
-  menuContainer.style.display = "block";
-
-  // TODO: only if admin
-  if (AUTHED_USER.username === "fearthebeak") {
-    const deleteCommentBtns = document.querySelectorAll(".delete-btn");
-    deleteCommentBtns.forEach((btn) => {
-      btn.style.display = "flex";
-    });
-  }
-}
-
-async function handleLogin(event) {
-  event.preventDefault();
-
-  const usernameInput = document.getElementById("username");
-  const passwordInput = document.getElementById("password");
-
-  const userIn = usernameInput.value;
-  const passIn = passwordInput.value;
-
-  /*
-  const { data, error } = await db_client
-    .rpc('check_password', { 
-      input_username: userIn, 
-      input_password: passIn, 
-    });
-  */
-  const { data, error } = await db_client.auth.signInWithPassword({
-    email: userIn,
-    password: passIn,
-  });
-
-  if (error) {
-    alert("Invalid Credentials. Please try again.");
-    console.error("Error:", error);
-    passwordInput.value = "";
-    return;
-  }
-
-  AUTHED_USER = data?.user?.user_metadata;
-
-  authedUserDisplay();
-
-  closeLoginModal();
-
-  usernameInput.value = "";
-  passwordInput.value = "";
-}
-window.handleLogin = handleLogin;
-
-  function toggleAuthMode(mode) {
-    const loginView = document.getElementById('view-login');
-    const signupView = document.getElementById('view-signup');
-    const forgotView = document.getElementById('view-forgot');
-    const modalBox = document.getElementById('mainModalBox');
-
-    // Hide all first
-    loginView.style.display = 'none';
-    signupView.style.display = 'none';
-    forgotView.style.display = 'none';
-
-    // Remove sizing classes
-    modalBox.classList.remove('mode-login', 'mode-signup', 'mode-forgot');
-
-    if (mode === 'signup') {
-      signupView.style.display = 'block';
-      modalBox.classList.add('mode-signup');
-    } else if (mode === 'forgot') {
-      forgotView.style.display = 'block';
-      modalBox.classList.add('mode-forgot');
-    } else {
-      // Default to login
-      loginView.style.display = 'block';
-      modalBox.classList.add('mode-login');
-    }
-  }
-  window.toggleAuthMode = toggleAuthMode;
-
-  function handleForgotSubmit(e) {
-    e.preventDefault();
-    forgotPassword(document.getElementById('forgot-email').value);
-    toggleAuthMode('login');
-  }
-
-function toggleUserDropdown(event) {
-  // Prevent the click from immediately bubbling up and closing the menu
-  if (event) event.stopPropagation();
-
-  const menu = document.getElementById("userDropdown");
-  const isActive = menu.classList.contains("active");
-
-  if (isActive) {
-    closeDropdown();
-  } else {
-    menu.classList.add("active");
-    // Add the "click out" listener only when the menu is open
-    document.addEventListener("click", closeDropdownOnClickOutside);
-  }
-}
-window.toggleUserDropdown = toggleUserDropdown;
-
-function closeDropdown() {
-  const menu = document.getElementById("userDropdown");
-  if (menu) {
-    menu.classList.remove("active");
-    // Clean up the listener so it doesn't fire unnecessarily
-    document.removeEventListener("click", closeDropdownOnClickOutside);
-  }
-}
-
-function closeDropdownOnClickOutside(event) {
-  const menu = document.getElementById("userDropdown");
-  const trigger = document.querySelector(".User-Trigger");
-
-  // If the click is NOT inside the menu AND NOT on the trigger button
-  if (menu && !menu.contains(event.target) && !trigger.contains(event.target)) {
-    closeDropdown();
-  }
-}
-
-async function handleSignup(event) {
-  event.preventDefault();
-  clearSignupError();
-
-  const newUsername = document.getElementById("new-username").value;
-  const newEmail = document.getElementById("new-email").value;
-  const newPassword = document.getElementById("new-password").value;
-  const referralCode = document.getElementById("new-referral").value;
-
-  if (password.length < 8) {
-    showSignupError("Password must be at least 8 characters.");
-    document.getElementById("new-password").classList.add("input-invalid");
-    return;
-  }
-
-  if (referralCode.length < 6) {
-    showSignupError("Referral code must be at least 6 characters.");
-    document.getElementById("new-referral").classList.add("input-invalid");
-    return;
-  }
-
-  const accountCreated = await signUpWithReferral(
-    newEmail,
-    newPassword,
-    newUsername,
-    referralCode,
-  );
-
-  if (accountCreated) {
-    // 1. Get the form container and success container
-    const formContent = document.getElementById("signup-content");
-    const successContent = document.getElementById("signup-success");
-
-    // 2. Validate (The 'required' attribute handles empty fields,
-    // but you can add specific logic here if needed)
-    const referral = document.getElementById("new-referral").value;
-
-    // Example: Check specific code (Optional)
-    // if (referral !== 'ARCHSTEP') { alert('Invalid Code'); return; }
-
-    // 3. Simulate API Call / Processing
-    const btn = event.target.querySelector("button");
-    const originalText = btn.innerText;
-    btn.innerText = "Creating...";
-
-    setTimeout(() => {
-      // 4. Hide Form, Show Success
-      formContent.style.display = "none";
-      successContent.style.display = "flex";
-      const box = document.querySelector(".Auth-Box");
-      box.style.height = "420px";
-
-      // Reset button text for next time
-      btn.innerText = originalText;
-
-      // Clear inputs (Security/Polish)
-      document.getElementById("new-username").value = "";
-      document.getElementById("new-email").value = "";
-      document.getElementById("new-password").value = "";
-      document.getElementById("new-referral").value = "";
-      document.getElementById("new-referral").classList.remove("input-invalid");
-    }, 1000); // Fake delay for realism
-  }
-}
-window.handleSignup = handleSignup;
-
-async function signUpWithReferral(email, password, username, referralCode) {
-  const { data: validCode, codeError } = await db_client.rpc(
-    "check_referral_code",
-    { input_code: referralCode },
-  );
-
-  if (!validCode) {
-    showSignupError(
-      "Invalid referral code. Please contact a founding ArchStepBoyz member.",
-    );
-    document.getElementById("new-referral").classList.add("input-invalid");
-    return false;
-  }
-
-  const { data, error } = await db_client.auth.signUp({
-    email: email,
-    password: password,
-    options: {
-      data: {
-        username: username,
-        referral_code: referralCode,
-      },
-      emailRedirectTo: "https://archstepboyz.github.io/archstepboyz",
-    },
-  });
-
-  if (error) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
-function resetSignupView() {
-  closeLoginModal();
-
-  setTimeout(() => {
-    document.getElementById("signup-content").style.display = "block";
-    document.getElementById("signup-success").style.display = "none";
-    toggleAuthMode("login");
-  }, 300);
-}
-
-function showSignupError(message) {
-  const errorBox = document.getElementById("signup-error-msg");
-  errorBox.innerText = message;
-  errorBox.style.display = "block";
-
-  // Re-trigger animation if it's already visible
-  errorBox.style.animation = "none";
-  errorBox.offsetHeight; /* trigger reflow */
-  errorBox.style.animation = null;
-}
-
-function clearSignupError() {
-  const errorBox = document.getElementById("signup-error-msg");
-  errorBox.style.display = "none";
-  errorBox.innerText = "";
-}
-
-function validateInputs() {
-  const codeEl = document.getElementById("new-referral");
-  const code = codeEl.value.trim();
-  if (code.length > 0 && code.length < 6) {
-    codeEl.classList.add("input-invalid");
-    showSignupError("Referral code must be at least 6 characters.");
-    return false;
-  }
-  const errorBox = document.getElementById("signup-error-msg");
-  if (errorBox.innerText.includes("Password")) {
-    clearSignupError();
-  }
-
-  const passEl = document.getElementById("new-password");
-  const pass = passEl.value.trim();
-  if (pass.length > 0 && pass.length < 8) {
-    passEl.classList.add("input-invalid");
-    showSignupError("Password must be at least 8 characters.");
-    return false;
-  }
-  passEl.classList.remove("input-invalid");
-
-  if (errorBox.innerText.includes("Password")) {
-    clearSignupError();
-  }
-
-  return true;
-}
-window.validateInputs = validateInputs;
-
-async function handleLogout() {
-  const { error } = await db_client.auth.signOut();
-
-  if (error) {
-    console.error("Error signing out:", error.message);
-  } else {
-    document.getElementById("userMenu").style.display = "none";
-    document.getElementById("loginBtn").style.display = "flex";
-    document.getElementById("userDropdown").classList.remove("active");
-    AUTHED_USER = null; // TODO: don't rely on this global
-  }
-}
-window.handleLogout = handleLogout;
-
-async function forgotPassword(email) {
-  const { error } = await db_client.auth.resetPasswordForEmail(email, {
-    redirectTo: 'https://archstepboyz.github.io/archstepboyz/reset.html', 
-  });
-
-  if (error) {
-    console.error('Error sending password reset email:', error.message);
-    alert('Failed to send reset email. Please confirm your email address or try again later.');
-  } else {
-    alert('Password reset email sent. Check your inbox!');
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* PICKS */
+
+const unauthedPicksContainer = document.querySelector('.Unauthed-Picks');
 
 /* DB CALLS */
 async function addValueToArray(columnName, valueToAdd, rowId) {
@@ -1579,13 +1370,13 @@ window.toggleView = toggleView;
 
 function switchPick(gameId, targetSide) {
     const gamePicks = GAMES.find( game => game.id ===  gameId );
-    const userId = AUTHED_USER?.username?.slice(0,2).toUpperCase();
+    const userId = getCurrentUser()?.username?.slice(0,2).toUpperCase();
     const currentSide = gamePicks.away_picks?.includes(userId) ? 'away_picks' : (gamePicks.home_picks?.includes(userId) ? 'home_picks' : null);
 
     // Remove from current side
     if (currentSide) {
       gamePicks[currentSide] = gamePicks[currentSide]?.filter(id => id !== userId);
-      removeValueFromArray(currentSide, AUTHED_USER?.sub, gameId);
+      removeValueFromArray(currentSide, getCurrentUser()?.sub, gameId);
     }
     
     // If user clicked the side they are already on, do nothing
@@ -1594,7 +1385,7 @@ function switchPick(gameId, targetSide) {
         gamePicks[targetSide] = [];
       }
       gamePicks[targetSide].push(userId);
-      addValueToArray(targetSide, AUTHED_USER?.sub, gameId);
+      addValueToArray(targetSide, getCurrentUser()?.sub, gameId);
     }
 
     // Re-render only this card
@@ -1605,7 +1396,7 @@ window.switchPick = switchPick;
         function createAvatarHTML(pickerIds) {
             if (pickerIds == null) return '';
             
-            const userId = AUTHED_USER?.username?.slice(0,2).toUpperCase();
+            const userId = getCurrentUser()?.username?.slice(0,2).toUpperCase();
             let visibleIds = pickerIds;
             if (!showingAllPicks) visibleIds = pickerIds.filter(id => id === userId);
             
@@ -1937,7 +1728,7 @@ function renderBallot(initialLoad = false, submitted = false) {
       container.classList.remove('mode-official');
       container.classList.remove('is-creative');
     }
-    !initialLoad && updateTop25(AUTHED_USER.sub, `week${CURRENT_WEEK}`, draftBallot, `submitted${CURRENT_WEEK}`, submitted);
+    !initialLoad && updateTop25(getCurrentUser().sub, `week${CURRENT_WEEK}`, draftBallot, `submitted${CURRENT_WEEK}`, submitted);
 
     updateHeaderControls(isReadOnly);
 
@@ -2219,7 +2010,7 @@ function submitBallot() {
     //document.getElementById('submissionTime').innerText = `Submitted ${timeString}`;
 
     renderBallot(false, true);
-    setTimeout( () => {fetchD1().then((res) => { TEAMS = res; AUTHED_USER && fetchTop25().then((res2) => { populateMockDB(res2.data); initSortable(); renderBallot(true); }); });}, 1000 );
+    setTimeout( () => {fetchD1().then((res) => { TEAMS = res; getCurrentUser() && fetchTop25().then((res2) => { populateMockDB(res2.data); initSortable(); renderBallot(true); }); });}, 1000 );
 }
 window.submitBallot = submitBallot;
 
@@ -2936,9 +2727,9 @@ function showLoneWolfDisplay(wolfStats) {
         newCard.innerHTML = `
         <div class="Card-Header">
             <div class="User-Group">
-                <div class="Avatar-Wolf" style="background-color: ${picker.color};">${picker.id}</div>
+                <div class="Avatar-Wolf" style="background-color: ${picker?.color};">${picker?.id}</div>
                 <div class="User-Meta">
-                    <span class="User-Name">${picker.username}</span>
+                    <span class="User-Name">${picker?.username}</span>
                 </div>
             </div>
             <div class="Record-Box">
