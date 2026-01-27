@@ -270,7 +270,8 @@ function populateMockDB(ballots) {
 async function showTop25Rankings() {
     // add submitted eq true
     fetchD1().then((res) => { 
-      TEAMS = res; 
+      TEAMS = res;
+      console.log(TEAMS);
       getCurrentUser() && fetchTop25().then((res2) => { 
         populateMockDB(res2.data); 
         initSortable(); 
@@ -1474,6 +1475,9 @@ window.switchPick = switchPick;
             const awayScore = game.away_score ? `<div class="Score-Badge">${game.away_score}</div>` : '';
             const homeScore = game.home_score ? `<div class="Score-Badge">${game.home_score}</div>` : '';
 
+            const awayRecord = game.away_torvik ? `${game.away_record} | Torvik: ${game.away_torvik}` : `${game.away_record}`;
+            const homeRecord = game.home_torvik ? `${game.home_record} | Torvik: ${game.home_torvik}` : `${game.home_record}`;
+
             const tv = game.tv ? `<div class="Broadcast-Badge"><i class="fa-solid fa-tv"></i> <span>${game.tv}</span></div>` : '';  
 
             return `
@@ -1495,7 +1499,7 @@ window.switchPick = switchPick;
                         <img src="${awayLog}" class="Team__Logo" alt="${game.away}">
                         <div class="Team__Text">
                             <span class="Team__Name">${game.away}</span>
-                            <span class="Team__Record">${game.away_record}</span>
+                            <span class="Team__Record">${awayRecord}</span>
                         </div>
                     </div>
                     ${awayScore}
@@ -1512,7 +1516,7 @@ window.switchPick = switchPick;
                         <img src="${homeLog}" class="Team__Logo" alt="${game.home}">
                          <div class="Team__Text">
                             <span class="Team__Name">${game.home}</span>
-                            <span class="Team__Record">${game.home_record}</span>
+                            <span class="Team__Record">${homeRecord}</span>
                         </div>
                     </div>
                     ${homeScore}
