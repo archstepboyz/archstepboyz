@@ -696,17 +696,29 @@ window.onclick = function(event) {
 }
 
 function filterGames(filterId) {
-  if (filterId === 'SOJRFilter') {
-    FILTER = 'SOJR';
-    GAMES = ALL_GAMES;
-    GAMES = GAMES.filter(game => game.rothstein)//.sort((a, b) => -1 * a.rothstein.localeCompare(b.rothstein));
-    document.getElementById('sojrTweet').style.display = 'block';
-    renderAll();
-  } else {
-    FILTER = null;
-    GAMES = ALL_GAMES;
-    document.getElementById('sojrTweet').style.display = 'none';
-    renderAll();
+  console.log(filterId);
+  switch (filterId) {
+    case 'SOJRFilter':
+      FILTER = 'SOJR';
+      GAMES = ALL_GAMES;
+      GAMES = GAMES.filter(game => game.rothstein);//.sort((a, b) => -1 * a.rothstein.localeCompare(b.rothstein));
+      document.getElementById('sojrTweet').style.display = 'block';
+      renderAll();
+      break;
+    case 'TorvikFilter':
+      FILTER = 'Torvik';
+      GAMES = ALL_GAMES;
+      GAMES = GAMES.filter(game => {
+        return !game.away_torvik || game.away_torvik <= 150 || !game.home_torvik || game.home_torvik <= 150;
+      });
+      renderAll();
+      break;
+    default:
+      FILTER = null;
+      GAMES = ALL_GAMES;
+      document.getElementById('sojrTweet').style.display = 'none';
+      renderAll();
+      break;
   }
   return;
 }
