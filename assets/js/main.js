@@ -1362,12 +1362,62 @@ async function removeValueFromArray(columnName, valueToRemove, rowId) {
 }
 
 async function fetchPicks(week) {
-  if (week === 'all') {
-    return db_client.from("Picks").select("*").order('time').order('id');
-  } else {
-    return db_client.from("Picks").select("*").eq('week',week).order('time').order('id');
+  const CHUNK_SIZE = 1000;
+  const MAX_ROWS = 10000;
+  
+  let allPicks = [];
+  let lastId = 0; 
+  
+  while (allPicks.length < MAX_ROWS) {
+    let query = db_client
+      .from("Picks")
+      .select("*")
+      .order('id', { ascending: true }) 
+      .limit(CHUNK_SIZE);
+
+    if (week !== 'all') {
+      query = query.eq('week', week);
+    }
+
+    if (lastId > 0) {
+      query = query.gt('id', lastId);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching picks:", error);
+      return [];
+    }
+
+    if (!data || data.length === 0) {
+      break;
+    }
+
+    allPicks = allPicks.concat(data);
+
+    lastId = data[data.length - 1].id;
+
+    if (data.length < CHUNK_SIZE) {
+      break;
+    }
   }
+
+  // Trim to exact MAX_ROWS 
+  if (allPicks.length > MAX_ROWS) {
+    allPicks = allPicks.slice(0, MAX_ROWS);
+  }
+
+  // Since we fetched by ID, the result is currently sorted by ID. 
+  allPicks.sort((a, b) => {
+    return new Date(a.time) - new Date(b.time) || a.id - b.id;
+  });
+
+  console.log(allPicks);
+
+  return allPicks; 
 }
+
 
 // TODO: make this more scalable for many users
 function getPickerObj(id) {
@@ -1564,7 +1614,7 @@ window.switchPick = switchPick;
             
             if (GAMES.length === 0 || forceRefresh) {
               const g = await fetchPicks(week);
-              GAMES = g.data.filter( game => game['quality'] !== '*'); // TODO: filter out bad games
+              GAMES = g.filter( game => game['quality'] !== '*'); // TODO: filter out bad games
               GAMES.forEach((game, index) => {
                 game['home_picks'] = game['home_picks']?.map(uuid => MOCK_USERS.find(user => user.id === uuid)?.username?.slice(0,2).toUpperCase() ?? '?');
                 game['away_picks'] = game['away_picks']?.map(uuid => MOCK_USERS.find(user => user.id === uuid)?.username?.slice(0,2).toUpperCase() ?? '?');
