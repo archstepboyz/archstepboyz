@@ -3565,6 +3565,12 @@ max-height: 100px;
     .is-win .Team-Col.User-Col { transform: scale(1.02); transform-origin: left; }
     .is-loss .Team-Col.User-Col { opacity: 0.3; filter: grayscale(100%); }
 
+        .chart-container {
+            position: relative;
+            height: 600px; /* Fixed height to accommodate 10 players comfortably */
+            width: 100%;
+        }
+
 
 
 

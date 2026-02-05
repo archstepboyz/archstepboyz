@@ -271,7 +271,6 @@ async function showTop25Rankings() {
     // add submitted eq true
     fetchD1().then((res) => { 
       TEAMS = res;
-      console.log(TEAMS);
       getCurrentUser() && fetchTop25().then((res2) => { 
         populateMockDB(res2.data); 
         initSortable(); 
@@ -696,7 +695,6 @@ window.onclick = function(event) {
 }
 
 function filterGames(filterId) {
-  console.log(filterId);
   switch (filterId) {
     case 'SOJRFilter':
       FILTER = 'SOJR';
@@ -1413,8 +1411,6 @@ async function fetchPicks(week) {
     return new Date(a.time) - new Date(b.time) || a.id - b.id;
   });
 
-  console.log(allPicks);
-
   return allPicks; 
 }
 
@@ -1624,6 +1620,7 @@ window.switchPick = switchPick;
               updateUserStats('all');
               getPopularPicks(GAMES);
               showLoneWolfDisplay(getLoneWolfStats(GAMES));
+              showLeaderboardBar(GAMES);
             }
 
             let lastDate = '';
@@ -2845,3 +2842,247 @@ function showLoneWolfDisplay(wolfStats) {
     }
 }
 window.showLoneWolfDisplay = showLoneWolfDisplay;
+
+function getPlayerStats(games) {
+  const stats = {};
+
+  // Helper to ensure a player object exists in our tracker
+  const initPlayer = (id) => {
+    if (!stats[id]) {
+      stats[id] = { wins: 0, attempts: 0 };
+    }
+  };
+
+  games.forEach(game => {
+    // 1. Skip games that haven't finished (no winner)
+    if (!game.winner) return;
+
+    const homePicks = game.home_picks || [];
+    const awayPicks = game.away_picks || [];
+
+    // 2. Process Home Picks
+    homePicks.forEach(playerId => {
+      initPlayer(playerId);
+      stats[playerId].attempts++;
+      
+      // If winner is 'home', these players win
+      if (game.winner === 'home') {
+        stats[playerId].wins++;
+      }
+    });
+
+    // 3. Process Away Picks
+    awayPicks.forEach(playerId => {
+      initPlayer(playerId);
+      stats[playerId].attempts++;
+      
+      // If winner is 'away', these players win
+      if (game.winner === 'away') {
+        stats[playerId].wins++;
+      }
+    });
+  });
+
+  // 4. Convert to the requested Array format
+  const players = Object.keys(stats).map(playerId => {
+    return {
+      id: playerId,
+      wins: stats[playerId].wins,
+      attempts: stats[playerId].attempts
+    };
+  });
+
+  // Optional: Sort by most wins descending
+  players.sort((a, b) => b.wins - a.wins);
+
+  return players;
+}
+
+let leaderboardChartInstance = null;
+function showLeaderboardBar(games) {
+    const names = PICKERS.map(picker => picker.username);
+    const userids = PICKERS.map(picker => picker.id);
+    const pastelColors = PICKERS.map(picker => picker.color);
+    /* MORE COLORS
+        '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF',
+        '#E0BBE4', '#957DAD', '#D291BC', '#FEC8D8', '#FFDFD3'
+    */
+
+    // Helper to get random integer between min and max (inclusive)
+    const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+    let players = [];
+
+    for (let i = 0; i < 10; i++) {
+        const fullName = names[i];
+        const initials = userids[i];
+        if (!fullName || fullName.startsWith('Boots')) continue;
+
+        // Constraints: Attempts between 50 and 1000
+        const attempts = getRandomInt(50, 1000);
+        
+        // Constraints: Win % roughly between 40% and 70%. 
+        // We generate a random factor between 0.40 and 0.70.
+        const targetWinFactor = (Math.random() * 0.30) + 0.40;
+        
+        // Calculate wins based on the factor, rounded to nearest whole number
+        const wins = Math.round(attempts * targetWinFactor);
+
+        // Recalculate precise win percentage based on actual whole numbers
+        const winPct = (wins / attempts * 100);
+
+        players.push({
+            id: i,
+            name: fullName,
+            initials: initials,
+            color: pastelColors[i],
+            wins: wins,
+            attempts: attempts,
+            winPct: winPct
+        });
+    }
+
+    // SORTING: Crucial step for a leaderboard. Sort by Win % descending.
+    players.sort((a, b) => b.winPct - a.winPct);
+
+    players = getPlayerStats(games);
+
+    for (const id in players) {
+        const play = PICKERS.find((picker) => picker.id === players[id].id);
+        players[id]['name'] = play.username;
+        players[id]['initials'] = play.id;
+        players[id]['color'] = play.color;
+        players[id]['winPct'] = players[id].wins / players[id].attempts * 100;
+    }
+
+    // --- 2. Chart.js Custom Plugin for Avatars ---
+
+    const avatarYAxis = {
+        id: 'avatarYAxis',
+        afterDraw(chart, args, options) {
+            const { ctx } = chart;
+            const yAxis = chart.scales.y;
+            const xAxis = chart.scales.x;
+            
+            // Avatar styling properties
+            const avatarRadius = 18;
+            const paddingRight = 10; // Space between avatar and bar start
+            const fontSize = 14;
+            
+            chart.getDatasetMeta(0).data.forEach((bar, index) => {
+                const playerData = players[index];
+                const centerY = bar.y;
+                // Position x coordinate just to the left of the chart area
+                const centerX = xAxis.left - avatarRadius - paddingRight;
+
+                // 1. Draw Circle Background
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, avatarRadius, 0, 2 * Math.PI);
+                ctx.fillStyle = playerData.color;
+                ctx.fill();
+                ctx.restore();
+
+                // 2. Draw Initials
+                ctx.save();
+                ctx.font = `bold ${fontSize}px sans-serif`;
+                ctx.fillStyle = '#fff'; // Dark gray text for contrast on pastels
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                // Offset y slightly for visual centering depending on font
+                ctx.fillText(playerData.initials, centerX, centerY + 1); 
+                ctx.restore();
+            });
+        }
+    };
+
+
+    // --- 3. Chart Configuration ---
+  if (leaderboardChartInstance) {
+    leaderboardChartInstance.destroy();
+  }
+
+    const ctx = document.getElementById('leaderboardChart').getContext('2d');
+
+    leaderboardChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            // Using names as labels for accessibility, though they are hidden visually on axis
+            labels: players.map(p => p.name), 
+            datasets: [{
+                data: players.map(p => p.winPct),
+                backgroundColor: players.map(p => p.color),
+                // Darker borders for clearer definition
+                //borderColor: players.map(p => p.color.replace(')', ', 0.8)').replace('rgb', 'rgba')), 
+                borderWidth: 1,
+                borderRadius: 6, // Rounded bar ends
+                barPercentage: 0.7, // Makes bars slightly thinner
+            }]
+        },
+        options: {
+            indexAxis: 'y', // Makes it a horizontal bar chart
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    // Add left padding to make room for our custom drawn avatars
+                    left: 50 
+                }
+            },
+            plugins: {
+                legend: { display: false }, // Hide legend as colors are distinct per player
+                tooltip: {
+                    backgroundColor: 'rgba(0,0,0,0.8)',
+                    titleFont: { size: 14 },
+                    bodyFont: { size: 14 },
+                    padding: 12,
+                    displayColors: false, // Don't show the color box in tooltip
+                    callbacks: {
+                        title: (tooltipItems) => {
+                             return players[tooltipItems[0].dataIndex].name;
+                        },
+                        label: (context) => {
+                            const player = players[context.dataIndex];
+                            // Custom tooltip text showing percentage AND wins/attempts count
+                            return [
+                                `Win Rate: ${player.winPct.toFixed(1)}%`,
+                                `Record: ${player.wins} Wins / ${player.attempts} Attempts`
+                            ];
+                        }
+                    }
+                },
+                // Register our custom avatar plugin here
+                avatarYAxis: true 
+            },
+            scales: {
+                x: {
+                    // Optimization: Zoom in the X-axis. 
+                    // Since data is 40%-70%, setting min to 35 and max to 75 highlights differences better.
+                    min: 40, 
+                    max: 100,
+                    grid: {
+                        color: '#e0e0e0'
+                    },
+                    ticks: {
+                        callback: function(value) {
+                            return value + '%'; // Add % sign to x-axis ticks
+                        },
+                        font: { size: 12 }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Winning Percentage',
+                        font: { weight: 'bold' }
+                    }
+                },
+                y: {
+                    // Hide default labels and grids because we are drawing our own avatars
+                    ticks: { display: false },
+                    grid: { display: false }
+                }
+            }
+        },
+        // Register plugin globally for this chart instance
+        plugins: [avatarYAxis] 
+    });
+}
