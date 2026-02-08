@@ -702,6 +702,23 @@ opacity: 0.9;
         --sketch-black: #2d3436;
         --sketch-bg: #fff;
         --bar-height: 30px;
+
+        --dark: #2c3e50;
+        --header: #1a1a1a;
+        --light-bg: #f4f6f8;
+        --border: #e1e4e8;
+        
+        /* Region Header Colors */
+        --south: #2980b9;
+        --west: #d35400;
+        --east: #27ae60;
+        --midwest: #8e44ad;
+
+        /* Refined Bubble Colors */
+        --bubble-bye: #202933;
+        --bubble-in: #2c3e50; 
+        --bubble-out: #4e6378;
+        --bubble-text: #fff;
 }
 
 .Header-Menu {
@@ -3570,6 +3587,204 @@ max-height: 100px;
             height: 600px; /* Fixed height to accommodate 10 players comfortably */
             width: 100%;
         }
+
+
+
+    .Bracket-Container {
+        margin: 0;
+        padding: 0;
+        height: 1000px;
+        width: 1000px;
+        min-width: 1000px;
+        overflow: hidden; /* Ensures full screen fit */
+        background-color: var(--light-bg);
+        font-family: 'Roboto', sans-serif;
+        display: flex;
+        flex-direction: column;
+        color: #333;
+    }
+
+    /* Top Bar */
+    .header-12 {
+        height: 5vh;
+        background: var(--header);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        font-family: 'Oswald', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .header-12 h1 { color: white; font-size: 1.5rem; margin: 0; }
+    .header-12 span { color: #FF6B00; font-weight: bold; }
+    
+    .header-12 h1 { color: white; font-size: 1.2rem; margin: 0; }
+    .header-12 span { color: #FF6B00; }
+
+
+    /* Main Grid Layout */
+    .Bracket-Container-12 {
+        flex-grow: 1;
+        display: grid;
+        /* 5 Columns: South | West | BUBBLE | East | Midwest */
+        grid-template-columns: 1fr 1fr 0.65fr 1fr 1fr; 
+        gap: 12px;
+        padding: 12px;
+        height: calc(100vh - 50px); /* Fill remaining height */
+    }
+
+    /* Column Styles */
+    .region-col {
+        display: flex;
+        flex-direction: column;
+        background: var(--card-bg);
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        border: 1px solid #fff;
+    }
+
+    /* Region Headers */
+    .region-header {
+        padding: 10px 5px;
+        text-align: center;
+        color: white;
+        font-family: 'Oswald', sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+    
+    .region-name { font-size: 1.2rem; font-weight: 500; text-transform: uppercase; line-height: 1;}
+    .region-site-top { font-size: 0.65rem; opacity: 0.9; font-weight: 400; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;}
+
+    /* Matchups Container */
+    .matchups-container {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly; /* Spreads games out perfectly vertical */
+        padding: 0 10px;
+    }
+
+    /* Individual Matchup Block */
+    .matchup {
+        display: flex;
+        flex-direction: column; /* Vertical Stack */
+        padding: 6px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .matchup:last-child { border-bottom: none; }
+
+    /* Team Row inside Matchup */
+    .team-row-12 {
+        display: flex;
+        align-items: center;
+        margin-bottom: 2px;
+    }
+
+    .seed {
+        font-weight: 700;
+        font-size: 0.75rem;
+        color: #7f8c8d;
+        width: 18px;
+        text-align: center;
+    }
+    
+    /* Logo Styles */
+    .logo {
+        width: 20px;
+        height: 20px;
+        /* border-radius: 50%; 
+        border: 1px solid #eee; */
+        margin: 0 8px;
+        object-fit: cover;
+        /* Default subtle border for white logos */
+    }
+
+    .team-name-12 {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Specific Game Location */
+    .game-location {
+        font-size: 0.65rem;
+        color: #95a5a6;
+        margin-left: 26px; /* Align with text */
+        margin-top: 2px;
+        text-transform: uppercase;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    /* Bubble Column specific  *styles */
+    .bubble-col {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .bubble-card {
+        background: white;
+        border-radius: 8px;
+        padding: 0;
+        flex: 1;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .bubble-header {
+        font-family: 'Oswald', sans-serif;
+        font-size: 0.9rem;
+        text-align: center;
+        padding: 6px;
+        color: white;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .bubble-list {
+        list-style: none;
+        padding: 5px 10px;
+        margin: 0;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+    }
+
+    .bubble-item {
+        display: flex;
+        align-items: center;
+        font-size: 0.8rem;
+        color: #444;
+        border-bottom: 1px dashed #eee;
+        padding: 3px 0;
+    }
+    .bubble-item:last-child { border-bottom: none; }
+    
+    .rank { font-size: 0.7rem; color: #999; width: 15px; margin-right: 2px;}
+
+    /* Utility Classes for Colors */
+    .bg-south { background-color: var(--south); }
+    .bg-west { background-color: var(--west); }
+    .bg-east { background-color: var(--east); }
+    .bg-midwest { background-color: var(--midwest); }
+    
+    .bubble-safe { background-color: var(--bubble-bye); }
+    .bubble-edge { background-color: var(--bubble-in); }
+    .bubble-danger { background-color: var(--bubble-out); }
 
 
 

@@ -364,6 +364,7 @@ let setActive;
   const picksBtn = document.getElementById("picksViewBtn");
   const top25Btn = document.getElementById("top25ViewBtn");
   const statsBtn = document.getElementById("statsViewBtn");
+  const bracketBtn = document.getElementById("bracketViewBtn");
   const mainContent = document.getElementById("MainContent");
 
   function switchToGrid() {
@@ -372,6 +373,7 @@ let setActive;
     picksBtn.classList.remove("active");
     top25Btn.classList.remove("active");
     statsBtn.classList.remove("active");
+    bracketBtn.classList.remove("active");
 
     const list = document.querySelector(".list-container");
     list.style.display = "none";
@@ -389,6 +391,8 @@ let setActive;
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
     dash.style.display = "none";
+    const bracket = document.querySelector(".Bracket-Container");
+    bracket.style.display = "none";
   }
 
   function switchToList() {
@@ -397,6 +401,7 @@ let setActive;
     picksBtn.classList.remove("active");
     top25Btn.classList.remove("active");
     statsBtn.classList.remove("active");
+    bracketBtn.classList.remove("active");
 
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -414,6 +419,8 @@ let setActive;
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
     dash.style.display = "none";
+    const bracket = document.querySelector(".Bracket-Container");
+    bracket.style.display = "none";
   }
 
   function switchToPicks() {
@@ -422,6 +429,7 @@ let setActive;
     picksBtn.classList.add("active");
     top25Btn.classList.remove("active");
     statsBtn.classList.remove("active");
+    bracketBtn.classList.remove("active");
 
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -439,6 +447,8 @@ let setActive;
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
     dash.style.display = "none";
+    const bracket = document.querySelector(".Bracket-Container");
+    bracket.style.display = "none";
   }
 
   function switchToTop25() {
@@ -447,6 +457,7 @@ let setActive;
     picksBtn.classList.remove("active");
     top25Btn.classList.add("active");
     statsBtn.classList.remove("active");
+    bracketBtn.classList.remove("active");
     
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -467,6 +478,8 @@ let setActive;
     }
     const dash = document.getElementById("statsDash");
     dash.style.display = "none";
+    const bracket = document.querySelector(".Bracket-Container");
+    bracket.style.display = "none";
   }
 
   function switchToStats() {
@@ -475,6 +488,7 @@ let setActive;
     picksBtn.classList.remove("active");
     top25Btn.classList.remove("active");
     statsBtn.classList.add("active");
+    bracketBtn.classList.remove("active");
 
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -490,6 +504,34 @@ let setActive;
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
     dash.style.display = "flex";
+    const bracket = document.querySelector(".Bracket-Container");
+    bracket.style.display = "none";
+  }
+  
+function switchToBracket() {
+    listBtn.classList.remove("active");
+    gridBtn.classList.remove("active");
+    picksBtn.classList.remove("active");
+    top25Btn.classList.remove("active");
+    statsBtn.classList.remove("active");
+    bracketBtn.classList.add("active");
+
+    const table = document.querySelector(".table-container");
+    table.style.display = "none";
+    const list = document.querySelector(".list-container");
+    list.style.display = "none";
+    const fab = document.querySelector(".Fab-Wrapper");
+    fab.style.display = "none";
+    const picks = document.querySelector(".Picks-Container");
+    picks.style.display = "none";
+    const picksToggle = document.getElementById("picksMenu");
+    picksToggle.style.display = "none";
+    const ballot = document.querySelector(".Top25-Container");
+    ballot.style.display = "none";
+    const dash = document.getElementById("statsDash");
+    dash.style.display = "none";
+    const bracket = document.querySelector(".Bracket-Container");
+    bracket.style.display = "flex";
   }
 
   gridBtn.addEventListener("click", switchToGrid);
@@ -519,6 +561,9 @@ let setActive;
       case "statsViewBtn":
         switchToStats();
         break;
+      case "bracketViewBtn":
+        switchToBracket();
+        break;
       default:
         switchToGrid();
     }
@@ -545,6 +590,9 @@ let setActive;
       break;
     case "stats":
       switchToStats();
+      break;
+    case "bracket":
+      switchToBracket();
       break;
     default:
       switchToGrid();
