@@ -194,7 +194,7 @@ userTrigger.addEventListener('click', function(event) {
 
 const currentDate = new Date();
 // should make this const and introduce SELECTED_WEEK
-let CURRENT_WEEK = 14;
+let CURRENT_WEEK = 15;
 
 const TEAMS_ENDPOINT =
   "https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Teams?order=conf.asc,conf_pos.asc";
