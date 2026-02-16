@@ -1979,6 +1979,8 @@ function renderCreativeCard(teamKey, rank, votes, firstPlace, className) {
     if (teamName === 'North Carolina Tar Heels') teamName = 'UNC Tar Heels';
     if (teamName === 'Nebraska Cornhuskers' && rank === 1) {
       firstPlaceClass = 'rank-corn';
+    } else if (teamName === 'Michigan Wolverines' && rank === 1) {
+      firstPlaceClass = 'rank-mich';
     }
     const firstPlaceHTML = firstPlace > 0 ? '<span class="Votes-First">(' + firstPlace  + ')</span>' : '';
     container.insertAdjacentHTML('beforeend', `

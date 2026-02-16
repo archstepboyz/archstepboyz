@@ -2848,11 +2848,30 @@ max-height: 100px;
         background: linear-gradient(135deg, #E41C38 0%, #ef5d67 50%, #FEFDFA 100%);
         box-shadow: 0 12px 24px -8px rgba(228, 28, 56, 0.5), 0 4px 8px -4px rgba(0,0,0,0.1);
     }
+    
+    .Creative-Card.rank-mich {
+        grid-column: span 2; /* Span across both columns */
+        height: 85px;
+        border: none;
+        margin-bottom: 5px;
+        
+        background: linear-gradient(135deg, #00274C 0%, #00458a 50%, #FFCB05 100%);
+        box-shadow: 0 10px 20px rgba(0, 39, 76, 0.2);
+    }
 
     .Creative-Card.rank-corn .Creative-Content::before {
         content: ''; position: absolute;
         right: 30px; bottom: -20px; width: 130px; height: 130px;
         background-image: url('https://content.sportslogos.net/logos/33/766/full/nebraska_cornhuskers_logo_mascot_2023_sportslogosnet-7842.png');
+        background-size: contain; background-repeat: no-repeat;
+        opacity: 0.15; /* Slightly increased opacity for visibility */
+        z-index: 0; 
+        transform: rotate(-10deg);
+    }
+    .Creative-Card.rank-mich .Creative-Content::before {
+        content: ''; position: absolute;
+        right: 50px; bottom: -30px; width: 130px; height: 130px;
+        background-image: url('https://scontent-lga3-2.cdninstagram.com/v/t51.82787-15/598814448_18547107787053160_6719226931328686736_n.jpg?stp=dst-jpg_e35_tt6&_nc_cat=109&ig_cache_key=Mzc4NjA4OTE1ODM0NDI0NTc0Nw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6InhwaWRzLjEwODB4MTM1MC5zZHIuQzMifQ%3D%3D&_nc_ohc=xZBduz-5N7oQ7kNvwHq9efF&_nc_oc=Adnh5diauW-nZKhDPP060Q_R6GplmImVOf9e3-XqHsXactIaTDRZD5X-bNixqiL8yFCDl1CxEopXpvoFEcARMcJh&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=scontent-lga3-2.cdninstagram.com&_nc_gid=Mm5s8i7hZmChn7PShgiUng&oh=00_AfseqplTrHSECPQKhR9MThDj47c-h6dJmKVJY4SgqqUEng&oe=6999346F');
         background-size: contain; background-repeat: no-repeat;
         opacity: 0.15; /* Slightly increased opacity for visibility */
         z-index: 0; 
@@ -2876,6 +2895,15 @@ max-height: 100px;
     }
     .Creative-Card.rank-corn .Creative-Name { font-size: 26px; color: white; font-weight: 700; letter-spacing: 0.5px; z-index: 2; }
     .Creative-Card.rank-corn .Creative-Logo { width: 55px; height: 55px; margin-right: 15px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); z-index: 2; }
+
+    .Creative-Card.rank-mich .Creative-Rank { 
+        font-size: 48px; 
+        color: rgba(255,255,255,0.75);
+        position: absolute; right: 20px; top: -5px; 
+        font-weight: 900; 
+    }
+    .Creative-Card.rank-mich .Creative-Name { font-size: 26px; color: white; font-weight: 700; letter-spacing: 0.5px; z-index: 2; }
+    .Creative-Card.rank-mich .Creative-Logo { width: 55px; height: 55px; margin-right: 15px; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3)); z-index: 2; }
 
     /* --- RANKS 2-25 (Grid Items) --- */
     /* They inherit the base .Creative-Card styles (White bg, Blue border) */
