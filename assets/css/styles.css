@@ -2899,7 +2899,7 @@ max-height: 100px;
     .Creative-Card.rank-mich .Creative-Rank { 
         font-size: 48px; 
         color: rgba(255,255,255,0.75);
-        position: absolute; right: 20px; top: -5px; 
+        position: absolute; right: 5px; top: -5px; 
         font-weight: 900; 
     }
     .Creative-Card.rank-mich .Creative-Name { font-size: 26px; color: white; font-weight: 700; letter-spacing: 0.5px; z-index: 2; }
@@ -2985,6 +2985,17 @@ max-height: 100px;
 .Creative-Card.rank-corn .Votes-First {
     color: rgba(255, 255, 255, 0.7);
     padding-right: 40px;
+}
+.Creative-Card.rank-mich .Votes-Total {
+    color: #ffffff;
+    font-size: 16px; /* Slightly larger for #1 */
+    text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    padding-right: 35px;
+}
+
+.Creative-Card.rank-mich .Votes-First {
+    color: white;
+    padding-right: 35px;
 }
 
 .ORV-Container {
