@@ -3725,7 +3725,6 @@ max-height: 100px;
         display: flex;
         align-items: center;
         margin-bottom: 2px;
-        flex-wrap: wrap;
     }
 
     .seed {
@@ -3753,6 +3752,29 @@ max-height: 100px;
         color: var(--dark);
         white-space: nowrap;
     }
+
+    /* 2. The Outer Wrapper: Enable wrapping */
+.team-row-12 > .team-name-12 {
+    display: flex;       /* Treats the inner spans as blocks */
+    flex-wrap: wrap;     /* Allows those blocks to drop to the next line */
+    align-items: center; /* Vertically aligns the text parts */
+    row-gap: 2px;        /* Adds a tiny gap between lines if it breaks */
+    column-gap: 5px;
+}
+
+/* 3. The Inner Parts: Prevent single names from breaking mid-word */
+.team-row-12 > .team-name-12 > .team-name-12 {
+    white-space: nowrap;
+}
+
+.bracket-note {
+    display: inline-block;      /* Allows transform/margins to work better */
+    color: #F59E0B;             /* A "Gold" color implies status/winner */
+    font-weight: bold;          
+    font-size: 0.9em;           /* Slightly smaller than the name */
+    vertical-align: top;        /* Lifts it up */
+    line-height: 1;             /* Prevents it from messing up row height */
+}
 
     /* Specific Game Location */
     .game-location {

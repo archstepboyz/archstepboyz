@@ -1,5 +1,6 @@
 import { idCompareSort, getCityFromIP } from './utils.js';
 import { calculateIdIndexSums } from './ballot.js';
+import { mock_db_bracket, renderBracket } from './bracket.js';
 
 import { getCurrentUser, setCurrentUser, handleLogin, authedUserDisplay, handleLogout, forgotPassword, validateInputs, handleSignup, toggleAuthMode } from './auth.js';
 
@@ -228,6 +229,7 @@ function changeWeekView(week) {
   if (CURRENT_WEEK >= 11) {
     showTop25Rankings();
   }
+  renderBracket(`week${CURRENT_WEEK}`);
 }
 window.changeWeekView = changeWeekView;
 
@@ -532,6 +534,7 @@ function switchToBracket() {
     dash.style.display = "none";
     const bracket = document.querySelector(".Bracket-Container");
     bracket.style.display = "flex";
+    renderBracket(`week${CURRENT_WEEK}`);
   }
 
   gridBtn.addEventListener("click", switchToGrid);
