@@ -2601,6 +2601,160 @@ max-height: 100px;
     color: #b2bec3; /* Subtle icon color */
 }
 
+/* --- WRAPPER: Handles Position & Layout --- */
+.Tracker-Wrapper-Left {
+    display: flex;
+    justify-content: flex-start; /* Aligns Left */
+    width: 100%;
+    margin-bottom: 20px;
+    padding-left: 0; /* Adjust if your page has a main container padding */
+}
+
+/* =========================================
+   OPTION 1: THE "SOFT PILL" (Minimalist)
+   Round, friendly, and very compact.
+   ========================================= */
+.tracker-v1 {
+    background: #f1f2f6;
+    color: #374151; /* Dark Grey Text */
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    position: relative;
+    overflow: hidden; /* Clips the bar at the bottom */
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.tracker-v1 .tracker-icon {
+    color: #9ca3af;
+    font-size: 1rem;
+}
+
+.tracker-v1 .tracker-info {
+    display: flex;
+    gap: 5px;
+    z-index: 2; /* Sits above the bar */
+}
+
+/* The bar is a subtle underline that fills up */
+.tracker-v1 .tracker-bar-bg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px; /* Thin line at bottom */
+    background: transparent;
+}
+
+.tracker-v1 .tracker-bar-fill {
+    height: 100%;
+    background: #3B82F6; /* Blue */
+    transition: width 0.4s ease;
+}
+
+
+/* =========================================
+   OPTION 2: THE "DATA TAG" (Technical)
+   Boxy, structured, looks like a data dashboard element.
+   ========================================= */
+.tracker-v2 {
+    background: #f1f2f6;
+    border: 1px solid #d1d5db; /* Subtle border */
+    border-left: 2px solid #3B82F6; /* Blue Accent on left */
+    border-radius: 50px; /* Fully rounded */
+    padding: 8px 12px;
+    width: 160px; /* Fixed width for stability */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.tracker-v2 .tracker-icon { display: none; } /* No icon for this text-heavy style */
+
+.tracker-v2 .tracker-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #4b5563;
+    margin-bottom: 4px;
+    font-family: var(--font-stack);
+}
+
+.tracker-v2 .tracker-label { text-transform: uppercase; font-weight: 700; }
+
+.tracker-v2 .tracker-bar-bg {
+    width: 100%;
+    height: 6px;
+    background: #e5e7eb; /* Darker grey track */
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.tracker-v2 .tracker-bar-fill {
+    height: 100%;
+    background: #3B82F6;
+    transition: width 0.4s ease;
+}
+
+
+/* =========================================
+   OPTION 3: THE "BUBBLE POP" (Creative)
+   Looks like a button. The progress bar is the background!
+   ========================================= */
+.tracker-v3 {
+    background: #f1f2f6;
+    padding: 6px 6px 6px 14px; /* Less padding on right for the circle */
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: fit-content;
+    border: 2px solid #fff; /* White ring effect */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+}
+
+.tracker-v3 .tracker-icon { display: none; }
+
+.tracker-v3 .tracker-label {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-right: 8px;
+    font-weight: 700;
+}
+
+/* The numbers are inside a circle on the right */
+.tracker-v3 .tracker-numbers {
+    background: #fff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #3B82F6;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* The bar acts as a background fill */
+.tracker-v3 .tracker-bar-bg {
+    position: absolute;
+    top: 0; left: 0; bottom: 0; right: 0;
+    z-index: -1; /* Behind text */
+    border-radius: 30px;
+    overflow: hidden;
+}
+
+.tracker-v3 .tracker-bar-fill {
+    height: 100%;
+    background: #e2e8f0; /* Fills with a slightly darker grey */
+    opacity: 0.5;
+    transition: width 0.4s ease;
+}
+
 /* --- ROSTER LEGEND --- */
 .Legend-Wrapper {
     width: 100%;

@@ -186,7 +186,66 @@ userTrigger.addEventListener('click', function(event) {
 
 
 
+/* QUICK DATE HELPER */
+function dateFromTimestamp(ts, opt = 'text') {
+  const d = new Date(ts);
+  let date;
+  if (opt === 'text') {
+    date = d.toLocaleString(navigator.language, { month: "short", day: "numeric", weekday: "long" });
+  } else {
+    date = d.toLocaleString('fr-CA', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  }
+  return date;
+}
 
+function getCompactTracker(id) {
+    const currEl = document.getElementById(`curr-val-${id}`);
+    const totalEl = document.getElementById(`total-val-${id}`);
+    return { current: Number(currEl.innerText), total: Number(totalEl.innerText) };
+}
+
+function updateCompactTracker(current, total, id) {
+    const tracker = document.getElementById(`active-tracker-${id}`);
+    const fill = document.getElementById(`bar-fill-${id}`);
+    const currEl = document.getElementById(`curr-val-${id}`);
+    const totalEl = document.getElementById(`total-val-${id}`);
+    
+    // 1. Update Text
+    currEl.innerText = current;
+    totalEl.innerText = total;
+
+    // 2. Calculate Percentage
+    let pct = Math.min((current / total) * 100, 100);
+    fill.style.width = pct + '%';
+
+    // 3. Status Colors (Blue -> Green)
+    if (current >= total) {
+        // Finished State
+        if (tracker.classList.contains('tracker-v2')) {
+            tracker.style.borderLeftColor = '#10B981'; // Green Border
+            fill.style.background = '#10B981';
+        } else if (tracker.classList.contains('tracker-v3')) {
+             fill.style.background = '#d1fae5'; // Light green fill
+             tracker.querySelector('.tracker-numbers').style.color = '#059669';
+        } else {
+            // Default V1
+            fill.style.background = '#10B981';
+            tracker.querySelector('.tracker-icon').style.color = '#10B981';
+        }
+    } else {
+        // Pending State (Reset to Blue)
+        if (tracker.classList.contains('tracker-v2')) {
+            tracker.style.borderLeftColor = '#3B82F6';
+            fill.style.background = '#3B82F6';
+        } else if (tracker.classList.contains('tracker-v3')) {
+             fill.style.background = '#e2e8f0';
+             tracker.querySelector('.tracker-numbers').style.color = '#3B82F6';
+        } else {
+            fill.style.background = '#3B82F6';
+            tracker.querySelector('.tracker-icon').style.color = '#9ca3af';
+        }
+    }
+}
 
 
 
@@ -1482,6 +1541,14 @@ function switchPick(gameId, targetSide) {
     const gamePicks = GAMES.find( game => game.id ===  gameId );
     const userId = getCurrentUser()?.username?.slice(0,2).toUpperCase();
     const currentSide = gamePicks.away_picks?.includes(userId) ? 'away_picks' : (gamePicks.home_picks?.includes(userId) ? 'home_picks' : null);
+    
+    const date = dateFromTimestamp(gamePicks.time, 'num');
+    const tracker = getCompactTracker(date);
+    if (!currentSide) {
+      updateCompactTracker(tracker.current + 1, tracker.total, date);
+    } else if (currentSide === targetSide) {
+      updateCompactTracker(tracker.current - 1, tracker.total, date);
+    }
 
     // Remove from current side
     if (currentSide) {
@@ -1690,12 +1757,36 @@ window.switchPick = switchPick;
               const d = new Date(game.time);
               const date = d.toLocaleString(navigator.language, { month: "short", day: "numeric", weekday: "long" });
               const notCompleted = currentDate < d || date === currentDate.toLocaleString(navigator.language, { month: "short", day: "numeric", weekday: "long" });
+
+              let todaysPicks;
+              let todaysTotal;
+              let todaysDate;
               if (date !== lastDate) {
+                const todaysGames = GAMES.filter(g => dateFromTimestamp(g.time) === date);
+                todaysTotal = todaysGames.length;
+                todaysPicks = todaysGames.filter(g => (g.home_picks?.includes('FE') || g.away_picks?.includes('FE'))).length;
+                todaysDate = dateFromTimestamp(game.time, 'num');
                 days += 1;
                 separatorHTML = `
                 <div class="Date-Separator" id="${days}-date-sep">
                     <div class="Date-Separator__Text">
                         <i class="fa-regular fa-calendar"></i> ${date}
+                    </div>
+                </div>
+                <div class="Tracker-Wrapper-Left">
+                    <div class="tracker-v2" id="active-tracker-${todaysDate}">
+                        <div class="tracker-icon">
+                            <i class="fa-solid fa-list-check"></i>
+                        </div>
+                        <div class="tracker-info">
+                            <span class="tracker-label">Picks Submitted</span>
+                            <div class="tracker-numbers">
+                                <span id="curr-val-${todaysDate}">${todaysPicks}</span> / <span id="total-val-${todaysDate}">${todaysTotal}</span>
+                            </div>
+                        </div>
+                        <div class="tracker-bar-bg">
+                            <div class="tracker-bar-fill" id="bar-fill-${todaysDate}" style="width: 0%;"></div>
+                        </div>
                     </div>
                 </div>
                 `;
@@ -1743,6 +1834,9 @@ window.switchPick = switchPick;
                     tempList.insertAdjacentHTML('afterend', filterHTML);
                   }
                 }
+              }
+              if (todaysPicks != null) {
+                updateCompactTracker(todaysPicks, todaysTotal, todaysDate);
               }
               
                 const colA = document.getElementById(`${days}-${sojrLast}-col-1`);
