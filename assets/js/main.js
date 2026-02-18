@@ -1773,7 +1773,7 @@ window.switchPick = switchPick;
                         <i class="fa-regular fa-calendar"></i> ${date}
                     </div>
                 </div>
-                <div class="Tracker-Wrapper-Left">
+                <div class="Tracker-Wrapper-Left" id="${days}-tracker-sep">
                     <div class="tracker-v2" id="active-tracker-${todaysDate}">
                         <div class="tracker-icon">
                             <i class="fa-solid fa-list-check"></i>
@@ -1828,7 +1828,7 @@ window.switchPick = switchPick;
                     indexBrk = { 'all': 0 };
                     indexBrk[sojrLast] =  1;
                   } else {
-                    const tempList = document.getElementById(`${days}-date-sep`);
+                    const tempList = document.getElementById(`${days}-tracker-sep`);
                     tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column matchupsB" id="${days}-${sojrLast}-col-2"></div>`);
                     tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column matchupsA" id="${days}-${sojrLast}-col-1"></div>`);
                     tempList.insertAdjacentHTML('afterend', filterHTML);
