@@ -1734,12 +1734,14 @@ window.switchPick = switchPick;
                 game['away_picks'] = game['away_picks']?.map(uuid => MOCK_USERS.find(user => user.id === uuid)?.username?.slice(0,2).toUpperCase() ?? '?');
               });
               ALL_GAMES = GAMES;
-              USER_STATS['all'] = getHotColdReport(GAMES);
-              updateUserStats('all');
-              getPopularPicks(GAMES);
-              showLoneWolfDisplay(getLoneWolfStats(GAMES));
-              showLeaderboardBar(GAMES);
             }
+
+            USER_STATS['all'] = getHotColdReport(GAMES);
+            updateUserStats('all');
+            getPopularPicks(GAMES);
+            showLoneWolfDisplay(getLoneWolfStats(GAMES));
+            showLeaderboardBar(GAMES);
+            renderStatsDashboard(GAMES);
 
             let lastDate = '';
             let days = 0;
@@ -2350,7 +2352,7 @@ const USER_STATS = {
 };
 
 function updateUserStats(userId) {
-    const data = USER_STATS[userId];
+    const data = USER_STATS[userId] || { hot: [], cold: [] };
     const hotContainer = document.getElementById('hotList');
     const coldContainer = document.getElementById('coldList');
 
@@ -2430,6 +2432,14 @@ function updateUserStats(userId) {
         </div>
     `;
     }).join('');
+
+    if (data.hot.length === 0) {
+      hotContainer.innerHTML = `<div class="Pulse-Empty">No hot teams yet for this filter.</div>`;
+    }
+
+    if (data.cold.length === 0) {
+      coldContainer.innerHTML = `<div class="Pulse-Empty">No cold teams yet for this filter.</div>`;
+    }
 }
 
 function initCharts() {
@@ -2482,117 +2492,512 @@ function initCharts() {
     });
 }
 
-function createGradient(ctx, color) {
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, color.replace(')', ', 0.2)').replace('rgb', 'rgba'));
-    gradient.addColorStop(1, color.replace(')', ', 0.0)').replace('rgb', 'rgba'));
-    return gradient;
+function hexToRgba(hex, alpha = 1) {
+  if (!hex) return `rgba(100, 116, 139, ${alpha})`;
+
+  if (hex.startsWith('rgb')) {
+    const values = hex.replace(/[^\d,]/g, '').split(',').map(Number);
+    if (values.length >= 3) {
+      return `rgba(${values[0]}, ${values[1]}, ${values[2]}, ${alpha})`;
+    }
+  }
+
+  let clean = hex.replace('#', '');
+  if (clean.length === 3) {
+    clean = clean.split('').map(ch => ch + ch).join('');
+  }
+
+  const r = Number.parseInt(clean.slice(0, 2), 16);
+  const g = Number.parseInt(clean.slice(2, 4), 16);
+  const b = Number.parseInt(clean.slice(4, 6), 16);
+
+  if ([r, g, b].some(v => Number.isNaN(v))) {
+    return `rgba(100, 116, 139, ${alpha})`;
+  }
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-const ctxRace = document.getElementById('raceChart').getContext('2d');
+function createGradient(ctx, color) {
+  const gradient = ctx.createLinearGradient(0, 0, 0, 360);
+  gradient.addColorStop(0, hexToRgba(color, 0.24));
+  gradient.addColorStop(1, hexToRgba(color, 0.03));
+  return gradient;
+}
 
-const c_fear = 'rgb(108, 92, 231)'; // #6c5ce7
-const c_notf = 'rgb(250, 177, 160)'; // #fab1a0
-const c_gays = 'rgb(0, 206, 201)';   // #00cec9
-const c_cook = 'rgb(214, 48, 49)';   // #d63031
+let raceChartInstance = null;
+let leagueMixChartInstance = null;
+let consensusStrengthChartInstance = null;
 
-new Chart(ctxRace, {
+function toPct(value, total, digits = 1) {
+  if (!total) return `${(0).toFixed(digits)}%`;
+  return `${((value / total) * 100).toFixed(digits)}%`;
+}
+
+function toPctNumber(value, total) {
+  if (!total) return 0;
+  return (value / total) * 100;
+}
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function computeGameAnalytics(games) {
+  const validPickerIds = new Set(PICKERS.map(picker => picker.id));
+  const analytics = {
+    totalGames: games.length,
+    resolvedGames: 0,
+    pendingGames: 0,
+    totalPicks: 0,
+    resolvedPicks: 0,
+    winningPicks: 0,
+    activePickers: new Set(),
+    consensusGames: 0,
+    consensusWins: 0,
+    leaguePickVolume: {},
+    dayStats: {},
+    consensusBuckets: {},
+  };
+
+  games.forEach(game => {
+    const homePicks = Array.isArray(game.home_picks) ? game.home_picks : [];
+    const awayPicks = Array.isArray(game.away_picks) ? game.away_picks : [];
+    const totalPicks = homePicks.length + awayPicks.length;
+
+    analytics.totalPicks += totalPicks;
+    homePicks.forEach(id => { if (validPickerIds.has(id)) analytics.activePickers.add(id); });
+    awayPicks.forEach(id => { if (validPickerIds.has(id)) analytics.activePickers.add(id); });
+
+    const leagueLabel = game.league || 'Unlisted';
+    analytics.leaguePickVolume[leagueLabel] = (analytics.leaguePickVolume[leagueLabel] || 0) + totalPicks;
+
+    const dayKey = dateFromTimestamp(game.time, 'num');
+    if (!analytics.dayStats[dayKey]) {
+      analytics.dayStats[dayKey] = {
+        key: dayKey,
+        label: dateFromTimestamp(game.time),
+        games: 0,
+        resolvedGames: 0,
+        picks: 0,
+        resolvedPicks: 0,
+        winningPicks: 0,
+      };
+    }
+
+    const day = analytics.dayStats[dayKey];
+    day.games += 1;
+    day.picks += totalPicks;
+
+    const hasWinner = game.winner === 'home' || game.winner === 'away';
+    if (!hasWinner) {
+      analytics.pendingGames += 1;
+      return;
+    }
+
+    analytics.resolvedGames += 1;
+    analytics.resolvedPicks += totalPicks;
+    day.resolvedGames += 1;
+    day.resolvedPicks += totalPicks;
+
+    const winningCount = game.winner === 'home' ? homePicks.length : awayPicks.length;
+    analytics.winningPicks += winningCount;
+    day.winningPicks += winningCount;
+
+    if (homePicks.length !== awayPicks.length) {
+      const dominantSide = homePicks.length > awayPicks.length ? 'home' : 'away';
+      const dominantCount = Math.max(homePicks.length, awayPicks.length);
+      const bucketLabel = `${dominantCount} pick${dominantCount === 1 ? '' : 's'}`;
+
+      if (!analytics.consensusBuckets[bucketLabel]) {
+        analytics.consensusBuckets[bucketLabel] = { label: bucketLabel, count: dominantCount, wins: 0, total: 0 };
+      }
+      analytics.consensusBuckets[bucketLabel].total += 1;
+      if (dominantSide === game.winner) {
+        analytics.consensusBuckets[bucketLabel].wins += 1;
+      }
+
+      if (dominantCount >= 3 && Math.abs(homePicks.length - awayPicks.length) >= 2) {
+        analytics.consensusGames += 1;
+        if (dominantSide === game.winner) {
+          analytics.consensusWins += 1;
+        }
+      }
+    }
+  });
+
+  return {
+    ...analytics,
+    daily: Object.values(analytics.dayStats).sort((a, b) => new Date(b.key) - new Date(a.key)),
+    consensusSeries: Object.values(analytics.consensusBuckets).sort((a, b) => a.count - b.count),
+  };
+}
+
+function renderStatsKpis(analytics) {
+  const profileCount = Array.isArray(MOCK_USERS) ? MOCK_USERS.length : 0;
+
+  setText('kpiResolvedGames', `${analytics.resolvedGames}/${analytics.totalGames}`);
+  setText('kpiResolvedSub', `${analytics.pendingGames} pending`);
+  setText('kpiTotalPicks', analytics.totalPicks.toLocaleString());
+  setText('kpiPendingPicks', `${analytics.resolvedPicks.toLocaleString()} resolved picks`);
+  setText('kpiHitRate', toPct(analytics.winningPicks, analytics.resolvedPicks));
+  setText('kpiConsensusRate', toPct(analytics.consensusWins, analytics.consensusGames));
+  setText('kpiConsensusSub', `${analytics.consensusGames} high-consensus games`);
+  setText('kpiActivePickers', analytics.activePickers.size.toString());
+  setText('kpiProfilesSeen', `${profileCount} profiles fetched`);
+}
+
+function renderPickerPulse(games) {
+  const container = document.getElementById('pickerPulseList');
+  if (!container) return;
+
+  const playerStats = getPlayerStats(games)
+    .map(player => {
+      const picker = PICKERS.find(p => p.id === player.id);
+      if (!picker || !picker.username || picker.id === 'BOOTS') return null;
+      return {
+        ...player,
+        picker,
+        winPct: toPctNumber(player.wins, player.attempts),
+      };
+    })
+    .filter(Boolean)
+    .filter(player => player.attempts >= 3)
+    .sort((a, b) => b.winPct - a.winPct || b.attempts - a.attempts)
+    .slice(0, 7);
+
+  if (playerStats.length === 0) {
+    container.innerHTML = `<div class="Pulse-Empty">No completed games yet for picker pulse.</div>`;
+    return;
+  }
+
+  container.innerHTML = playerStats.map((player, idx) => `
+    <div class="Pulse-Row">
+      <div class="Pulse-Rank">${idx + 1}</div>
+      <div class="Pulse-User">
+        <span class="Pulse-Avatar" style="background-color: ${player.picker.color};">${player.picker.id}</span>
+        <span class="Pulse-Name">${player.picker.username}</span>
+      </div>
+      <div class="Pulse-Record">${player.wins}-${player.attempts - player.wins}</div>
+      <div class="Pulse-Rate">${player.winPct.toFixed(1)}%</div>
+    </div>
+  `).join('');
+}
+
+function renderDailyPulse(analytics) {
+  const container = document.getElementById('dailyPulseList');
+  if (!container) return;
+
+  const rows = analytics.daily.slice(0, 8);
+  if (rows.length === 0) {
+    container.innerHTML = `<div class="Pulse-Empty">No game-day data for this view.</div>`;
+    return;
+  }
+
+  container.innerHTML = rows.map(day => `
+    <div class="Day-Pulse-Row">
+      <div class="Day-Pulse-Date">${day.label}</div>
+      <div class="Day-Pulse-Volume">${day.resolvedGames}/${day.games} final • ${day.picks} picks</div>
+      <div class="Day-Pulse-Rate">${toPct(day.winningPicks, day.resolvedPicks)}</div>
+    </div>
+  `).join('');
+}
+
+function getWeeklyTrendSeries(games) {
+  const pickerMap = PICKERS.reduce((acc, picker) => {
+    acc[picker.id] = picker;
+    return acc;
+  }, {});
+
+  const weeks = new Set();
+  const playerStats = {};
+
+  const tallyPicks = (ids, won, week) => {
+    ids.forEach(playerId => {
+      const picker = pickerMap[playerId];
+      if (!picker || picker.id === 'BOOTS') return;
+
+      if (!playerStats[playerId]) {
+        playerStats[playerId] = { picker, wins: 0, attempts: 0, byWeek: {} };
+      }
+
+      if (!playerStats[playerId].byWeek[week]) {
+        playerStats[playerId].byWeek[week] = { wins: 0, attempts: 0 };
+      }
+
+      playerStats[playerId].attempts += 1;
+      playerStats[playerId].byWeek[week].attempts += 1;
+
+      if (won) {
+        playerStats[playerId].wins += 1;
+        playerStats[playerId].byWeek[week].wins += 1;
+      }
+    });
+  };
+
+  games.forEach(game => {
+    if (!game || (game.winner !== 'home' && game.winner !== 'away')) return;
+
+    const week = String(game.week ?? CURRENT_WEEK);
+    weeks.add(week);
+
+    const homePicks = Array.isArray(game.home_picks) ? game.home_picks : [];
+    const awayPicks = Array.isArray(game.away_picks) ? game.away_picks : [];
+
+    tallyPicks(homePicks, game.winner === 'home', week);
+    tallyPicks(awayPicks, game.winner === 'away', week);
+  });
+
+  const sortedWeeks = [...weeks].sort((a, b) => Number(a) - Number(b));
+  const topPlayers = Object.values(playerStats)
+    .filter(player => player.attempts >= 3)
+    .sort((a, b) => (b.wins / b.attempts) - (a.wins / a.attempts) || b.attempts - a.attempts)
+    .slice(0, 6);
+
+  return {
+    weeks: sortedWeeks,
+    datasets: topPlayers.map(player => ({
+      label: player.picker.username,
+      color: player.picker.color,
+      data: sortedWeeks.map(week => {
+        const row = player.byWeek[week];
+        if (!row || row.attempts === 0) return null;
+        return Number(((row.wins / row.attempts) * 100).toFixed(1));
+      }),
+    })),
+  };
+}
+
+function showRaceChart(games) {
+  const canvas = document.getElementById('raceChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const subtitle = document.getElementById('trendChartSubtitle');
+  const trendData = getWeeklyTrendSeries(games);
+
+  if (raceChartInstance) {
+    raceChartInstance.destroy();
+  }
+
+  if (trendData.weeks.length === 0 || trendData.datasets.length === 0) {
+    if (subtitle) subtitle.textContent = 'No completed game trend yet for this filter';
+    raceChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['No Data'],
+        datasets: [{
+          data: [0],
+          borderColor: '#cbd5e1',
+          backgroundColor: 'rgba(203, 213, 225, 0.2)',
+          fill: true,
+          pointRadius: 0,
+        }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        scales: { x: { grid: { display: false } }, y: { display: false } },
+      },
+    });
+    return;
+  }
+
+  if (subtitle) {
+    const firstWeek = trendData.weeks[0];
+    const lastWeek = trendData.weeks[trendData.weeks.length - 1];
+    subtitle.textContent = `Weeks ${firstWeek}-${lastWeek} • Top ${trendData.datasets.length} pickers`;
+  }
+
+  raceChartInstance = new Chart(ctx, {
     type: 'line',
     data: {
-        // SCALABLE: Add more weeks here in the future
-        labels: ['Wk 9', 'Wk 10', 'Wk 11'], 
-        datasets: [
-            {
-                label: ' fearthebeak',
-                data: [62.07, 64.17, 65.66],
-                borderColor: c_fear,
-                backgroundColor: createGradient(ctxRace, c_fear),
-                borderWidth: 3,
-                tension: 0,
-                pointRadius: 4,
-                pointHoverRadius: 8, 
-                fill: true
-            },
-            {
-                label: ' notflorida',
-                data: [66.34, 68.13, 65.87],
-                borderColor: c_notf,
-                backgroundColor: createGradient(ctxRace, c_notf),
-                borderWidth: 3,
-                tension: 0,
-                pointRadius: 4,
-                pointHoverRadius: 8,
-                fill: true
-            },
-            {
-                label: ' Gayson Tatum',
-                data: [64.36, 69.38, 68.27],
-                borderColor: c_gays,
-                backgroundColor: createGradient(ctxRace, c_gays),
-                borderWidth: 3,
-                tension: 0,
-                pointRadius: 4,
-                pointHoverRadius: 8,
-                fill: true
-            },
-            {
-                label: ' cookedbycapjack',
-                data: [68.32, 69.38, 67.31],
-                borderColor: c_cook,
-                backgroundColor: createGradient(ctxRace, c_cook),
-                borderWidth: 3,
-                tension: 0,
-                pointRadius: 4,
-                pointHoverRadius: 8,
-                fill: true
-            }
-        ]
+      labels: trendData.weeks.map(week => `Wk ${week}`),
+      datasets: trendData.datasets.map(dataset => ({
+        label: dataset.label,
+        data: dataset.data,
+        borderColor: dataset.color,
+        backgroundColor: createGradient(ctx, dataset.color),
+        borderWidth: 3,
+        tension: 0.25,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        spanGaps: true,
+        fill: true,
+      })),
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { usePointStyle: true, boxWidth: 7, font: { family: 'Oswald', size: 11 } },
+        },
+        tooltip: {
+          callbacks: { label: (context) => ` ${context.dataset.label}: ${context.raw}%` },
+        },
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#64748b', font: { family: 'Oswald' } } },
+        y: {
+          beginAtZero: true,
+          min: 0,
+          max: 100,
+          grid: { color: '#e2e8f0' },
+          ticks: { callback: value => `${value}%`, color: '#64748b', font: { family: 'Oswald' } },
+        },
+      },
+    },
+  });
+}
+
+function showLeagueMixChart(analytics) {
+  const canvas = document.getElementById('leagueMixChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  if (leagueMixChartInstance) {
+    leagueMixChartInstance.destroy();
+  }
+
+  const sorted = Object.entries(analytics.leaguePickVolume).sort((a, b) => b[1] - a[1]);
+  const topLeagues = sorted.slice(0, 6);
+  if (sorted.length > 6) {
+    const otherTotal = sorted.slice(6).reduce((sum, [, total]) => sum + total, 0);
+    topLeagues.push(['Other', otherTotal]);
+  }
+
+  if (topLeagues.length === 0) {
+    leagueMixChartInstance = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: ['No data'],
+        datasets: [{ data: [1], backgroundColor: ['#e2e8f0'], borderWidth: 0 }],
+      },
+      options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } },
+    });
+    return;
+  }
+
+  const palette = ['#6c5ce7', '#00cec9', '#fab1a0', '#fdcb6e', '#d63031', '#0984e3', '#00b894'];
+
+  leagueMixChartInstance = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: topLeagues.map(([league]) => league),
+      datasets: [{
+        data: topLeagues.map(([, total]) => total),
+        backgroundColor: topLeagues.map((_, index) => palette[index % palette.length]),
+        borderColor: '#fff',
+        borderWidth: 2,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '58%',
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 10, font: { family: 'Oswald', size: 11 } } },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const total = topLeagues.reduce((sum, [, value]) => sum + value, 0);
+              const pct = total ? ((ctx.raw / total) * 100).toFixed(1) : '0.0';
+              return ` ${ctx.label}: ${ctx.raw} picks (${pct}%)`;
+            },
+          },
+        },
+      },
+    },
+  });
+}
+
+function showConsensusStrengthChart(analytics) {
+  const canvas = document.getElementById('consensusStrengthChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  if (consensusStrengthChartInstance) {
+    consensusStrengthChartInstance.destroy();
+  }
+
+  const series = analytics.consensusSeries.filter(row => row.total > 0);
+
+  if (series.length === 0) {
+    consensusStrengthChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: { labels: ['No data'], datasets: [{ data: [0], backgroundColor: '#cbd5e1' }] },
+      options: {
         responsive: true,
-        maintainAspectRatio: false, // CRITICAL for mobile responsiveness
-        interaction: {
-            mode: 'index',
-            intersect: false,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        scales: { x: { grid: { display: false } }, y: { display: false } },
+      },
+    });
+    return;
+  }
+
+  consensusStrengthChartInstance = new Chart(ctx, {
+    data: {
+      labels: series.map(row => row.label),
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Accuracy %',
+          data: series.map(row => Number(((row.wins / row.total) * 100).toFixed(1))),
+          backgroundColor: '#0984e3',
+          borderRadius: 8,
+          yAxisID: 'y',
         },
-        plugins: {
-            legend: { 
-                position: 'top', 
-                align: 'end', 
-                labels: { 
-                    usePointStyle: true,
-                    boxWidth: 8,
-                    font: { family: 'Oswald', size: 12 }
-                } 
-            },
-            tooltip: { 
-                backgroundColor: 'rgba(30, 41, 59, 0.9)', 
-                titleFont: { family: 'Oswald', size: 14 },
-                bodyFont: { family: 'Segoe UI', size: 13 },
-                padding: 10,
-                cornerRadius: 8,
-                callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw}%` }
-            }
+        {
+          type: 'line',
+          label: 'Games',
+          data: series.map(row => row.total),
+          borderColor: '#fdcb6e',
+          backgroundColor: '#fdcb6e',
+          tension: 0.2,
+          pointRadius: 3,
+          yAxisID: 'y1',
         },
-        scales: {
-            y: { 
-                beginAtZero: false, 
-                min: 55, 
-                max: 75, 
-                grid: { color: '#f1f5f9', borderDash: [5, 5] },
-                ticks: { font: { family: 'Oswald' }, color: '#94a3b8' }
-            },
-            x: { 
-                grid: { display: false },
-                ticks: { 
-                    font: { family: 'Oswald' }, 
-                    color: '#94a3b8',
-                    maxTicksLimit: 6 // Prevents overcrowding if you add 20 weeks
-                } 
-            }
-        }
-    }
-});
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { font: { family: 'Oswald', size: 11 } } },
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'Oswald', size: 11 } } },
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: { callback: value => `${value}%`, font: { family: 'Oswald', size: 11 } },
+          grid: { color: '#e2e8f0' },
+        },
+        y1: {
+          position: 'right',
+          beginAtZero: true,
+          grid: { display: false },
+          ticks: { font: { family: 'Oswald', size: 11 } },
+        },
+      },
+    },
+  });
+}
+
+function renderStatsDashboard(games) {
+  const analytics = computeGameAnalytics(games);
+  renderStatsKpis(analytics);
+  renderPickerPulse(games);
+  renderDailyPulse(analytics);
+  showRaceChart(games);
+  showLeagueMixChart(analytics);
+  showConsensusStrengthChart(analytics);
+}
 
 function calculateWinPercentage() {
   const us = {};
@@ -2767,17 +3172,24 @@ const TEAMS1 = [];
 Chart.defaults.font.family = "'Oswald', sans-serif";
 let currentPage = 0;
 const itemsPerPage = 10;
-const totalPages = 100;
+let totalPages = 1;
 let popularityChartInstance = null; // Stores the active chart object
 
 // 2. Stacked Bar with Logo Axis
 function showPopularChart() {
+  const chartCanvas = document.getElementById('popularityChart');
+  if (!chartCanvas) return;
+
+  totalPages = Math.max(1, Math.ceil(TOP_TEAMS1.length / itemsPerPage));
+  if (currentPage >= totalPages) {
+    currentPage = totalPages - 1;
+  }
+
   const start = currentPage * itemsPerPage;
   const end = start + itemsPerPage;
-  const globalMax = Math.max(...TOP_TEAMS1.map(team => team[1].total)); 
-  const totalPages = Math.ceil(TOP_TEAMS1.length / itemsPerPage);
+  const globalMax = TOP_TEAMS1.length ? Math.max(...TOP_TEAMS1.map(team => team[1].total)) : 1;
 
-  const topTeams = TOP_TEAMS1.sort((a,b)=>b[1].total - a[1].total).slice(start,end);
+  const topTeams = [...TOP_TEAMS1].sort((a,b)=>b[1].total - a[1].total).slice(start,end);
   const labels = topTeams.map(d=>d[0]);
   const ids = topTeams.map(d=>d[1].id);
   const dataWins = topTeams.map(d=>d[1].wins);
@@ -2790,6 +3202,26 @@ function showPopularChart() {
 
   if (popularityChartInstance) {
     popularityChartInstance.destroy();
+  }
+
+  if (topTeams.length === 0) {
+    popularityChartInstance = new Chart(chartCanvas, {
+      type: 'bar',
+      data: {
+        labels: ['No data'],
+        datasets: [{ data: [0], backgroundColor: '#cbd5e1', borderRadius: 6 }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        scales: { x: { grid: { display: false } }, y: { display: false } },
+      },
+    });
+    document.getElementById('pageIndicator').innerText = 'No resolved picks';
+    document.getElementById('prevBtn').disabled = true;
+    document.getElementById('nextBtn').disabled = true;
+    return;
   }
 
   // Custom Plugin for Logos
@@ -2813,7 +3245,7 @@ function showPopularChart() {
     }
   };
 
-  popularityChartInstance = new Chart(document.getElementById('popularityChart'), {
+  popularityChartInstance = new Chart(chartCanvas, {
     type: 'bar',
     data: {
         labels: labels,
@@ -2945,7 +3377,12 @@ window.getLoneWolfStats = getLoneWolfStats;
 
 function showLoneWolfDisplay(wolfStats) {
     const wolfBox = document.getElementById('wolfBox');
+    if (!wolfBox) return;
     wolfBox.innerHTML = '';
+    if (!wolfStats || wolfStats.length === 0) {
+      wolfBox.innerHTML = `<div class="Pulse-Empty">No lone wolf outcomes yet in this view.</div>`;
+      return;
+    }
     for (const userStat of wolfStats) {
         let wolfPicksHTML = '';
         for (const team of userStat.teams) {
@@ -3047,59 +3484,44 @@ function getPlayerStats(games) {
 
 let leaderboardChartInstance = null;
 function showLeaderboardBar(games) {
-    const names = PICKERS.map(picker => picker.username);
-    const userids = PICKERS.map(picker => picker.id);
-    const pastelColors = PICKERS.map(picker => picker.color);
-    /* MORE COLORS
-        '#FFB3BA', '#FFDFBA', '#FFFFBA', '#BAFFC9', '#BAE1FF',
-        '#E0BBE4', '#957DAD', '#D291BC', '#FEC8D8', '#FFDFD3'
-    */
+    const chartCanvas = document.getElementById('leaderboardChart');
+    if (!chartCanvas) return;
 
-    // Helper to get random integer between min and max (inclusive)
-    const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    let players = getPlayerStats(games)
+      .map(player => {
+        const picker = PICKERS.find(candidate => candidate.id === player.id);
+        if (!picker || !picker.username || picker.id === 'BOOTS') return null;
+        return {
+          ...player,
+          name: picker.username,
+          initials: picker.id,
+          color: picker.color,
+          winPct: (player.wins / player.attempts) * 100,
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => b.winPct - a.winPct || b.attempts - a.attempts)
+      .slice(0, 10);
 
-    let players = [];
-
-    for (let i = 0; i < 10; i++) {
-        const fullName = names[i];
-        const initials = userids[i];
-        if (!fullName || fullName.startsWith('Boots')) continue;
-
-        // Constraints: Attempts between 50 and 1000
-        const attempts = getRandomInt(50, 1000);
-        
-        // Constraints: Win % roughly between 40% and 70%. 
-        // We generate a random factor between 0.40 and 0.70.
-        const targetWinFactor = (Math.random() * 0.30) + 0.40;
-        
-        // Calculate wins based on the factor, rounded to nearest whole number
-        const wins = Math.round(attempts * targetWinFactor);
-
-        // Recalculate precise win percentage based on actual whole numbers
-        const winPct = (wins / attempts * 100);
-
-        players.push({
-            id: i,
-            name: fullName,
-            initials: initials,
-            color: pastelColors[i],
-            wins: wins,
-            attempts: attempts,
-            winPct: winPct
-        });
+    if (leaderboardChartInstance) {
+      leaderboardChartInstance.destroy();
     }
 
-    // SORTING: Crucial step for a leaderboard. Sort by Win % descending.
-    players.sort((a, b) => b.winPct - a.winPct);
-
-    players = getPlayerStats(games);
-
-    for (const id in players) {
-        const play = PICKERS.find((picker) => picker.id === players[id].id);
-        players[id]['name'] = play.username;
-        players[id]['initials'] = play.id;
-        players[id]['color'] = play.color;
-        players[id]['winPct'] = players[id].wins / players[id].attempts * 100;
+    if (players.length === 0) {
+      leaderboardChartInstance = new Chart(chartCanvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: ['No data'],
+          datasets: [{ data: [0], backgroundColor: '#cbd5e1', borderRadius: 6 }],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false }, tooltip: { enabled: false } },
+          scales: { x: { grid: { display: false } }, y: { display: false } },
+        },
+      });
+      return;
     }
 
     // --- 2. Chart.js Custom Plugin for Avatars ---
@@ -3145,11 +3567,7 @@ function showLeaderboardBar(games) {
 
 
     // --- 3. Chart Configuration ---
-  if (leaderboardChartInstance) {
-    leaderboardChartInstance.destroy();
-  }
-
-    const ctx = document.getElementById('leaderboardChart').getContext('2d');
+    const ctx = chartCanvas.getContext('2d');
 
     leaderboardChartInstance = new Chart(ctx, {
         type: 'bar',

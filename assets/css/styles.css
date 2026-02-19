@@ -3339,8 +3339,146 @@ max-height: 100px;
 
     /* --- DASHBOARD GRID --- */
     .Dashboard-Container {
-        max-width: 800px; margin: 0 auto; padding: 20px;
-        display: grid; gap: 20px; flex-direction: column;
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+        display: grid;
+        gap: 20px;
+        flex-direction: column;
+    }
+
+    .Stats-Kpi-Grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        grid-column: 1 / -1;
+    }
+
+    .Kpi-Card {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 14px 12px;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .Kpi-Label {
+        font-size: 11px;
+        font-family: 'Oswald', sans-serif;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+        color: #64748b;
+    }
+
+    .Kpi-Value {
+        margin-top: 4px;
+        font-family: 'Fugaz One', cursive;
+        font-size: 26px;
+        line-height: 1;
+        color: #2d3436;
+    }
+
+    .Kpi-Subtext {
+        margin-top: 6px;
+        font-size: 11px;
+        color: #64748b;
+    }
+
+    .Insight-Grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        grid-column: 1 / -1;
+    }
+
+    .Picker-Pulse-List,
+    .Daily-Pulse-List {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .Pulse-Row,
+    .Day-Pulse-Row {
+        display: grid;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+        padding: 10px 12px;
+    }
+
+    .Pulse-Row {
+        grid-template-columns: auto 1fr auto auto;
+    }
+
+    .Day-Pulse-Row {
+        grid-template-columns: 1fr auto auto;
+    }
+
+    .Pulse-Rank {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Oswald', sans-serif;
+        font-size: 12px;
+        color: white;
+        background: #1d9bf0;
+    }
+
+    .Pulse-User {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .Pulse-Avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 11px;
+        font-family: 'Oswald', sans-serif;
+    }
+
+    .Pulse-Name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .Pulse-Record,
+    .Pulse-Rate,
+    .Day-Pulse-Date,
+    .Day-Pulse-Volume,
+    .Day-Pulse-Rate {
+        font-size: 12px;
+        color: #475569;
+        font-family: 'Oswald', sans-serif;
+        letter-spacing: 0.2px;
+    }
+
+    .Day-Pulse-Date {
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .Pulse-Empty {
+        border: 1px dashed #cbd5e1;
+        border-radius: 10px;
+        padding: 14px;
+        text-align: center;
+        color: #64748b;
+        font-size: 13px;
+        background: #f8fafc;
     }
 
     /* --- CARDS (Base Style) --- */
@@ -3470,8 +3608,20 @@ max-height: 100px;
     .Big-Stat-Value { font-family: 'Fugaz One'; font-size: 28px; color: var(--husker-blue); }
 
     /* Responsive */
+    @media (max-width: 760px) {
+        .Stats-Kpi-Grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
     @media (max-width: 600px) {
-        .Split-Grid { grid-template-columns: 1fr; }
+        .Split-Grid,
+        .Insight-Grid,
+        .Stats-Kpi-Grid {
+            grid-template-columns: 1fr;
+        }
+
+        .Pulse-Row {
+            grid-template-columns: auto 1fr;
+        }
     }
 
 /* --- FULL WIDTH CHART ROW --- */
@@ -3511,8 +3661,8 @@ max-height: 100px;
 /* Responsive Container */
 .Chart-Wrapper-Large {
     position: relative;
-    height: 500px; /* Desktop Height */
-    width: 500px;
+    height: 420px;
+    width: 100%;
 }
 
         .chart-box { height: 250px; width: 100%; position: relative; }
