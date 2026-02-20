@@ -3726,6 +3726,447 @@ function showRiskProfileChart(riskStats) {
   });
 }
 
+function computeClockWatcherStats(games) {
+  const pickerHourStats = {};
+
+  PICKERS.forEach(picker => {
+    if (picker.id !== 'BOOTS') {
+      pickerHourStats[picker.id] = {
+        picker,
+        hourlyStats: {},
+      };
+    }
+  });
+
+  games.forEach(game => {
+    if (!game.winner || !game.time) return;
+
+    const gameDate = new Date(game.time);
+    const hour = gameDate.getHours();
+
+    const homePicks = Array.isArray(game.home_picks) ? game.home_picks : [];
+    const awayPicks = Array.isArray(game.away_picks) ? game.away_picks : [];
+
+    homePicks.forEach(pickerId => {
+      if (pickerHourStats[pickerId]) {
+        if (!pickerHourStats[pickerId].hourlyStats[hour]) {
+          pickerHourStats[pickerId].hourlyStats[hour] = { picks: 0, wins: 0 };
+        }
+        pickerHourStats[pickerId].hourlyStats[hour].picks += 1;
+        if (game.winner === 'home') {
+          pickerHourStats[pickerId].hourlyStats[hour].wins += 1;
+        }
+      }
+    });
+
+    awayPicks.forEach(pickerId => {
+      if (pickerHourStats[pickerId]) {
+        if (!pickerHourStats[pickerId].hourlyStats[hour]) {
+          pickerHourStats[pickerId].hourlyStats[hour] = { picks: 0, wins: 0 };
+        }
+        pickerHourStats[pickerId].hourlyStats[hour].picks += 1;
+        if (game.winner === 'away') {
+          pickerHourStats[pickerId].hourlyStats[hour].wins += 1;
+        }
+      }
+    });
+  });
+
+  return pickerHourStats;
+}
+
+function computeWeekendWarriorStats(games) {
+  const pickerDayStats = {};
+
+  PICKERS.forEach(picker => {
+    if (picker.id !== 'BOOTS') {
+      pickerDayStats[picker.id] = {
+        picker,
+        weekday: { picks: 0, wins: 0 },
+        weekend: { picks: 0, wins: 0 },
+      };
+    }
+  });
+
+  games.forEach(game => {
+    if (!game.winner || !game.time) return;
+
+    const gameDate = new Date(game.time);
+    const dayOfWeek = gameDate.getDay(); // 0 = Sunday, 6 = Saturday
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+
+    const homePicks = Array.isArray(game.home_picks) ? game.home_picks : [];
+    const awayPicks = Array.isArray(game.away_picks) ? game.away_picks : [];
+
+    const category = isWeekend ? 'weekend' : 'weekday';
+
+    homePicks.forEach(pickerId => {
+      if (pickerDayStats[pickerId]) {
+        pickerDayStats[pickerId][category].picks += 1;
+        if (game.winner === 'home') {
+          pickerDayStats[pickerId][category].wins += 1;
+        }
+      }
+    });
+
+    awayPicks.forEach(pickerId => {
+      if (pickerDayStats[pickerId]) {
+        pickerDayStats[pickerId][category].picks += 1;
+        if (game.winner === 'away') {
+          pickerDayStats[pickerId][category].wins += 1;
+        }
+      }
+    });
+  });
+
+  return Object.values(pickerDayStats).filter(stat => 
+    stat.weekday.picks >= 3 && stat.weekend.picks >= 3
+  );
+}
+
+function computeTorvikUnderdogTeams(games) {
+  const teamStats = {};
+
+  games.forEach(game => {
+    if (!game.home_torvik || !game.away_torvik || !game.winner) return;
+
+    const homeBetter = game.home_torvik < game.away_torvik;
+
+    // Track home team performance when they're the underdog
+    if (!homeBetter && game.winner === 'home') {
+      if (!teamStats[game.home]) {
+        teamStats[game.home] = {
+          teamName: game.home,
+          teamId: game.home_id,
+          underdogWins: 0,
+          underdogGames: 0,
+        };
+      }
+      teamStats[game.home].underdogWins += 1;
+      teamStats[game.home].underdogGames += 1;
+    } else if (!homeBetter && game.winner === 'away') {
+      if (!teamStats[game.home]) {
+        teamStats[game.home] = {
+          teamName: game.home,
+          teamId: game.home_id,
+          underdogWins: 0,
+          underdogGames: 0,
+        };
+      }
+      teamStats[game.home].underdogGames += 1;
+    }
+
+    // Track away team performance when they're the underdog
+    if (homeBetter && game.winner === 'away') {
+      if (!teamStats[game.away]) {
+        teamStats[game.away] = {
+          teamName: game.away,
+          teamId: game.away_id,
+          underdogWins: 0,
+          underdogGames: 0,
+        };
+      }
+      teamStats[game.away].underdogWins += 1;
+      teamStats[game.away].underdogGames += 1;
+    } else if (homeBetter && game.winner === 'home') {
+      if (!teamStats[game.away]) {
+        teamStats[game.away] = {
+          teamName: game.away,
+          teamId: game.away_id,
+          underdogWins: 0,
+          underdogGames: 0,
+        };
+      }
+      teamStats[game.away].underdogGames += 1;
+    }
+  });
+
+  return Object.values(teamStats)
+    .filter(team => team.underdogGames >= 3)
+    .map(team => ({
+      ...team,
+      winRate: (team.underdogWins / team.underdogGames) * 100,
+    }))
+    .sort((a, b) => b.winRate - a.winRate || b.underdogWins - a.underdogWins)
+    .slice(0, 10);
+}
+
+let clockWatcherChartInstance = null;
+let weekendWarriorChartInstance = null;
+let torvikUnderdogChartInstance = null;
+
+function showClockWatcherChart(hourStats) {
+  const canvas = document.getElementById('clockWatcherChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  if (clockWatcherChartInstance) {
+    clockWatcherChartInstance.destroy();
+  }
+
+  // Get top 5 pickers by total picks
+  const topPickers = Object.values(hourStats)
+    .map(pickerData => {
+      const totalPicks = Object.values(pickerData.hourlyStats).reduce((sum, h) => sum + h.picks, 0);
+      return { ...pickerData, totalPicks };
+    })
+    .filter(p => p.totalPicks >= 10)
+    .sort((a, b) => b.totalPicks - a.totalPicks)
+    .slice(0, 5);
+
+  if (topPickers.length === 0) {
+    clockWatcherChartInstance = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['No data'],
+        datasets: [{ data: [0], backgroundColor: '#cbd5e1' }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      },
+    });
+    return;
+  }
+
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const hourLabels = hours.map(h => {
+    const period = h >= 12 ? 'PM' : 'AM';
+    const displayHour = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    return `${displayHour}${period}`;
+  });
+
+  const datasets = topPickers.map(pickerData => {
+    const data = hours.map(hour => {
+      const hourData = pickerData.hourlyStats[hour];
+      if (!hourData || hourData.picks === 0) return null;
+      return (hourData.wins / hourData.picks) * 100;
+    });
+
+    return {
+      label: pickerData.picker.username,
+      data: data,
+      borderColor: pickerData.picker.color,
+      backgroundColor: hexToRgba(pickerData.picker.color, 0.1),
+      borderWidth: 2,
+      tension: 0.4,
+      pointRadius: 3,
+      pointHoverRadius: 5,
+      spanGaps: true,
+    };
+  });
+
+  clockWatcherChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: hourLabels,
+      datasets: datasets,
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { family: 'Oswald', size: 11 }, boxWidth: 10 },
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              if (ctx.raw === null) return null;
+              return ` ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`;
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { family: 'Oswald', size: 9 }, maxRotation: 45, minRotation: 45 },
+        },
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: { callback: value => `${value}%`, font: { family: 'Oswald', size: 10 } },
+          grid: { color: '#e2e8f0' },
+        },
+      },
+    },
+  });
+}
+
+function showWeekendWarriorChart(dayStats) {
+  const canvas = document.getElementById('weekendWarriorChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  if (weekendWarriorChartInstance) {
+    weekendWarriorChartInstance.destroy();
+  }
+
+  if (dayStats.length === 0) {
+    weekendWarriorChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['No data'],
+        datasets: [{ data: [0], backgroundColor: '#cbd5e1', borderRadius: 6 }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        scales: { x: { grid: { display: false } }, y: { display: false } },
+      },
+    });
+    return;
+  }
+
+  const labels = dayStats.map(stat => stat.picker.username);
+  const weekdayData = dayStats.map(stat => 
+    stat.weekday.picks > 0 ? (stat.weekday.wins / stat.weekday.picks) * 100 : 0
+  );
+  const weekendData = dayStats.map(stat => 
+    stat.weekend.picks > 0 ? (stat.weekend.wins / stat.weekend.picks) * 100 : 0
+  );
+
+  weekendWarriorChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Weekday Win %',
+          data: weekdayData,
+          backgroundColor: '#3498db',
+          borderColor: '#2980b9',
+          borderWidth: 2,
+          borderRadius: 6,
+        },
+        {
+          label: 'Weekend Win %',
+          data: weekendData,
+          backgroundColor: '#e74c3c',
+          borderColor: '#c0392b',
+          borderWidth: 2,
+          borderRadius: 6,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { font: { family: 'Oswald', size: 11 }, boxWidth: 10 },
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const stat = dayStats[ctx.dataIndex];
+              const isWeekday = ctx.datasetIndex === 0;
+              const category = isWeekday ? stat.weekday : stat.weekend;
+              return ` ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}% (${category.wins}/${category.picks})`;
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: { font: { family: 'Oswald', size: 10 } },
+        },
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: { callback: value => `${value}%`, font: { family: 'Oswald', size: 10 } },
+          grid: { color: '#e2e8f0' },
+        },
+      },
+    },
+  });
+}
+
+function showTorvikUnderdogChart(underdogTeams) {
+  const canvas = document.getElementById('torvikUnderdogChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  if (torvikUnderdogChartInstance) {
+    torvikUnderdogChartInstance.destroy();
+  }
+
+  if (underdogTeams.length === 0) {
+    torvikUnderdogChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['No data'],
+        datasets: [{ data: [0], backgroundColor: '#cbd5e1', borderRadius: 6 }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        scales: { x: { grid: { display: false } }, y: { display: false } },
+      },
+    });
+    return;
+  }
+
+  torvikUnderdogChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: underdogTeams.map(team => team.teamName),
+      datasets: [
+        {
+          label: 'Upset Win %',
+          data: underdogTeams.map(team => team.winRate),
+          backgroundColor: underdogTeams.map((_, i) => {
+            const colors = ['#e74c3c', '#e67e22', '#f39c12', '#f1c40f', '#2ecc71', '#1abc9c', '#3498db', '#9b59b6', '#34495e', '#95a5a6'];
+            return colors[i % colors.length];
+          }),
+          borderRadius: 8,
+        },
+      ],
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const team = underdogTeams[ctx.dataIndex];
+              return [
+                ` Win Rate: ${team.winRate.toFixed(1)}%`,
+                ` Record: ${team.underdogWins}-${team.underdogGames - team.underdogWins}`,
+                ` Games as underdog: ${team.underdogGames}`,
+              ];
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          max: 100,
+          ticks: { callback: value => `${value}%`, font: { family: 'Oswald', size: 10 } },
+          grid: { color: '#e2e8f0' },
+        },
+        y: {
+          grid: { display: false },
+          ticks: { font: { family: 'Oswald', size: 10 } },
+        },
+      },
+    },
+  });
+}
+
 function renderStatsDashboard(games) {
   const analytics = computeGameAnalytics(games);
   renderStatsKpis(analytics);
@@ -3757,6 +4198,16 @@ function renderStatsDashboard(games) {
 
   const riskProfile = computeRiskProfile(games);
   showRiskProfileChart(riskProfile);
+
+  // Time-based and underdog charts
+  const clockWatcherStats = computeClockWatcherStats(games);
+  showClockWatcherChart(clockWatcherStats);
+
+  const weekendWarriorStats = computeWeekendWarriorStats(games);
+  showWeekendWarriorChart(weekendWarriorStats);
+
+  const torvikUnderdogs = computeTorvikUnderdogTeams(games);
+  showTorvikUnderdogChart(torvikUnderdogs);
 }
 
 function calculateWinPercentage() {
