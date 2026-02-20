@@ -2989,6 +2989,271 @@ function showConsensusStrengthChart(analytics) {
   });
 }
 
+function computeHomeAwayStats(games) {
+  const stats = {
+    homeWins: 0,
+    awayWins: 0,
+    totalResolved: 0,
+  };
+
+  games.forEach(game => {
+    if (game.winner === 'home') {
+      stats.homeWins += 1;
+      stats.totalResolved += 1;
+    } else if (game.winner === 'away') {
+      stats.awayWins += 1;
+      stats.totalResolved += 1;
+    }
+  });
+
+  return stats;
+}
+
+function computeTorvikStats(games) {
+  const stats = {
+    betterTorvikWins: 0,
+    worseTorvikWins: 0,
+    totalTorvikGames: 0,
+    gamesWithTorvik: [],
+  };
+
+  games.forEach(game => {
+    if (game.home_torvik && game.away_torvik && game.winner) {
+      stats.totalTorvikGames += 1;
+      
+      // Lower torvik = better team
+      const homeBetter = game.home_torvik < game.away_torvik;
+      const homeWon = game.winner === 'home';
+      
+      if ((homeBetter && homeWon) || (!homeBetter && !homeWon)) {
+        stats.betterTorvikWins += 1;
+      } else {
+        stats.worseTorvikWins += 1;
+      }
+
+      stats.gamesWithTorvik.push({
+        ...game,
+        betterSide: homeBetter ? 'home' : 'away',
+        betterWon: (homeBetter && homeWon) || (!homeBetter && !homeWon),
+      });
+    }
+  });
+
+  return stats;
+}
+
+function computePickerTorvikStats(games) {
+  const pickerStats = {};
+  
+  PICKERS.forEach(picker => {
+    if (picker.id !== 'BOOTS') {
+      pickerStats[picker.id] = {
+        picker,
+        pickedBetter: 0,
+        pickedWorse: 0,
+        pickedBetterWins: 0,
+        pickedWorseWins: 0,
+      };
+    }
+  });
+
+  games.forEach(game => {
+    if (game.home_torvik && game.away_torvik && game.winner) {
+      const homeBetter = game.home_torvik < game.away_torvik;
+      const homeWon = game.winner === 'home';
+      
+      const homePicks = Array.isArray(game.home_picks) ? game.home_picks : [];
+      const awayPicks = Array.isArray(game.away_picks) ? game.away_picks : [];
+
+      homePicks.forEach(pickerId => {
+        if (pickerStats[pickerId]) {
+          if (homeBetter) {
+            pickerStats[pickerId].pickedBetter += 1;
+            if (homeWon) pickerStats[pickerId].pickedBetterWins += 1;
+          } else {
+            pickerStats[pickerId].pickedWorse += 1;
+            if (homeWon) pickerStats[pickerId].pickedWorseWins += 1;
+          }
+        }
+      });
+
+      awayPicks.forEach(pickerId => {
+        if (pickerStats[pickerId]) {
+          if (!homeBetter) {
+            pickerStats[pickerId].pickedBetter += 1;
+            if (!homeWon) pickerStats[pickerId].pickedBetterWins += 1;
+          } else {
+            pickerStats[pickerId].pickedWorse += 1;
+            if (!homeWon) pickerStats[pickerId].pickedWorseWins += 1;
+          }
+        }
+      });
+    }
+  });
+
+  return Object.values(pickerStats).filter(stat => stat.pickedBetter + stat.pickedWorse > 0);
+}
+
+function computeFavoriteTeams(games) {
+  const pickerTeamStats = {};
+
+  PICKERS.forEach(picker => {
+    if (picker.id !== 'BOOTS') {
+      pickerTeamStats[picker.id] = {
+        picker,
+        teams: {},
+      };
+    }
+  });
+
+  games.forEach(game => {
+    const homePicks = Array.isArray(game.home_picks) ? game.home_picks : [];
+    const awayPicks = Array.isArray(game.away_picks) ? game.away_picks : [];
+
+    homePicks.forEach(pickerId => {
+      if (pickerTeamStats[pickerId]) {
+        const teamName = game.home;
+        if (!pickerTeamStats[pickerId].teams[teamName]) {
+          pickerTeamStats[pickerId].teams[teamName] = { picks: 0, wins: 0, teamId: game.home_id };
+        }
+        pickerTeamStats[pickerId].teams[teamName].picks += 1;
+        if (game.winner === 'home') {
+          pickerTeamStats[pickerId].teams[teamName].wins += 1;
+        }
+      }
+    });
+
+    awayPicks.forEach(pickerId => {
+      if (pickerTeamStats[pickerId]) {
+        const teamName = game.away;
+        if (!pickerTeamStats[pickerId].teams[teamName]) {
+          pickerTeamStats[pickerId].teams[teamName] = { picks: 0, wins: 0, teamId: game.away_id };
+        }
+        pickerTeamStats[pickerId].teams[teamName].picks += 1;
+        if (game.winner === 'away') {
+          pickerTeamStats[pickerId].teams[teamName].wins += 1;
+        }
+      }
+    });
+  });
+
+  // Determine favorite team for each picker using creative metric
+  const favorites = Object.values(pickerTeamStats).map(pickerData => {
+    const teamsArray = Object.entries(pickerData.teams).map(([teamName, stats]) => ({
+      teamName,
+      ...stats,
+      winRate: stats.picks > 0 ? stats.wins / stats.picks : 0,
+      // "Devotion Score" = (picks^1.5) * (1 + winRate) - rewards frequency and success
+      devotionScore: Math.pow(stats.picks, 1.5) * (1 + stats.winRate),
+    }));
+
+    teamsArray.sort((a, b) => b.devotionScore - a.devotionScore);
+
+    const favoriteTeam = teamsArray[0];
+    if (!favoriteTeam) return null;
+
+    // Creative justification based on stats
+    let justification = '';
+    if (favoriteTeam.picks >= 5 && favoriteTeam.winRate >= 0.7) {
+      justification = `🎯 Loyal champion — ${favoriteTeam.picks} picks with ${(favoriteTeam.winRate * 100).toFixed(0)}% success`;
+    } else if (favoriteTeam.picks >= 6) {
+      justification = `❤️ Die-hard fan — picked ${favoriteTeam.picks} times regardless of outcome`;
+    } else if (favoriteTeam.winRate === 1.0 && favoriteTeam.picks >= 3) {
+      justification = `🔥 Perfect record — ${favoriteTeam.picks}-0 when backing them`;
+    } else if (favoriteTeam.picks >= 4) {
+      justification = `💪 Frequent backer — ${favoriteTeam.picks} picks (${favoriteTeam.wins}-${favoriteTeam.picks - favoriteTeam.wins})`;
+    } else {
+      justification = `⭐ Early favorite — ${favoriteTeam.picks} picks so far`;
+    }
+
+    return {
+      picker: pickerData.picker,
+      favoriteTeam: favoriteTeam.teamName,
+      teamId: favoriteTeam.teamId,
+      picks: favoriteTeam.picks,
+      wins: favoriteTeam.wins,
+      winRate: favoriteTeam.winRate,
+      justification,
+    };
+  }).filter(Boolean);
+
+  return favorites;
+}
+
+function renderHomeAwayStats(stats) {
+  setText('homeWins', stats.homeWins.toString());
+  setText('awayWins', stats.awayWins.toString());
+  setText('homeWinRate', toPct(stats.homeWins, stats.totalResolved));
+  setText('awayWinRate', toPct(stats.awayWins, stats.totalResolved));
+}
+
+function renderTorvikStats(torvikStats) {
+  setText('torvikBetterWins', torvikStats.betterTorvikWins.toString());
+  setText('torvikWorseWins', torvikStats.worseTorvikWins.toString());
+  setText('torvikGamesTotal', torvikStats.totalTorvikGames.toString());
+  setText('torvikAccuracy', toPct(torvikStats.betterTorvikWins, torvikStats.totalTorvikGames));
+}
+
+function renderPickerTorvikStats(pickerStats) {
+  const container = document.getElementById('pickerTorvikList');
+  if (!container) return;
+
+  if (pickerStats.length === 0) {
+    container.innerHTML = `<div class="Pulse-Empty">No Torvik data available for pickers yet.</div>`;
+    return;
+  }
+
+  const sorted = pickerStats
+    .map(stat => ({
+      ...stat,
+      betterRate: stat.pickedBetter > 0 ? stat.pickedBetterWins / stat.pickedBetter : 0,
+      totalPicks: stat.pickedBetter + stat.pickedWorse,
+    }))
+    .filter(stat => stat.totalPicks >= 3)
+    .sort((a, b) => b.betterRate - a.betterRate)
+    .slice(0, 7);
+
+  container.innerHTML = sorted.map((stat, idx) => `
+    <div class="Pulse-Row">
+      <div class="Pulse-Rank">${idx + 1}</div>
+      <div class="Pulse-User">
+        <span class="Pulse-Avatar" style="background-color: ${stat.picker.color};">${stat.picker.id}</span>
+        <span class="Pulse-Name">${stat.picker.username}</span>
+      </div>
+      <div class="Pulse-Record">${stat.pickedBetter} better picks</div>
+      <div class="Pulse-Rate">${(stat.betterRate * 100).toFixed(1)}%</div>
+    </div>
+  `).join('');
+}
+
+function renderFavoriteTeams(favorites) {
+  const container = document.getElementById('favoriteTeamsList');
+  if (!container) return;
+
+  if (favorites.length === 0) {
+    container.innerHTML = `<div class="Pulse-Empty">Not enough data to determine favorites yet.</div>`;
+    return;
+  }
+
+  container.innerHTML = favorites.map(fav => {
+    const logoUrl = `https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${fav.teamId}.png&h=80&w=80`;
+    return `
+      <div class="Favorite-Team-Card">
+        <div class="Favorite-Team-Header">
+          <span class="Pulse-Avatar" style="background-color: ${fav.picker.color};">${fav.picker.id}</span>
+          <span class="Favorite-Team-Picker">${fav.picker.username}</span>
+        </div>
+        <div class="Favorite-Team-Info">
+          <img src="${logoUrl}" class="Favorite-Team-Logo" alt="${fav.favoriteTeam}">
+          <div class="Favorite-Team-Name">${fav.favoriteTeam}</div>
+          <div class="Favorite-Team-Record">${fav.wins}-${fav.picks - fav.wins} (${(fav.winRate * 100).toFixed(0)}%)</div>
+        </div>
+        <div class="Favorite-Team-Reason">${fav.justification}</div>
+      </div>
+    `;
+  }).join('');
+}
+
 function renderStatsDashboard(games) {
   const analytics = computeGameAnalytics(games);
   renderStatsKpis(analytics);
@@ -2997,6 +3262,19 @@ function renderStatsDashboard(games) {
   showRaceChart(games);
   showLeagueMixChart(analytics);
   showConsensusStrengthChart(analytics);
+  
+  // New advanced stats
+  const homeAwayStats = computeHomeAwayStats(games);
+  renderHomeAwayStats(homeAwayStats);
+  
+  const torvikStats = computeTorvikStats(games);
+  renderTorvikStats(torvikStats);
+  
+  const pickerTorvikStats = computePickerTorvikStats(games);
+  renderPickerTorvikStats(pickerTorvikStats);
+  
+  const favoriteTeams = computeFavoriteTeams(games);
+  renderFavoriteTeams(favoriteTeams);
 }
 
 function calculateWinPercentage() {

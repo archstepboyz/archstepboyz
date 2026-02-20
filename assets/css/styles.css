@@ -3481,6 +3481,158 @@ max-height: 100px;
         background: #f8fafc;
     }
 
+    /* Home vs Away Stats */
+    .Home-Away-Stats {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    .Home-Away-Row {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+    }
+
+    .Home-Away-Label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .Home-Away-Value {
+        font-size: 13px;
+        color: #64748b;
+        font-family: 'Oswald', sans-serif;
+    }
+
+    .Home-Away-Rate {
+        font-size: 18px;
+        font-family: 'Fugaz One', cursive;
+        color: #1d9bf0;
+    }
+
+    /* Torvik Stats */
+    .Torvik-Stats {
+        margin-top: 12px;
+    }
+
+    .Torvik-Summary {
+        text-align: center;
+        padding: 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        margin-bottom: 12px;
+    }
+
+    .Torvik-Big-Value {
+        font-family: 'Fugaz One', cursive;
+        font-size: 36px;
+        color: white;
+        line-height: 1;
+    }
+
+    .Torvik-Big-Label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.9);
+        margin-top: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: 'Oswald', sans-serif;
+    }
+
+    .Torvik-Details {
+        text-align: center;
+        font-size: 12px;
+        color: #64748b;
+        font-family: 'Oswald', sans-serif;
+        padding: 8px;
+        background: #f8fafc;
+        border-radius: 6px;
+    }
+
+    .Torvik-Details span span {
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    /* Favorite Teams */
+    .Favorite-Teams-Grid {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    .Favorite-Team-Card {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    }
+
+    .Favorite-Team-Header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .Favorite-Team-Picker {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .Favorite-Team-Info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        padding: 8px;
+        background: #f8fafc;
+        border-radius: 6px;
+    }
+
+    .Favorite-Team-Logo {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+    }
+
+    .Favorite-Team-Name {
+        flex: 1;
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .Favorite-Team-Record {
+        font-size: 12px;
+        font-family: 'Oswald', sans-serif;
+        color: #64748b;
+    }
+
+    .Favorite-Team-Reason {
+        font-size: 11px;
+        color: #64748b;
+        font-style: italic;
+        line-height: 1.4;
+    }
+
+    .Card-Subtitle {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: -4px;
+        margin-bottom: 8px;
+    }
+
     /* --- CARDS (Base Style) --- */
     .Stat-Card {
         background: var(--card-bg); border-radius: 16px;

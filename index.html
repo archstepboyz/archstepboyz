@@ -978,6 +978,61 @@
         </div>
       </div>
 
+      <div class="Insight-Grid">
+        <div class="Stat-Card">
+          <div class="Card-Title">
+            <i class="fa-solid fa-home"></i> Home vs Away Performance
+          </div>
+          <div class="Home-Away-Stats">
+            <div class="Home-Away-Row">
+              <div class="Home-Away-Label">🏠 Home Teams</div>
+              <div class="Home-Away-Value"><span id="homeWins">--</span> wins</div>
+              <div class="Home-Away-Rate" id="homeWinRate">--%</div>
+            </div>
+            <div class="Home-Away-Row">
+              <div class="Home-Away-Label">✈️ Away Teams</div>
+              <div class="Home-Away-Value"><span id="awayWins">--</span> wins</div>
+              <div class="Home-Away-Rate" id="awayWinRate">--%</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="Stat-Card">
+          <div class="Card-Title">
+            <i class="fa-solid fa-ranking-star"></i> Torvik Rating Accuracy
+          </div>
+          <div class="Torvik-Stats">
+            <div class="Torvik-Summary">
+              <div class="Torvik-Big-Value" id="torvikAccuracy">--%</div>
+              <div class="Torvik-Big-Label">Better team wins</div>
+            </div>
+            <div class="Torvik-Details">
+              <span><span id="torvikBetterWins">--</span> better wins</span> • 
+              <span><span id="torvikWorseWins">--</span> upsets</span> • 
+              <span><span id="torvikGamesTotal">--</span> with ratings</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="Insight-Grid">
+        <div class="Stat-Card">
+          <div class="Card-Title">
+            <i class="fa-solid fa-trophy"></i> Torvik Picker Performance
+          </div>
+          <div class="Card-Subtitle">Who picks the better Torvik team most often?</div>
+          <div id="pickerTorvikList" class="Picker-Pulse-List"></div>
+        </div>
+
+        <div class="Stat-Card">
+          <div class="Card-Title">
+            <i class="fa-solid fa-heart"></i> Favorite Teams
+          </div>
+          <div class="Card-Subtitle">Each picker's most devoted team</div>
+          <div id="favoriteTeamsList" class="Favorite-Teams-Grid"></div>
+        </div>
+      </div>
+
       <div class="card" style="grid-column: 1 / -1;">
         <div class="card-title"><i class="fas fa-chart-bar" style="color: gray"></i> Popularly Picked Teams</div>
         <p class="card-desc">Showing most frequently picked teams. Green = Team Won, Red = Team Lost.</p>
