@@ -3254,6 +3254,478 @@ function renderFavoriteTeams(favorites) {
   }).join('');
 }
 
+function computeContrarianStats(games) {
+  const pickerStats = {};
+  
+  PICKERS.forEach(picker => {
+    if (picker.id !== 'BOOTS') {
+      pickerStats[picker.id] = {
+        picker,
+        totalPicks: 0,
+        contrarianPicks: 0,
+        contrarianWins: 0,
+        consensusPicks: 0,
+        consensusWins: 0,
+      };
+    }
+  });
+
+  games.forEach(game => {
+    if (!game.winner) return;
+    
+    const homePicks = Array.isArray(game.home_picks) ? game.home_picks : [];
+    const awayPicks = Array.isArray(game.away_picks) ? game.away_picks : [];
+    const totalPicks = homePicks.length + awayPicks.length;
+    
+    if (totalPicks === 0) return;
+
+    const majorityThreshold = totalPicks / 2;
+    const homeIsMajority = homePicks.length > majorityThreshold;
+    const awayIsMajority = awayPicks.length > majorityThreshold;
+    const hasConsensus = homeIsMajority || awayIsMajority;
+
+    homePicks.forEach(pickerId => {
+      if (pickerStats[pickerId]) {
+        pickerStats[pickerId].totalPicks += 1;
+        if (hasConsensus && awayIsMajority) {
+          pickerStats[pickerId].contrarianPicks += 1;
+          if (game.winner === 'home') pickerStats[pickerId].contrarianWins += 1;
+        } else if (hasConsensus && homeIsMajority) {
+          pickerStats[pickerId].consensusPicks += 1;
+          if (game.winner === 'home') pickerStats[pickerId].consensusWins += 1;
+        }
+      }
+    });
+
+    awayPicks.forEach(pickerId => {
+      if (pickerStats[pickerId]) {
+        pickerStats[pickerId].totalPicks += 1;
+        if (hasConsensus && homeIsMajority) {
+          pickerStats[pickerId].contrarianPicks += 1;
+          if (game.winner === 'away') pickerStats[pickerId].contrarianWins += 1;
+        } else if (hasConsensus && awayIsMajority) {
+          pickerStats[pickerId].consensusPicks += 1;
+          if (game.winner === 'away') pickerStats[pickerId].consensusWins += 1;
+        }
+      }
+    });
+  });
+
+  return Object.values(pickerStats).filter(stat => stat.totalPicks >= 5);
+}
+
+function computeConferenceMastery(games) {
+  const pickerLeagueStats = {};
+
+  PICKERS.forEach(picker => {
+    if (picker.id !== 'BOOTS') {
+      pickerLeagueStats[picker.id] = {
+        picker,
+        leagues: {},
+      };
+    }
+  });
+
+  games.forEach(game => {
+    if (!game.winner || !game.league) return;
+
+    const homePicks = Array.isArray(game.home_picks) ? game.home_picks : [];
+    const awayPicks = Array.isArray(game.away_picks) ? game.away_picks : [];
+
+    homePicks.forEach(pickerId => {
+      if (pickerLeagueStats[pickerId]) {
+        if (!pickerLeagueStats[pickerId].leagues[game.league]) {
+          pickerLeagueStats[pickerId].leagues[game.league] = { picks: 0, wins: 0 };
+        }
+        pickerLeagueStats[pickerId].leagues[game.league].picks += 1;
+        if (game.winner === 'home') {
+          pickerLeagueStats[pickerId].leagues[game.league].wins += 1;
+        }
+      }
+    });
+
+    awayPicks.forEach(pickerId => {
+      if (pickerLeagueStats[pickerId]) {
+        if (!pickerLeagueStats[pickerId].leagues[game.league]) {
+          pickerLeagueStats[pickerId].leagues[game.league] = { picks: 0, wins: 0 };
+        }
+        pickerLeagueStats[pickerId].leagues[game.league].picks += 1;
+        if (game.winner === 'away') {
+          pickerLeagueStats[pickerId].leagues[game.league].wins += 1;
+        }
+      }
+    });
+  });
+
+  return pickerLeagueStats;
+}
+
+function computeRiskProfile(games) {
+  const pickerStats = {};
+  
+  PICKERS.forEach(picker => {
+    if (picker.id !== 'BOOTS') {
+      pickerStats[picker.id] = {
+        picker,
+        totalPicks: 0,
+        wins: 0,
+        contrarianPicks: 0,
+        highRiskPicks: 0,
+        highRiskWins: 0,
+      };
+    }
+  });
+
+  games.forEach(game => {
+    if (!game.winner) return;
+    
+    const homePicks = Array.isArray(game.home_picks) ? game.home_picks : [];
+    const awayPicks = Array.isArray(game.away_picks) ? game.away_picks : [];
+    const totalPicks = homePicks.length + awayPicks.length;
+    
+    if (totalPicks === 0) return;
+
+    const splitRatio = Math.abs(homePicks.length - awayPicks.length) / totalPicks;
+    const isHighRisk = splitRatio >= 0.5; // At least 75-25 split
+
+    homePicks.forEach(pickerId => {
+      if (pickerStats[pickerId]) {
+        pickerStats[pickerId].totalPicks += 1;
+        if (game.winner === 'home') pickerStats[pickerId].wins += 1;
+        
+        if (awayPicks.length > homePicks.length) {
+          pickerStats[pickerId].contrarianPicks += 1;
+        }
+        
+        if (isHighRisk && awayPicks.length > homePicks.length) {
+          pickerStats[pickerId].highRiskPicks += 1;
+          if (game.winner === 'home') pickerStats[pickerId].highRiskWins += 1;
+        }
+      }
+    });
+
+    awayPicks.forEach(pickerId => {
+      if (pickerStats[pickerId]) {
+        pickerStats[pickerId].totalPicks += 1;
+        if (game.winner === 'away') pickerStats[pickerId].wins += 1;
+        
+        if (homePicks.length > awayPicks.length) {
+          pickerStats[pickerId].contrarianPicks += 1;
+        }
+        
+        if (isHighRisk && homePicks.length > awayPicks.length) {
+          pickerStats[pickerId].highRiskPicks += 1;
+          if (game.winner === 'away') pickerStats[pickerId].highRiskWins += 1;
+        }
+      }
+    });
+  });
+
+  return Object.values(pickerStats).filter(stat => stat.totalPicks >= 5);
+}
+
+let contrarianChartInstance = null;
+let conferenceMasteryChartInstance = null;
+let riskProfileChartInstance = null;
+
+function showContrarianChart(contrarianStats) {
+  const canvas = document.getElementById('contrarianChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  if (contrarianChartInstance) {
+    contrarianChartInstance.destroy();
+  }
+
+  const sorted = contrarianStats
+    .map(stat => ({
+      ...stat,
+      contrarianRate: stat.totalPicks > 0 ? (stat.contrarianPicks / stat.totalPicks) * 100 : 0,
+      contrarianWinRate: stat.contrarianPicks > 0 ? (stat.contrarianWins / stat.contrarianPicks) * 100 : 0,
+      consensusWinRate: stat.consensusPicks > 0 ? (stat.consensusWins / stat.consensusPicks) * 100 : 0,
+    }))
+    .filter(stat => stat.contrarianPicks >= 3)
+    .sort((a, b) => b.contrarianRate - a.contrarianRate);
+
+  if (sorted.length === 0) {
+    contrarianChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['No data'],
+        datasets: [{ data: [0], backgroundColor: '#cbd5e1', borderRadius: 6 }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+        scales: { x: { grid: { display: false } }, y: { display: false } },
+      },
+    });
+    return;
+  }
+
+  contrarianChartInstance = new Chart(ctx, {
+    data: {
+      labels: sorted.map(stat => stat.picker.username),
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Contrarian %',
+          data: sorted.map(stat => stat.contrarianRate),
+          backgroundColor: sorted.map(stat => hexToRgba(stat.picker.color, 0.7)),
+          borderColor: sorted.map(stat => stat.picker.color),
+          borderWidth: 2,
+          borderRadius: 6,
+          yAxisID: 'y',
+        },
+        {
+          type: 'line',
+          label: 'Contrarian Win Rate',
+          data: sorted.map(stat => stat.contrarianWinRate),
+          borderColor: '#d63031',
+          backgroundColor: '#d63031',
+          borderWidth: 3,
+          tension: 0.3,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          yAxisID: 'y1',
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: { font: { family: 'Oswald', size: 11 }, boxWidth: 10 },
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              if (ctx.datasetIndex === 0) {
+                return ` ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`;
+              }
+              return ` ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`;
+            },
+          },
+        },
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: 'Oswald', size: 10 } } },
+        y: {
+          beginAtZero: true,
+          max: 100,
+          position: 'left',
+          ticks: { callback: value => `${value}%`, font: { family: 'Oswald', size: 10 } },
+          grid: { color: '#e2e8f0' },
+        },
+        y1: {
+          beginAtZero: true,
+          max: 100,
+          position: 'right',
+          ticks: { callback: value => `${value}%`, font: { family: 'Oswald', size: 10 } },
+          grid: { display: false },
+        },
+      },
+    },
+  });
+}
+
+function showConferenceMasteryChart(leagueStats) {
+  const canvas = document.getElementById('conferenceMasteryChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  if (conferenceMasteryChartInstance) {
+    conferenceMasteryChartInstance.destroy();
+  }
+
+  // Get all unique leagues
+  const allLeagues = new Set();
+  Object.values(leagueStats).forEach(pickerData => {
+    Object.keys(pickerData.leagues).forEach(league => allLeagues.add(league));
+  });
+
+  const leagues = [...allLeagues].slice(0, 8); // Top 8 leagues
+
+  if (leagues.length === 0) {
+    conferenceMasteryChartInstance = new Chart(ctx, {
+      type: 'radar',
+      data: {
+        labels: ['No data'],
+        datasets: [{ data: [0], backgroundColor: 'rgba(203, 213, 225, 0.2)' }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      },
+    });
+    return;
+  }
+
+  // Get top 5 pickers by total picks
+  const topPickers = Object.values(leagueStats)
+    .map(pickerData => {
+      const totalPicks = Object.values(pickerData.leagues).reduce((sum, league) => sum + league.picks, 0);
+      return { ...pickerData, totalPicks };
+    })
+    .filter(pickerData => pickerData.totalPicks >= 5)
+    .sort((a, b) => b.totalPicks - a.totalPicks)
+    .slice(0, 5);
+
+  const datasets = topPickers.map(pickerData => {
+    const data = leagues.map(league => {
+      const leagueData = pickerData.leagues[league];
+      if (!leagueData || leagueData.picks === 0) return 0;
+      return (leagueData.wins / leagueData.picks) * 100;
+    });
+
+    return {
+      label: pickerData.picker.username,
+      data: data,
+      borderColor: pickerData.picker.color,
+      backgroundColor: hexToRgba(pickerData.picker.color, 0.15),
+      borderWidth: 2,
+      pointRadius: 3,
+      pointHoverRadius: 5,
+    };
+  });
+
+  conferenceMasteryChartInstance = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: leagues,
+      datasets: datasets,
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { family: 'Oswald', size: 11 }, boxWidth: 10 },
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%`,
+          },
+        },
+      },
+      scales: {
+        r: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: value => `${value}%`,
+            font: { family: 'Oswald', size: 9 },
+            stepSize: 25,
+          },
+          pointLabels: {
+            font: { family: 'Oswald', size: 10 },
+          },
+        },
+      },
+    },
+  });
+}
+
+function showRiskProfileChart(riskStats) {
+  const canvas = document.getElementById('riskProfileChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  if (riskProfileChartInstance) {
+    riskProfileChartInstance.destroy();
+  }
+
+  const plotData = riskStats.map(stat => ({
+    ...stat,
+    boldness: stat.totalPicks > 0 ? (stat.contrarianPicks / stat.totalPicks) * 100 : 0,
+    accuracy: stat.totalPicks > 0 ? (stat.wins / stat.totalPicks) * 100 : 0,
+    riskReward: stat.highRiskPicks > 0 ? (stat.highRiskWins / stat.highRiskPicks) * 100 : 0,
+  }));
+
+  if (plotData.length === 0) {
+    riskProfileChartInstance = new Chart(ctx, {
+      type: 'scatter',
+      data: {
+        datasets: [{ data: [], backgroundColor: '#cbd5e1' }],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }, tooltip: { enabled: false } },
+      },
+    });
+    return;
+  }
+
+  const datasets = plotData.map(stat => ({
+    label: stat.picker.username,
+    data: [{ x: stat.boldness, y: stat.accuracy }],
+    backgroundColor: hexToRgba(stat.picker.color, 0.7),
+    borderColor: stat.picker.color,
+    borderWidth: 2,
+    pointRadius: stat.totalPicks / 3, // Size by volume
+    pointHoverRadius: stat.totalPicks / 2.5,
+  }));
+
+  riskProfileChartInstance = new Chart(ctx, {
+    type: 'scatter',
+    data: { datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { family: 'Oswald', size: 10 }, boxWidth: 8 },
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const stat = plotData[ctx.datasetIndex];
+              return [
+                ` ${stat.picker.username}`,
+                ` Boldness: ${stat.boldness.toFixed(1)}%`,
+                ` Accuracy: ${stat.accuracy.toFixed(1)}%`,
+                ` Total Picks: ${stat.totalPicks}`,
+              ];
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: 'Boldness (% Contrarian Picks)',
+            font: { family: 'Oswald', size: 12 },
+          },
+          min: 0,
+          max: 100,
+          ticks: { callback: value => `${value}%`, font: { family: 'Oswald', size: 10 } },
+          grid: { color: '#e2e8f0' },
+        },
+        y: {
+          title: {
+            display: true,
+            text: 'Overall Accuracy (%)',
+            font: { family: 'Oswald', size: 12 },
+          },
+          min: 0,
+          max: 100,
+          ticks: { callback: value => `${value}%`, font: { family: 'Oswald', size: 10 } },
+          grid: { color: '#e2e8f0' },
+        },
+      },
+    },
+  });
+}
+
 function renderStatsDashboard(games) {
   const analytics = computeGameAnalytics(games);
   renderStatsKpis(analytics);
@@ -3263,7 +3735,7 @@ function renderStatsDashboard(games) {
   showLeagueMixChart(analytics);
   showConsensusStrengthChart(analytics);
   
-  // New advanced stats
+  // Advanced stats
   const homeAwayStats = computeHomeAwayStats(games);
   renderHomeAwayStats(homeAwayStats);
   
@@ -3275,6 +3747,16 @@ function renderStatsDashboard(games) {
   
   const favoriteTeams = computeFavoriteTeams(games);
   renderFavoriteTeams(favoriteTeams);
+
+  // Very advanced picker-focused charts
+  const contrarianStats = computeContrarianStats(games);
+  showContrarianChart(contrarianStats);
+
+  const conferenceMastery = computeConferenceMastery(games);
+  showConferenceMasteryChart(conferenceMastery);
+
+  const riskProfile = computeRiskProfile(games);
+  showRiskProfileChart(riskProfile);
 }
 
 function calculateWinPercentage() {

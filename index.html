@@ -1033,6 +1033,33 @@
         </div>
       </div>
 
+      <div class="Chart-Row">
+        <div class="Chart-Header">
+          <div class="Chart-Title"><i class="fa-solid fa-user-ninja"></i> Contrarian Index</div>
+          <div class="Chart-Subtitle">How often pickers go against the crowd and their success rate</div>
+        </div>
+        <div class="Chart-Wrapper-Large">
+          <canvas id="contrarianChart"></canvas>
+        </div>
+      </div>
+
+      <div class="Insight-Grid">
+        <div class="card">
+          <div class="card-title"><i class="fas fa-radar" style="color: gray"></i> Conference Mastery</div>
+          <p class="card-desc">Win rate by conference/league for top pickers</p>
+          <div class="chart-box">
+            <canvas id="conferenceMasteryChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="fas fa-chart-scatter" style="color: gray"></i> Risk Profile</div>
+          <p class="card-desc">Boldness vs Accuracy (bubble size = pick volume)</p>
+          <div class="chart-box">
+            <canvas id="riskProfileChart"></canvas>
+          </div>
+        </div>
+      </div>
+
       <div class="card" style="grid-column: 1 / -1;">
         <div class="card-title"><i class="fas fa-chart-bar" style="color: gray"></i> Popularly Picked Teams</div>
         <p class="card-desc">Showing most frequently picked teams. Green = Team Won, Red = Team Lost.</p>
