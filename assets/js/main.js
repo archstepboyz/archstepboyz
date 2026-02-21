@@ -427,8 +427,14 @@ let setActive;
   const statsBtn = document.getElementById("statsViewBtn");
   const bracketBtn = document.getElementById("bracketViewBtn");
   const mainContent = document.getElementById("MainContent");
+  const picksContainer = document.querySelector(".Unauthed-Picks .Picks-Container");
+
+  function setPicksViewportMode(isPicksView) {
+    document.body.classList.toggle("is-picks-view", isPicksView);
+  }
 
   function switchToGrid() {
+    setPicksViewportMode(false);
     gridBtn.classList.add("active");
     listBtn.classList.remove("active");
     picksBtn.classList.remove("active");
@@ -444,8 +450,7 @@ let setActive;
     save.style.display = "none";
     const table = document.querySelector(".table-container");
     table.style.display = "flex";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "none";
+    if (picksContainer) picksContainer.style.display = "none";
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -457,6 +462,7 @@ let setActive;
   }
 
   function switchToList() {
+    setPicksViewportMode(false);
     listBtn.classList.add("active");
     gridBtn.classList.remove("active");
     picksBtn.classList.remove("active");
@@ -472,8 +478,7 @@ let setActive;
     fab.style.display = "flex";
     const save = document.querySelector(".Fab-Save");
     save.style.display = "none";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "none";
+    if (picksContainer) picksContainer.style.display = "none";
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -485,6 +490,7 @@ let setActive;
   }
 
   function switchToPicks() {
+    setPicksViewportMode(true);
     listBtn.classList.remove("active");
     gridBtn.classList.remove("active");
     picksBtn.classList.add("active");
@@ -500,8 +506,7 @@ let setActive;
     fab.style.display = "none";
     const save = document.querySelector(".Fab-Save");
     //save.style.display = "flex";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "flex";
+    if (picksContainer) picksContainer.style.display = "flex";
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "flex";
     const ballot = document.querySelector(".Top25-Container");
@@ -513,6 +518,7 @@ let setActive;
   }
 
   function switchToTop25() {
+    setPicksViewportMode(false);
     listBtn.classList.remove("active");
     gridBtn.classList.remove("active");
     picksBtn.classList.remove("active");
@@ -528,8 +534,7 @@ let setActive;
     fab.style.display = "none";
     const save = document.querySelector(".Fab-Save");
     save.style.display = "none";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "none";
+    if (picksContainer) picksContainer.style.display = "none";
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     if (CURRENT_WEEK >= 11) {
@@ -544,6 +549,7 @@ let setActive;
   }
 
   function switchToStats() {
+    setPicksViewportMode(false);
     listBtn.classList.remove("active");
     gridBtn.classList.remove("active");
     picksBtn.classList.remove("active");
@@ -557,8 +563,7 @@ let setActive;
     list.style.display = "none";
     const fab = document.querySelector(".Fab-Wrapper");
     fab.style.display = "none";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "none";
+    if (picksContainer) picksContainer.style.display = "none";
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -570,6 +575,7 @@ let setActive;
   }
   
 function switchToBracket() {
+    setPicksViewportMode(false);
     listBtn.classList.remove("active");
     gridBtn.classList.remove("active");
     picksBtn.classList.remove("active");
@@ -583,8 +589,7 @@ function switchToBracket() {
     list.style.display = "none";
     const fab = document.querySelector(".Fab-Wrapper");
     fab.style.display = "none";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "none";
+    if (picksContainer) picksContainer.style.display = "none";
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -2321,8 +2326,8 @@ window.unsubmitBallot = unsubmitBallot;
 const isUserLoggedIn = false;
 if (!isUserLoggedIn) {
   document.getElementById('gatekeeper').classList.add('active');
-  const cont = document.querySelector('.Picks-Container');
-  cont.classList.add('is-locked');
+  const cont = document.querySelector('.Unauthed-Picks .Picks-Container');
+  if (cont) cont.classList.add('is-locked');
 }
 
 function simulateLogin() {
