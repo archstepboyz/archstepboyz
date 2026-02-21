@@ -1659,7 +1659,8 @@ window.switchPick = switchPick;
             const awayRecord = game.away_torvik ? `${game.away_record} | Torvik: ${game.away_torvik}` : `${game.away_record}`;
             const homeRecord = game.home_torvik ? `${game.home_record} | Torvik: ${game.home_torvik}` : `${game.home_record}`;
 
-            const tv = game.tv ? `<div class="Broadcast-Badge"><i class="fa-solid fa-tv"></i> <span>${game.tv}</span></div>` : '';  
+            const tvText = typeof game.tv === 'string' ? game.tv.trim() : '';
+            const tv = `<div class="Broadcast-Badge${tvText ? '' : ' is-empty'}"><i class="fa-solid fa-tv"></i> <span>${tvText || 'TV'}</span></div>`;  
 
             return `
             <div class="Game-Slip ${gameClasses}" id="game-${game.id}">

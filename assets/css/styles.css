@@ -2268,6 +2268,11 @@ max-height: 100px;
   border: 1px solid rgba(0,0,0,0.05);
 }
 
+.Broadcast-Badge.is-empty {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .Broadcast-Badge i {
   color: #636e72;
 }
