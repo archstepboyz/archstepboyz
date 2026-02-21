@@ -829,6 +829,10 @@ opacity: 0.9;
 /* Optional: Add a subtle texture/pattern to the tray if you want more depth */
  .Grid-Control { background-image: radial-gradient(#dfe6e9 1px, transparent 1px); background-size: 10px 10px; }
 
+.Grid-Control--secondary {
+  grid-template-columns: minmax(140px, 1fr);
+}
+
 /* --- MENU BAR --- */
 .Menu-Options {
   display: grid;
@@ -4017,3 +4021,221 @@ max-height: 100px;
     .GK__Button { width: 100%; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(90deg, #ff8a00, #e52e71); color: white; font-family: 'Oswald'; font-size: 16px; font-weight: 600; text-transform: uppercase; cursor: pointer; transition: transform 0.2s; box-shadow: 0 8px 15px rgba(229, 46, 113, 0.3); }
     .Lock-Wrapper.unlocked { background: #00b894; box-shadow: 0 10px 20px rgba(0, 184, 148, 0.3); transform: rotate(10deg); }
     .Picks-List.is-locked { overflow: hidden; height: 100vh; }
+
+/* --- BLOG PAGE --- */
+.Blog-Page-Body {
+  background: linear-gradient(160deg, #f8fbff 0%, #f5f1ef 100%);
+  color: #2d3436;
+  display: block;
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;
+  margin: 0;
+  padding: 24px 12px 56px;
+  overflow-x: hidden;
+}
+
+.Blog-Page {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.Blog-Back-Link {
+  display: inline-block;
+  margin-bottom: 20px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid #dfe6e9;
+  color: #636e72;
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 8px 14px;
+  box-shadow: 0 2px 7px rgba(0, 0, 0, 0.05);
+}
+
+.Blog-Back-Link:hover {
+  color: #e17055;
+  border-color: #e17055;
+}
+
+.Blog-Hero {
+  background: linear-gradient(135deg, rgba(225, 112, 85, 0.96), rgba(214, 48, 49, 0.96)),
+    url("https://picsum.photos/seed/fe-hero-cover/1400/800");
+  background-size: cover;
+  background-position: center;
+  color: #ffffff;
+  border-radius: 20px;
+  border: none;
+  padding: 28px 24px;
+  box-shadow: 0 18px 32px rgba(214, 48, 49, 0.28);
+}
+
+.Blog-Kicker {
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  opacity: 0.9;
+  margin-bottom: 6px;
+}
+
+.Blog-Title {
+  font-family: 'Fugaz One', cursive;
+  color: #ffffff;
+  font-size: clamp(34px, 4vw, 50px);
+  line-height: 1;
+  margin: 0 0 10px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.Blog-Subtitle {
+  font-family: 'Merriweather', serif;
+  font-size: 15px;
+  line-height: 1.55;
+  margin-bottom: 16px;
+  max-width: 760px;
+}
+
+.Blog-Byline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.Blog-Author-Tag {
+  font-family: 'Oswald', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 20px;
+  padding: 6px 10px;
+}
+
+.Blog-Author-Name {
+  font-family: 'Fugaz One', cursive;
+  font-size: 24px;
+}
+
+.Blog-Intro {
+  margin-top: 20px;
+  margin-bottom: 22px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid #ebeff2;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+}
+
+.Blog-Intro p {
+  color: #4b5a67;
+  font-family: 'Merriweather', serif;
+  line-height: 1.8;
+  font-size: 15px;
+}
+
+.Blog-Intro p + p {
+  margin-top: 14px;
+}
+
+.Blog-Rankings {
+  list-style: none;
+  counter-reset: blog-rank;
+  display: grid;
+  gap: 16px;
+}
+
+.Blog-Team-Card {
+  background: #ffffff;
+  border: 1px solid #ecf0f3;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(10, 31, 68, 0.06);
+}
+
+.Blog-Team-Card h2 {
+  color: #1f2c36;
+  margin: 0 0 10px;
+  font-family: 'Oswald', sans-serif;
+  font-size: clamp(22px, 2.3vw, 30px);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.Blog-Rank-Number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-right: 8px;
+  border-radius: 50%;
+  color: #ffffff;
+  background: linear-gradient(145deg, #e17055, #d63031);
+  font-size: 16px;
+  font-family: 'Fugaz One', cursive;
+  vertical-align: middle;
+}
+
+.Blog-Team-Card p {
+  color: #566571;
+  line-height: 1.75;
+  font-size: 15px;
+  font-family: 'Merriweather', serif;
+}
+
+.Blog-Image-Grid {
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.Blog-Figure {
+  background: #fafbfd;
+  border: 1px solid #ecf0f3;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.Blog-Figure img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.Blog-Figure figcaption {
+  font-family: 'Oswald', sans-serif;
+  color: #667683;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 10px 12px;
+  border-top: 1px solid #ecf0f3;
+}
+
+@media (max-width: 760px) {
+  .Blog-Page-Body {
+    padding: 18px 10px 44px;
+  }
+
+  .Blog-Hero {
+    border-radius: 14px;
+    padding: 20px 16px;
+  }
+
+  .Blog-Team-Card {
+    padding: 15px;
+  }
+
+  .Blog-Image-Grid {
+    grid-template-columns: 1fr;
+  }
+}
