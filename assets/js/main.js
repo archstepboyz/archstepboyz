@@ -1716,6 +1716,28 @@ window.switchPick = switchPick;
             }
         }
 
+        function getMatchupColumnCount() {
+            const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+            if (viewportWidth <= 768) return 2;
+            if (viewportWidth >= 1700) return 6;
+            if (viewportWidth >= 1024) return 5;
+            return 3;
+        }
+
+        function insertMatchupColumns(container, dayIndex, groupKey, insertPosition, columnCount) {
+            if (!container) return;
+            const columnIndexes = Array.from({ length: columnCount }, (_, idx) => idx + 1);
+            if (insertPosition === 'afterbegin' || insertPosition === 'afterend') {
+                columnIndexes.reverse();
+            }
+            columnIndexes.forEach((columnIndex) => {
+                container.insertAdjacentHTML(
+                    insertPosition,
+                    `<div class="Matchup-Column" id="${dayIndex}-${groupKey}-col-${columnIndex}"></div>`
+                );
+            });
+        }
+
         async function renderAll(forceRefresh = false) {
             document.querySelector('.Legend-Wrapper').style.display = showingAllPicks ? 'flex' : 'none';
             renderLegend();
@@ -1724,6 +1746,9 @@ window.switchPick = switchPick;
             const finalList = document.getElementById('picks-final');
             list.innerHTML = '';
             finalList.innerHTML = '';
+            const matchupColumnCount = getMatchupColumnCount();
+            list.style.setProperty('--matchup-column-count', matchupColumnCount);
+            finalList.style.setProperty('--matchup-column-count', matchupColumnCount);
             const week = document.querySelector('.Week-Select-Input')?.value.split(' ').at(-1) ?? '9';
             
             if (GAMES.length === 0 || forceRefresh) {
@@ -1804,8 +1829,8 @@ window.switchPick = switchPick;
                   sep = true;
                 }
                 sojrLast = game.rothstein;
-                if (!indexBrk[sojrLast]) {
-                  indexBrk[sojrLast] = 1;
+                if (indexBrk[sojrLast] == null) {
+                  indexBrk[sojrLast] = 0;
                 }
               }
 
@@ -1813,24 +1838,21 @@ window.switchPick = switchPick;
                 if (notCompleted) {
                   list.insertAdjacentHTML('beforeend', separatorHTML);
                   list.insertAdjacentHTML('beforeend', filterHTML);
-                  list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column matchupsA" id="${days}-${sojrLast}-col-1"></div>`);
-                  list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column matchupsB" id="${days}-${sojrLast}-col-2"></div>`);
+                  insertMatchupColumns(list, days, sojrLast, 'beforeend', matchupColumnCount);
                   if (separatorHTML !== '') {
                     indexBrk = { 'all': 0 };
-                    indexBrk[sojrLast] =  1;
+                    indexBrk[sojrLast] = 0;
                   }
                 } else {
                   if (separatorHTML !== '') {
-                    finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column matchupsB" id="${days}-${sojrLast}-col-2"></div>`);
-                    finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column matchupsA" id="${days}-${sojrLast}-col-1"></div>`);
+                    insertMatchupColumns(finalList, days, sojrLast, 'afterbegin', matchupColumnCount);
                     finalList.insertAdjacentHTML('afterbegin', filterHTML);
                     finalList.insertAdjacentHTML('afterbegin', separatorHTML);
                     indexBrk = { 'all': 0 };
-                    indexBrk[sojrLast] =  1;
+                    indexBrk[sojrLast] = 0;
                   } else {
                     const tempList = document.getElementById(`${days}-tracker-sep`);
-                    tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column matchupsB" id="${days}-${sojrLast}-col-2"></div>`);
-                    tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column matchupsA" id="${days}-${sojrLast}-col-1"></div>`);
+                    insertMatchupColumns(tempList, days, sojrLast, 'afterend', matchupColumnCount);
                     tempList.insertAdjacentHTML('afterend', filterHTML);
                   }
                 }
@@ -1839,17 +1861,13 @@ window.switchPick = switchPick;
                 updateCompactTracker(todaysPicks, todaysTotal, todaysDate);
               }
               
-                const colA = document.getElementById(`${days}-${sojrLast}-col-1`);
-                const colB = document.getElementById(`${days}-${sojrLast}-col-2`);
-
                 const cardHTML = renderCardHTML(game, week);
-                if ((indexBrk[sojrLast] + 1) % 2 === 0) {
-                    colA.insertAdjacentHTML(notCompleted ? 'beforeend' : 'afterbegin', cardHTML);
-                    indexBrk[sojrLast] += 1;
-                } else {
-                    colB.insertAdjacentHTML(notCompleted ? 'beforeend' : 'afterbegin', cardHTML);
-                    indexBrk[sojrLast] += 1;
+                const targetColumnIndex = (indexBrk[sojrLast] % matchupColumnCount) + 1;
+                const targetColumn = document.getElementById(`${days}-${sojrLast}-col-${targetColumnIndex}`);
+                if (targetColumn) {
+                    targetColumn.insertAdjacentHTML(notCompleted ? 'beforeend' : 'afterbegin', cardHTML);
                 }
+                indexBrk[sojrLast] += 1;
             });
         }
 
