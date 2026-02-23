@@ -254,7 +254,7 @@ function updateCompactTracker(current, total, id) {
 
 const currentDate = new Date();
 // should make this const and introduce SELECTED_WEEK
-let CURRENT_WEEK = 16;
+let CURRENT_WEEK = 17;
 
 const TEAMS_ENDPOINT =
   "https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Teams?order=conf.asc,conf_pos.asc";
