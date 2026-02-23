@@ -2078,6 +2078,8 @@ function renderCreativeCard(teamKey, rank, votes, firstPlace, className) {
       firstPlaceClass = 'rank-corn';
     } else if (teamName === 'Michigan Wolverines' && rank === 1) {
       firstPlaceClass = 'rank-mich';
+    } else if (teamName === 'Duke Blue Devils' && rank === 1) {
+      firstPlaceClass = 'rank-duke';
     }
     const firstPlaceHTML = firstPlace > 0 ? '<span class="Votes-First">(' + firstPlace  + ')</span>' : '';
     container.insertAdjacentHTML('beforeend', `
