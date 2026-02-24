@@ -4080,7 +4080,7 @@ max-height: 100px;
 
     .selection-bracket-layout {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 150px minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1fr) 180px minmax(0, 1fr);
         gap: 10px;
         align-items: stretch;
     }
@@ -4139,8 +4139,7 @@ max-height: 100px;
         padding-bottom: 4px;
     }
 
-    .selection-round-games,
-    .selection-winner-list {
+    .selection-round-games {
         display: flex;
         flex-direction: column;
         gap: 6px;
@@ -4201,59 +4200,12 @@ max-height: 100px;
         word-break: break-word;
     }
 
-    .selection-winner-pill {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        border: 1px solid #e8edf4;
-        border-left: 3px solid #4f46e5;
-        border-radius: 999px;
-        padding: 4px 8px;
-        background: #fff;
-        font-size: 0.68rem;
-        font-weight: 700;
-        color: #334155;
-        min-width: 0;
-    }
-
-    .selection-winner-pill.is-right {
-        flex-direction: row-reverse;
-        text-align: right;
-        border-left: 1px solid #e8edf4;
-        border-right: 3px solid #4f46e5;
-    }
-
-    .selection-winner-pill .selection-team-text {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
     .selection-center-column {
         display: flex;
         flex-direction: column;
         justify-content: center;
         gap: 8px;
         min-width: 0;
-    }
-
-    .selection-final-four-list {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .selection-finalist-card {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        border: 1px solid #dbe4ff;
-        border-radius: 8px;
-        padding: 6px 8px;
-        background: #f5f8ff;
-        font-size: 0.72rem;
-        font-weight: 700;
-        color: #1e3a8a;
     }
 
     .selection-champion-card {
