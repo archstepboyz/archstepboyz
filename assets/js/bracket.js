@@ -553,6 +553,189 @@ export const mock_db_bracket = [
       }
     ]
   },
+  {
+    id: "week17",
+    title: "ARCHSTEPBOYZ <span>BRACKETOLOGY</span>",
+    projectionDate: "FEB 23",
+    // The Bubble Watch Data
+    bubble: {
+      last4In: [
+        { name: "Indiana", logo: "teamlogos/ncaa/500/84.png&h=200&w=200" },
+        { name: "USC", logo: "teamlogos/ncaa/500/30.png&h=200&w=200" },
+        { name: "TCU", logo: "teamlogos/ncaa/500/2628.png&h=200&w=200" },
+        { name: "Santa Clara", logo: "teamlogos/ncaa/500/2541.png&h=200&w=200" },
+      ],
+      first4Out: [
+        { name: "Ohio St", logo: "teamlogos/ncaa/500/194.png&h=200&w=200" },
+        { name: "New Mexico", logo: "teamlogos/ncaa/500/167.png&h=200&w=200" },
+        { name: "San Diego St", logo: "teamlogos/ncaa/500/21.png&h=200&w=200" },
+        { name: "VCU", logo: "teamlogos/ncaa/500/2670.png&h=200&w=200" },
+      ],
+      next4Out: [
+        { name: "Virginia Tech", logo: "teamlogos/ncaa/500/259.png&h=200&w=200" },
+        { name: "California", logo: "teamlogos/ncaa/500/25.png&h=200&w=200" },
+      ]
+    },
+    // The 4 Regions. Order matters: [0]=South, [1]=West, [2]=East, [3]=Midwest
+    regions: [
+      {
+        name: "South",
+        site: "Houston, TX",
+        headerClass: "bg-south",
+        games: [
+          { loc: "Philadelphia, PA", 
+              t1: { s: 1, n: "UConn", l: "teamlogos/ncaa/500/41.png&h=200&w=200", conf: false}, 
+              t2: { s: 16, n: "BCU/Howard", l: "teamlogos/default-team-logo-500.png&h=72&w=72", conf: true} 
+          },
+          { loc: "Philadelphia, PA", 
+              t1: { s: 8, n: "NC State", l: "teamlogos/ncaa/500/152.png&h=200&w=200", conf: false}, 
+              t2: { s: 9, n: "Texas A&M", l: "teamlogos/ncaa/500/245.png&h=200&w=200", conf: false} 
+          },
+          { loc: "Greenville, SC", 
+              t1: { s: 4, n: "Texas Tech", l: "teamlogos/ncaa/500/2641.png&h=200&w=200", conf: false}, 
+              t2: { s: 13, n: "High Point", l: "teamlogos/ncaa/500/2272.png&h=200&w=200", conf: true} 
+          },
+          { loc: "Greenville, SC", 
+              t1: { s: 5, n: "N Carolina", l: "teamlogos/ncaa/500/153.png&h=200&w=200", conf: false}, 
+              t2: { s: 12, n: "Yale", l: "teamlogos/ncaa/500/43.png&h=200&w=200", conf: true} 
+          },
+          { loc: "Oklahoma City, OK", 
+              t1: { s: 6, n: "Kentucky", l: "teamlogos/ncaa/500/96.png&h=200&w=200", conf: false}, 
+              t2: { s: 11, n: "Miami (OH)", l: "teamlogos/ncaa/500/193.png&h=200&w=200", conf: true} 
+          },
+          { loc: "Oklahoma City, OK", 
+              t1: { s: 3, n: "Nebraska", l: "teamlogos/ncaa/500/158.png&h=200&w=200", conf: false}, 
+              t2: { s: 14, n: "UC Irvine", l: "teamlogos/ncaa/500/300.png&h=200&w=200", conf: true} 
+          },
+          { loc: "St. Louis, MO", 
+              t1: { s: 7, n: "Wisconsin", l: "teamlogos/ncaa/500/275.png&h=200&w=200", conf: false}, 
+              t2: { s: 10, n: "Georgia", l: "teamlogos/ncaa/500/61.png&h=200&w=200", conf: false} 
+          },
+          { loc: "St. Louis, MO", 
+              t1: { s: 2, n: "Iowa St", l: "teamlogos/ncaa/500/66.png&h=200&w=200", conf: false}, 
+              t2: { s: 15, n: "Austin Peay", l: "teamlogos/ncaa/500/2046.png&h=200&w=200", conf: true} 
+          },
+        ]
+      },
+      {
+        name: "West",
+        site: "San Jose, CA",
+        headerClass: "bg-west",
+        games: [
+          { loc: "San Diego, CA", 
+              t1: { s: 1, n: "Arizona", l: "teamlogos/ncaa/500/12.png&h=200&w=200", conf: true}, 
+              t2: { s: 16, n: "SEMO", l: "teamlogos/ncaa/500/2546.png&h=200&w=200", conf: true} 
+          },
+          { loc: "San Diego, CA", 
+              t1: { s: 8, n: "Clemson", l: "teamlogos/ncaa/500/228.png&h=200&w=200", conf: false}, 
+              t2: { s: 9, n: "St. Mary's", l: "teamlogos/ncaa/500/2608.png&h=72&w=72", conf: false} 
+          },
+          { loc: "San Diego, CA", 
+              t1: { s: 4, n: "Virginia", l: "teamlogos/ncaa/500/258.png&h=200&w=200", conf: false}, 
+              t2: { s: 13, n: "N Dakota St", l: "teamlogos/ncaa/500/2449.png&h=72&w=72", conf: true} 
+          },
+          { loc: "San Diego, CA", 
+              t1: { s: 5, n: "Arkansas", l: "teamlogos/ncaa/500/8.png&h=200&w=200", conf: false}, 
+              t2: { s: 12, n: "S Florida", l: "teamlogos/ncaa/500/58.png&h=72&w=72", conf: true} 
+          },
+          { loc: "Portland, OR", 
+              t1: { s: 6, n: "BYU", l: "teamlogos/ncaa/500/252.png&h=200&w=200", conf: false}, 
+              t2: { s: 11, n: "Auburn", l: "teamlogos/ncaa/500/61.png&h=200&w=200", conf: false} 
+          },
+          { loc: "Portland, OR", 
+              t1: { s: 3, n: "Gonzaga", l: "teamlogos/ncaa/500/2250.png&h=200&w=200", conf: true}, 
+              t2: { s: 14, n: "App State", l: "teamlogos/ncaa/500/2026.png&h=72&w=72", conf: true} 
+          },
+          { loc: "Buffalo, NY", 
+              t1: { s: 7, n: "Villanova", l: "teamlogos/ncaa/500/222.png&h=200&w=200", conf: false}, 
+              t2: { s: 10, n: "Missouri", l: "teamlogos/ncaa/500/142.png&h=72&w=72", conf: false} 
+          },
+          { loc: "Buffalo, NY", 
+              t1: { s: 2, n: "Purdue", l: "teamlogos/ncaa/500/2509.png&h=200&w=200", conf: false}, 
+              t2: { s: 15, n: "Navy", l: "teamlogos/ncaa/500/2426.png&h=72&w=72", conf: true} 
+          },
+        ]
+      },
+      {
+        name: "East",
+        site: "Washington DC",
+        headerClass: "bg-east",
+        games: [
+           { loc: "Greenville, SC", 
+               t1: { s: 1, n: "Duke", l: "teamlogos/ncaa/500/150.png&h=200&w=200", conf: true}, 
+               t2: { s: 16, n: "Merrimack", l: "teamlogos/ncaa/500/2771.png&h=200&w=200", conf: true} 
+           },
+           { loc: "Greenville, SC",
+               t1: { s: 8, n: "Iowa", l: "teamlogos/ncaa/500/2294.png&h=200&w=200", conf: false}, 
+               t2: { s: 9, n: "SMU", l: "teamlogos/ncaa/500/2567.png&h=200&w=200", conf: false} 
+           },
+           { loc: "Portland, OR", 
+               t1: { s: 4, n: "Michigan St", l: "teamlogos/ncaa/500/127.png&h=200&w=200", conf: false}, 
+               t2: { s: 13, n: "UNCW", l: "teamlogos/ncaa/500/350.png&h=200&w=200", conf: true} 
+           },
+           { loc: "Portland, OR", 
+               t1: { s: 5, n: "Alabama", l: "teamlogos/ncaa/500/333.png&h=200&w=200", conf: false}, 
+               t2: { s: 12, n: "Liberty", l: "teamlogos/ncaa/500/2335.png&h=200&w=200", conf: true} 
+           },
+           { loc: "Tampa, FL", 
+               t1: { s: 6, n: "Tennessee", l: "teamlogos/ncaa/500/2633.png&h=200&w=200", conf: false}, 
+               t2: { s: 11, n: "Indiana/Santa Clara", l: "teamlogos/default-team-logo-500.png&h=72&w=72", conf: false} 
+           },
+           { loc: "Tampa, FL", 
+               t1: { s: 3, n: "Kansas", l: "teamlogos/ncaa/500/2305.png&h=200&w=200", conf: false}, 
+               t2: { s: 14, n: "ETSU", l: "teamlogos/ncaa/500/2193.png&h=200&w=200", conf: true} 
+           },
+           { loc: "St. Louis, MO", 
+               t1: { s: 7, n: "Utah St", l: "teamlogos/ncaa/500/328.png&h=200&w=200", conf: true}, 
+               t2: { s: 10, n: "UCF", l: "teamlogos/ncaa/500/2116.png&h=200&w=200", conf: false} 
+           },
+           { loc: "St. Louis, MO", 
+               t1: { s: 2, n: "Illinois", l: "teamlogos/ncaa/500/356.png&h=200&w=200", conf: false}, 
+               t2: { s: 15, n: "Wright St", l: "teamlogos/ncaa/500/2750.png&h=200&w=200", conf: true} 
+           },
+        ]
+      },
+      {
+        name: "Midwest",
+        site: "Chicago, IL",
+        headerClass: "bg-midwest",
+        games: [
+           { loc: "Philadelphia, PA", 
+               t1: { s: 1, n: "Michigan", l: "teamlogos/ncaa/500/130.png&h=200&w=200", conf: true}, 
+               t2: { s: 16, n: "Long Island/UMBC", l: "teamlogos/default-team-logo-500.png&h=72&w=72", conf: true} 
+           },
+           { loc: "Philadelphia, PA", 
+               t1: { s: 8, n: "Miami (FL)", l: "teamlogos/ncaa/500/2390.png&h=200&w=200", conf: false}, 
+               t2: { s: 9, n: "Texas", l: "teamlogos/ncaa/500/251.png&h=200&w=200", conf: false} 
+           },
+           { loc: "Buffalo, NY", 
+               t1: { s: 4, n: "Vanderbilt", l: "teamlogos/ncaa/500/238.png&h=200&w=200", conf: false}, 
+               t2: { s: 13, n: "S.F. Austin", l: "teamlogos/ncaa/500/2617.png&h=200&w=200", conf: true} 
+           },
+           { loc: "Buffalo, NY", 
+               t1: { s: 5, n: "St. John's", l: "teamlogos/ncaa/500/2599.png&h=200&w=200", conf: true}, 
+               t2: { s: 12, n: "Belmont", l: "teamlogos/ncaa/500/2057.png&h=200&w=200", conf: true} 
+           },
+           { loc: "Tampa, FL", 
+               t1: { s: 6, n: "Louisville", l: "teamlogos/ncaa/500/97.png&h=200&w=200", conf: false }, 
+               t2: { s: 11, n: "USC/TCU", l: "teamlogos/default-team-logo-500.png&h=72&w=72", conf: false} 
+           },
+           { loc: "Tampa, FL", 
+               t1: { s: 3, n: "Florida", l: "teamlogos/ncaa/500/57.png&h=200&w=200", conf: true}, 
+               t2: { s: 14, n: "Utah Valley", l: "teamlogos/ncaa/500/3084.png&h=200&w=200", conf: true} 
+           },
+           { loc: "Oklahoma City, OK", 
+               t1: { s: 7, n: "Saint Louis", l: "teamlogos/ncaa/500/139.png&h=200&w=200", conf: true}, 
+               t2: { s: 10, n: "UCLA", l: "teamlogos/ncaa/500/26.png&h=200&w=200", conf: false} 
+           },
+           { loc: "Oklahoma City, OK", 
+               t1: { s: 2, n: "Houston", l: "teamlogos/ncaa/500/248.png&h=200&w=200", conf: false}, 
+               t2: { s: 15, n: "Portland St", l: "teamlogos/ncaa/500/2502.png&h=200&w=200", conf: true} 
+           },
+        ]
+      }
+    ]
+  },
 ];
 
 // 2. THE RENDER FUNCTION
