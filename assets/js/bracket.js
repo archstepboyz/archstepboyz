@@ -628,7 +628,7 @@ export const mock_db_bracket = [
           },
           { loc: "San Diego, CA", 
               t1: { s: 8, n: "Clemson", l: "teamlogos/ncaa/500/228.png&h=200&w=200", conf: false}, 
-              t2: { s: 9, n: "St. Mary's", l: "teamlogos/ncaa/500/2608.png&h=72&w=72", conf: false} 
+              t2: { s: 9, n: "Saint Mary's", l: "teamlogos/ncaa/500/2608.png&h=72&w=72", conf: false} 
           },
           { loc: "San Diego, CA", 
               t1: { s: 4, n: "Virginia", l: "teamlogos/ncaa/500/258.png&h=200&w=200", conf: false}, 
@@ -640,7 +640,7 @@ export const mock_db_bracket = [
           },
           { loc: "Portland, OR", 
               t1: { s: 6, n: "BYU", l: "teamlogos/ncaa/500/252.png&h=200&w=200", conf: false}, 
-              t2: { s: 11, n: "Auburn", l: "teamlogos/ncaa/500/61.png&h=200&w=200", conf: false} 
+              t2: { s: 11, n: "Auburn", l: "teamlogos/ncaa/500/2.png&h=200&w=200", conf: false} 
           },
           { loc: "Portland, OR", 
               t1: { s: 3, n: "Gonzaga", l: "teamlogos/ncaa/500/2250.png&h=200&w=200", conf: true}, 
