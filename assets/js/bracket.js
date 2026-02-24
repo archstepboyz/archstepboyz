@@ -734,7 +734,24 @@ export const mock_db_bracket = [
            },
         ]
       }
-    ]
+    ],
+    // User picks by NCAA bracket round progression
+    selections: {
+      round64: [
+        "UConn", "Texas A&M", "Texas Tech", "North Carolina", "Kentucky", "Nebraska", "Georgia", "Iowa St",
+        "Arizona", "Saint Mary's", "Virginia", "Arkansas", "Auburn", "Gonzaga", "Villanova", "Purdue",
+        "Duke", "Iowa", "Michigan St", "Alabama", "Tennessee", "Kansas", "UCF", "Illinois",
+        "Michigan", "Miami (FL)", "Vanderbilt", "St. John's", "TCU", "Florida", "UCLA", "Houston"
+      ],
+      round32: [
+        "UConn", "North Carolina", "Nebraska", "Iowa St", "Arizona", "Virginia", "Auburn", "Villanova",
+        "Duke", "Michigan St", "Tennessee", "Illinois", "Michigan", "St. John's", "Florida", "Houston"
+      ],
+      sweet16: ["UConn", "Nebraska", "Arizona", "Auburn", "Duke", "Tennessee", "St. John's", "Houston"],
+      elite8: ["Nebraska", "Arizona", "Duke", "Houston"],
+      final4: ["Arizona", "Houston"],
+      champion: "Houston"
+    }
   },
 ];
 
@@ -800,6 +817,197 @@ export function renderBracket(weekId) {
         `;
     };
 
+    // D. Helper: Create HTML for User Selections Bracket
+    const normalizeTeamName = (name = '') => {
+        const cleaned = name.toLowerCase()
+            .replace(/'/g, '')
+            .replace(/&/g, ' and ')
+            .replace(/[^a-z0-9/ ]+/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+
+        const aliases = {
+            "n carolina": "north carolina",
+            "north carolina": "north carolina",
+            "iowa st": "iowa state",
+            "iowa state": "iowa state",
+            "michigan st": "michigan state",
+            "michigan state": "michigan state",
+            "utah st": "utah state",
+            "utah state": "utah state",
+            "st johns": "saint johns",
+            "saint johns": "saint johns",
+            "st marys": "saint marys",
+            "saint marys": "saint marys",
+            "miami fl": "miami fl",
+            "miami oh": "miami oh",
+        };
+
+        return aliases[cleaned] || cleaned;
+    };
+
+    const splitTeamAliases = (teamName = '') => teamName.split('/').map(name => name.trim()).filter(Boolean);
+
+    const isPickedWinner = (pickedWinner = '', teamName = '') => {
+        const picked = normalizeTeamName(pickedWinner);
+        const options = splitTeamAliases(teamName).map(normalizeTeamName);
+        return options.includes(picked);
+    };
+
+    const buildLogoLookup = (regions = []) => {
+        const lookup = {};
+        const registerTeam = (team) => {
+            const logoSrc = `https://secure.espncdn.com/combiner/i?img=/i/${team.l}`;
+            splitTeamAliases(team.n).forEach((alias) => {
+                lookup[normalizeTeamName(alias)] = logoSrc;
+            });
+            lookup[normalizeTeamName(team.n)] = logoSrc;
+        };
+
+        regions.forEach((region) => {
+            region.games.forEach((game) => {
+                registerTeam(game.t1);
+                registerTeam(game.t2);
+            });
+        });
+
+        return lookup;
+    };
+
+    const getTeamLogo = (teamName, logoLookup) => {
+        const fallbackLogo = "https://secure.espncdn.com/combiner/i?img=/i/teamlogos/default-team-logo-500.png&h=72&w=72";
+        return logoLookup[normalizeTeamName(teamName)] || fallbackLogo;
+    };
+
+    const createSelectionTeamRowHTML = (team, pickedWinner, logoLookup, sideClass) => `
+        <div class="selection-game-team ${isPickedWinner(pickedWinner, team.n) ? 'is-picked' : ''} ${sideClass === 'right' ? 'is-right' : ''}">
+            <span class="selection-seed">${team.s ?? ''}</span>
+            <img src="${getTeamLogo(team.n, logoLookup)}" class="selection-logo" alt="${team.n}">
+            <span class="selection-team-text">${team.n}</span>
+        </div>
+    `;
+
+    const createSelectionWinnerPillHTML = (teamName, logoLookup, sideClass) => `
+        <div class="selection-winner-pill ${sideClass === 'right' ? 'is-right' : ''}">
+            <img src="${getTeamLogo(teamName, logoLookup)}" class="selection-logo" alt="${teamName}">
+            <span class="selection-team-text">${teamName}</span>
+        </div>
+    `;
+
+    const createRound64ColumnHTML = (games, pickedWinners, logoLookup, sideClass) => {
+        const gameCards = games.map((game, index) => {
+            const pickedWinner = pickedWinners[index] || "";
+            return `
+                <div class="selection-game-card">
+                    ${createSelectionTeamRowHTML(game.t1, pickedWinner, logoLookup, sideClass)}
+                    ${createSelectionTeamRowHTML(game.t2, pickedWinner, logoLookup, sideClass)}
+                </div>
+            `;
+        }).join('');
+
+        return `
+            <div class="selection-round selection-round-64">
+                <div class="selection-round-title">Round of 64</div>
+                <div class="selection-round-games">${gameCards}</div>
+            </div>
+        `;
+    };
+
+    const createWinnerRoundColumnHTML = (title, teams, logoLookup, sideClass, roundClass) => `
+        <div class="selection-round ${roundClass}">
+            <div class="selection-round-title">${title}</div>
+            <div class="selection-winner-list">
+                ${teams.map(teamName => createSelectionWinnerPillHTML(teamName, logoLookup, sideClass)).join('')}
+            </div>
+        </div>
+    `;
+
+    const createSelectionSideColumnsHTML = (sideData, sideClass, logoLookup) => {
+        const round64 = createRound64ColumnHTML(sideData.games, sideData.round64, logoLookup, sideClass);
+        const round32 = createWinnerRoundColumnHTML("Round of 32", sideData.round32, logoLookup, sideClass, "selection-round-32");
+        const sweet16 = createWinnerRoundColumnHTML("Sweet 16", sideData.sweet16, logoLookup, sideClass, "selection-round-16");
+        const elite8 = createWinnerRoundColumnHTML("Elite 8", sideData.elite8, logoLookup, sideClass, "selection-round-8");
+
+        return sideClass === 'left'
+            ? `${round64}${round32}${sweet16}${elite8}`
+            : `${elite8}${sweet16}${round32}${round64}`;
+    };
+
+    const createSelectionsBracketHTML = (selectionData) => {
+        if (!selectionData) return '';
+
+        const logoLookup = buildLogoLookup(data.regions);
+
+        const leftRegions = data.regions.slice(0, 2);
+        const rightRegions = data.regions.slice(2, 4);
+
+        const leftGames = leftRegions.flatMap(region => region.games);
+        const rightGames = rightRegions.flatMap(region => region.games);
+
+        const leftSide = {
+            title: `${leftRegions[0].name} + ${leftRegions[1].name}`,
+            games: leftGames,
+            round64: (selectionData.round64 || []).slice(0, leftGames.length),
+            round32: (selectionData.round32 || []).slice(0, 8),
+            sweet16: (selectionData.sweet16 || []).slice(0, 4),
+            elite8: (selectionData.elite8 || []).slice(0, 2),
+        };
+
+        const rightSide = {
+            title: `${rightRegions[0].name} + ${rightRegions[1].name}`,
+            games: rightGames,
+            round64: (selectionData.round64 || []).slice(leftGames.length, leftGames.length + rightGames.length),
+            round32: (selectionData.round32 || []).slice(8, 16),
+            sweet16: (selectionData.sweet16 || []).slice(4, 8),
+            elite8: (selectionData.elite8 || []).slice(2, 4),
+        };
+
+        const finalFour = selectionData.final4 || [];
+        const champion = selectionData.champion || '';
+
+        return `
+            <section class="selection-bracket-section">
+                <div class="selection-bracket-header">
+                    <h2>Week 17 Selections</h2>
+                    <p class="selection-bracket-subtitle">NCAA format: 32 game winners per side into the Final Four</p>
+                </div>
+                <div class="selection-bracket-layout">
+                    <div class="selection-side-block">
+                        <div class="selection-side-title">Left Side · ${leftSide.title} (32 Teams)</div>
+                        <div class="selection-side is-left">
+                            ${createSelectionSideColumnsHTML(leftSide, 'left', logoLookup)}
+                        </div>
+                    </div>
+
+                    <div class="selection-center-column">
+                        <div class="selection-round-title">Final Four</div>
+                        <div class="selection-final-four-list">
+                            ${finalFour.map(teamName => `
+                                <div class="selection-finalist-card">
+                                    <img src="${getTeamLogo(teamName, logoLookup)}" class="selection-logo" alt="${teamName}">
+                                    <span class="selection-team-text">${teamName}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="selection-round-title">Champion</div>
+                        <div class="selection-champion-card">
+                            <i class="fa-solid fa-trophy"></i>
+                            <img src="${getTeamLogo(champion, logoLookup)}" class="selection-logo" alt="${champion}">
+                            <span class="selection-team-text">${champion}</span>
+                        </div>
+                    </div>
+
+                    <div class="selection-side-block">
+                        <div class="selection-side-title">Right Side · ${rightSide.title} (32 Teams)</div>
+                        <div class="selection-side is-right">
+                            ${createSelectionSideColumnsHTML(rightSide, 'right', logoLookup)}
+                        </div>
+                    </div>
+                </div>
+            </section>
+        `;
+    };
+
     // D. Build the Full HTML String
     const htmlStructure = `
         <div class="header-12">
@@ -814,6 +1022,7 @@ export function renderBracket(weekId) {
             </div>
 
             ${createRegionHTML(data.regions[2])} ${createRegionHTML(data.regions[3])} </div>
+        ${createSelectionsBracketHTML(data.selections)}
     `;
 
     // E. Inject into DOM
