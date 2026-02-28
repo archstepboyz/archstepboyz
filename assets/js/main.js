@@ -1589,8 +1589,8 @@ window.switchPick = switchPick;
 
         function renderCardHTML(game, week) {
             // Check Consensus (5 pickers total)
-            const isAwayConsensus = game.away_picks?.length >= 4;
-            const isHomeConsensus = game.home_picks?.length >= 4;
+            const isAwayConsensus = game.away_picks?.length >= 4 && (!game.home_picks || game.home_picks.length == 0);
+            const isHomeConsensus = game.home_picks?.length >= 4 && (!game.away_picks || game.away_picks.length == 0);
 
             let awayClasses = [];
             let homeClasses = [];
