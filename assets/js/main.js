@@ -2638,9 +2638,12 @@ function getHotColdReport(games) {
   games.forEach(game => {
     const homePicks = game.home_picks || [];
     const awayPicks = game.away_picks || [];
+            
+    const isAwayConsensus = game.away_picks?.length >= 4 && (!game.home_picks || game.home_picks.length == 0);
+    const isHomeConsensus = game.home_picks?.length >= 4 && (!game.away_picks || game.away_picks.length == 0);
 
-    if (homePicks.length > 3 || awayPicks.length > 3) {
-      const pick = homePicks.length > 3 ? 'home' : 'away';
+    if (isAwayConsensus || isHomeConsensus) {
+      const pick = isHomeConsensus ? 'home' : 'away';
       let corr = pick === game.winner;
       let winnerId, loserId, winnerName, loserName;
 
