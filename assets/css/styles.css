@@ -62,6 +62,11 @@ overflow-x: auto;
 -webkit-overflow-scrolling: touch;
 }
 
+body.is-picks-view {
+width: 100%;
+max-width: none;
+}
+
 /* --- HEADER --- */
 .Header__Wrapper {
   position: relative;
@@ -1983,7 +1988,7 @@ max-height: 100px;
 /* PICKS PAGE */
 /* --- LAYOUT --- */
 .Unauthed-Picks {
-  display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 15px;
+  display: flex; justify-content: center; align-items: stretch; gap: 15px; margin-top: 15px; width: 100%;
 }
         .tweet-sojr {
             display: none;
@@ -2076,41 +2081,47 @@ max-height: 100px;
     input:checked + .slider { background-color: #00b894; }
     input:checked + .slider:before { transform: translateX(20px); }
 
-    .Picks-Container {
+    .Unauthed-Picks .Picks-Container {
         display: flex;
         flex-wrap: wrap; 
         gap: 10px;
-        max-width: 600px;
+        width: 100%;
+        max-width: none;
         margin: 0 auto;
-        padding: 10px 0;
+        padding: 10px 8px;
     }
     
-    .Picks-List {
-        display: flex;
-        flex-wrap: wrap; 
+    .Unauthed-Picks .Picks-List {
+        --matchup-column-count: 2;
+        display: grid;
+        grid-template-columns: repeat(var(--matchup-column-count), minmax(0, 1fr));
         gap: 10px;
-        max-width: 600px;
-        margin: 0 auto;
+        width: 100%;
+        max-width: none;
+        margin: 0;
         padding: 10px 0;
+        align-items: start;
+        flex: 1 1 100%;
     }
     
-    .Matchup-Column {
-        flex: 0 0 calc(50% - 5px);
+    .Unauthed-Picks .Matchup-Column {
         display: flex;
         flex-direction: column;
         gap: 10px;
-
         min-width: 0;
     }
-    .matchupsB {
-      margin-top: 16px;
+
+    .Unauthed-Picks .Picks-List > .Date-Separator,
+    .Unauthed-Picks .Picks-List > .Tracker-Wrapper-Left,
+    .Unauthed-Picks .Picks-List > .tweet-content {
+        grid-column: 1 / -1;
     }
 
-    /*
-    @media(min-width: 150px) {
-        .Matchup-Column { flex: 1 1 45%; }
+    .Unauthed-Picks .Picks-List > .tweet-content {
+        min-width: 0;
+        width: 100%;
+        padding: 4px 0 8px 0;
     }
-    */
 
     /* --- GAME CARD --- */
     .Game-Slip {
@@ -2224,6 +2235,7 @@ max-height: 100px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 6px;
     padding: 8px 12px;
     font-size: 10px;
     color: #4A505E;
@@ -2234,10 +2246,20 @@ max-height: 100px;
     position: relative;
 }
 
+.Meta-Item {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .Broadcast-Badge {
   display: flex;
   align-items: center;
   gap: 6px; /* Space between icon and text */
+  min-width: 0;
+  max-width: 45%;
+  flex-shrink: 1;
   color: #2d3436;
   
   background-color: #dfe6e9; /* Light gray pill background */
@@ -2246,8 +2268,20 @@ max-height: 100px;
   border: 1px solid rgba(0,0,0,0.05);
 }
 
+.Broadcast-Badge.is-empty {
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .Broadcast-Badge i {
   color: #636e72;
+}
+
+.Broadcast-Badge span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
     /* --- TEAM SECTION STYLING --- */
@@ -2274,6 +2308,7 @@ max-height: 100px;
         align-items: center;
         gap: 10px;
         margin-bottom: 8px;
+        min-width: 0;
     }
 
     .Team__Logo {
@@ -2287,6 +2322,8 @@ max-height: 100px;
     .Team__Text {
         display: flex;
         flex-direction: column;
+        min-width: 0;
+        flex: 1;
     }
 
     .Team__Name {
@@ -2296,6 +2333,9 @@ max-height: 100px;
         color: #2d3436;
         line-height: 1.1;
         transition: color 0.3s ease;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .Team__Record {
@@ -2303,6 +2343,9 @@ max-height: 100px;
         color: #636e72;
         font-weight: 500;
         transition: color 0.3s ease;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
 .Score-Badge {

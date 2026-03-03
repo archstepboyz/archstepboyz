@@ -427,8 +427,14 @@ let setActive;
   const statsBtn = document.getElementById("statsViewBtn");
   const bracketBtn = document.getElementById("bracketViewBtn");
   const mainContent = document.getElementById("MainContent");
+  const picksContainer = document.querySelector(".Unauthed-Picks .Picks-Container");
+
+  function setPicksViewportMode(isPicksView) {
+    document.body.classList.toggle("is-picks-view", isPicksView);
+  }
 
   function switchToGrid() {
+    setPicksViewportMode(false);
     gridBtn.classList.add("active");
     listBtn.classList.remove("active");
     picksBtn.classList.remove("active");
@@ -444,8 +450,7 @@ let setActive;
     save.style.display = "none";
     const table = document.querySelector(".table-container");
     table.style.display = "flex";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "none";
+    if (picksContainer) picksContainer.style.display = "none";
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -457,6 +462,7 @@ let setActive;
   }
 
   function switchToList() {
+    setPicksViewportMode(false);
     listBtn.classList.add("active");
     gridBtn.classList.remove("active");
     picksBtn.classList.remove("active");
@@ -472,8 +478,7 @@ let setActive;
     fab.style.display = "flex";
     const save = document.querySelector(".Fab-Save");
     save.style.display = "none";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "none";
+    if (picksContainer) picksContainer.style.display = "none";
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -485,6 +490,7 @@ let setActive;
   }
 
   function switchToPicks() {
+    setPicksViewportMode(true);
     listBtn.classList.remove("active");
     gridBtn.classList.remove("active");
     picksBtn.classList.add("active");
@@ -500,8 +506,7 @@ let setActive;
     fab.style.display = "none";
     const save = document.querySelector(".Fab-Save");
     //save.style.display = "flex";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "flex";
+    if (picksContainer) picksContainer.style.display = "flex";
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "flex";
     const ballot = document.querySelector(".Top25-Container");
@@ -513,6 +518,7 @@ let setActive;
   }
 
   function switchToTop25() {
+    setPicksViewportMode(false);
     listBtn.classList.remove("active");
     gridBtn.classList.remove("active");
     picksBtn.classList.remove("active");
@@ -528,8 +534,7 @@ let setActive;
     fab.style.display = "none";
     const save = document.querySelector(".Fab-Save");
     save.style.display = "none";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "none";
+    if (picksContainer) picksContainer.style.display = "none";
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     if (CURRENT_WEEK >= 11) {
@@ -544,6 +549,7 @@ let setActive;
   }
 
   function switchToStats() {
+    setPicksViewportMode(false);
     listBtn.classList.remove("active");
     gridBtn.classList.remove("active");
     picksBtn.classList.remove("active");
@@ -557,8 +563,7 @@ let setActive;
     list.style.display = "none";
     const fab = document.querySelector(".Fab-Wrapper");
     fab.style.display = "none";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "none";
+    if (picksContainer) picksContainer.style.display = "none";
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -570,6 +575,7 @@ let setActive;
   }
   
 function switchToBracket() {
+    setPicksViewportMode(false);
     listBtn.classList.remove("active");
     gridBtn.classList.remove("active");
     picksBtn.classList.remove("active");
@@ -583,8 +589,7 @@ function switchToBracket() {
     list.style.display = "none";
     const fab = document.querySelector(".Fab-Wrapper");
     fab.style.display = "none";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "none";
+    if (picksContainer) picksContainer.style.display = "none";
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -1654,7 +1659,8 @@ window.switchPick = switchPick;
             const awayRecord = game.away_torvik ? `${game.away_record} | Torvik: ${game.away_torvik}` : `${game.away_record}`;
             const homeRecord = game.home_torvik ? `${game.home_record} | Torvik: ${game.home_torvik}` : `${game.home_record}`;
 
-            const tv = game.tv ? `<div class="Broadcast-Badge"><i class="fa-solid fa-tv"></i> <span>${game.tv}</span></div>` : '';  
+            const tvText = typeof game.tv === 'string' ? game.tv.trim() : '';
+            const tv = `<div class="Broadcast-Badge${tvText ? '' : ' is-empty'}"><i class="fa-solid fa-tv"></i> <span>${tvText || 'TV'}</span></div>`;  
 
             return `
             <div class="Game-Slip ${gameClasses}" id="game-${game.id}">
@@ -1716,6 +1722,28 @@ window.switchPick = switchPick;
             }
         }
 
+        function getMatchupColumnCount() {
+            const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+            if (viewportWidth <= 768) return 2;
+            if (viewportWidth >= 1700) return 6;
+            if (viewportWidth >= 1024) return 5;
+            return 3;
+        }
+
+        function insertMatchupColumns(container, dayIndex, groupKey, insertPosition, columnCount) {
+            if (!container) return;
+            const columnIndexes = Array.from({ length: columnCount }, (_, idx) => idx + 1);
+            if (insertPosition === 'afterbegin' || insertPosition === 'afterend') {
+                columnIndexes.reverse();
+            }
+            columnIndexes.forEach((columnIndex) => {
+                container.insertAdjacentHTML(
+                    insertPosition,
+                    `<div class="Matchup-Column" id="${dayIndex}-${groupKey}-col-${columnIndex}"></div>`
+                );
+            });
+        }
+
         async function renderAll(forceRefresh = false) {
             document.querySelector('.Legend-Wrapper').style.display = showingAllPicks ? 'flex' : 'none';
             renderLegend();
@@ -1724,6 +1752,9 @@ window.switchPick = switchPick;
             const finalList = document.getElementById('picks-final');
             list.innerHTML = '';
             finalList.innerHTML = '';
+            const matchupColumnCount = getMatchupColumnCount();
+            list.style.setProperty('--matchup-column-count', matchupColumnCount);
+            finalList.style.setProperty('--matchup-column-count', matchupColumnCount);
             const week = document.querySelector('.Week-Select-Input')?.value.split(' ').at(-1) ?? '9';
             
             if (GAMES.length === 0 || forceRefresh) {
@@ -1804,8 +1835,8 @@ window.switchPick = switchPick;
                   sep = true;
                 }
                 sojrLast = game.rothstein;
-                if (!indexBrk[sojrLast]) {
-                  indexBrk[sojrLast] = 1;
+                if (indexBrk[sojrLast] == null) {
+                  indexBrk[sojrLast] = 0;
                 }
               }
 
@@ -1813,24 +1844,21 @@ window.switchPick = switchPick;
                 if (notCompleted) {
                   list.insertAdjacentHTML('beforeend', separatorHTML);
                   list.insertAdjacentHTML('beforeend', filterHTML);
-                  list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column matchupsA" id="${days}-${sojrLast}-col-1"></div>`);
-                  list.insertAdjacentHTML('beforeend', `<div class="Matchup-Column matchupsB" id="${days}-${sojrLast}-col-2"></div>`);
+                  insertMatchupColumns(list, days, sojrLast, 'beforeend', matchupColumnCount);
                   if (separatorHTML !== '') {
                     indexBrk = { 'all': 0 };
-                    indexBrk[sojrLast] =  1;
+                    indexBrk[sojrLast] = 0;
                   }
                 } else {
                   if (separatorHTML !== '') {
-                    finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column matchupsB" id="${days}-${sojrLast}-col-2"></div>`);
-                    finalList.insertAdjacentHTML('afterbegin', `<div class="Matchup-Column matchupsA" id="${days}-${sojrLast}-col-1"></div>`);
+                    insertMatchupColumns(finalList, days, sojrLast, 'afterbegin', matchupColumnCount);
                     finalList.insertAdjacentHTML('afterbegin', filterHTML);
                     finalList.insertAdjacentHTML('afterbegin', separatorHTML);
                     indexBrk = { 'all': 0 };
-                    indexBrk[sojrLast] =  1;
+                    indexBrk[sojrLast] = 0;
                   } else {
                     const tempList = document.getElementById(`${days}-tracker-sep`);
-                    tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column matchupsB" id="${days}-${sojrLast}-col-2"></div>`);
-                    tempList.insertAdjacentHTML('afterend', `<div class="Matchup-Column matchupsA" id="${days}-${sojrLast}-col-1"></div>`);
+                    insertMatchupColumns(tempList, days, sojrLast, 'afterend', matchupColumnCount);
                     tempList.insertAdjacentHTML('afterend', filterHTML);
                   }
                 }
@@ -1839,17 +1867,13 @@ window.switchPick = switchPick;
                 updateCompactTracker(todaysPicks, todaysTotal, todaysDate);
               }
               
-                const colA = document.getElementById(`${days}-${sojrLast}-col-1`);
-                const colB = document.getElementById(`${days}-${sojrLast}-col-2`);
-
                 const cardHTML = renderCardHTML(game, week);
-                if ((indexBrk[sojrLast] + 1) % 2 === 0) {
-                    colA.insertAdjacentHTML(notCompleted ? 'beforeend' : 'afterbegin', cardHTML);
-                    indexBrk[sojrLast] += 1;
-                } else {
-                    colB.insertAdjacentHTML(notCompleted ? 'beforeend' : 'afterbegin', cardHTML);
-                    indexBrk[sojrLast] += 1;
+                const targetColumnIndex = (indexBrk[sojrLast] % matchupColumnCount) + 1;
+                const targetColumn = document.getElementById(`${days}-${sojrLast}-col-${targetColumnIndex}`);
+                if (targetColumn) {
+                    targetColumn.insertAdjacentHTML(notCompleted ? 'beforeend' : 'afterbegin', cardHTML);
                 }
+                indexBrk[sojrLast] += 1;
             });
         }
 
@@ -2305,8 +2329,8 @@ window.unsubmitBallot = unsubmitBallot;
 const isUserLoggedIn = false;
 if (!isUserLoggedIn) {
   document.getElementById('gatekeeper').classList.add('active');
-  const cont = document.querySelector('.Picks-Container');
-  cont.classList.add('is-locked');
+  const cont = document.querySelector('.Unauthed-Picks .Picks-Container');
+  if (cont) cont.classList.add('is-locked');
 }
 
 function simulateLogin() {
