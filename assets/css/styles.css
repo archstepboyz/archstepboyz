@@ -1066,6 +1066,104 @@ opacity: 0.9;
   to { opacity: 1; transform: translateY(0); }
 }
 
+.conf-tourney-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+/* Styles for the "pressed" or "active" state */
+.conf-tourney-btn.active {
+    background-color: #007BFF; /* Change background color */
+    color: white; /* Change text color */
+    border-color: #0056b3;
+    /* You could also add an inset shadow for a more "pushed in" look */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+aside.inline.inline-table {
+    padding: 15px;
+    clear: both;
+    margin: 6px 0 18px;
+    width: 100%;
+    border: 1px solid #dcdddf;
+unicode-bidi: isolate;
+}
+
+.conf-tourney-table {
+    font-variant-numeric: tabular-nums;
+    position: relative;
+    width: 100%;
+    color: #48494a;
+    border-collapse: collapse;
+    border-spacing: 0;
+display: table;
+text-indent: initial;
+unicode-bidi: isolate;
+border-color: gray;
+    clear: both;
+    margin: 6px 0 18px;
+    width: 100%;
+    border: 1px solid #dcdddf;
+    display: flex;
+    flex-direction: column;
+}
+
+.conf-tourney-table tbody tr:nth-child(even) {
+  background: rgba(0, 0, 0, 0.017);
+}
+
+.conf-tourney-header {
+display: table-header-group;
+    vertical-align: middle;
+    unicode-bidi: isolate;
+    border-color: inherit;
+}
+
+.conf-tourney-row {
+    text-align: right;
+    border-top: 1px solid #edeef0;
+    display: table-row;
+    vertical-align: inherit;
+    unicode-bidi: isolate;
+    border-color: inherit;
+}
+
+.conf-tourney-cell {
+    display: table-cell;
+    vertical-align: inherit;
+    unicode-bidi: isolate;
+    font-size: 12px;
+    font-weight: 400;
+    height: 28px;
+    line-height: 1.2;
+    padding: 1px 4px 0 4px;
+    margin: 0;
+    text-transform: none;
+    white-space: nowrap;
+    color: #48494a;
+}
+
+.conf-tourney-head {
+    display: table-cell;
+    vertical-align: inherit;
+    font-weight: bold;
+    text-align: -internal-center;
+    text-align: right;
+    unicode-bidi: isolate;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 0 4px;
+    position: relative;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: #1d1e1f;
+    border-bottom: 1px #dcdddf solid;
+}
+
 /* LIST */
 .list-container {
   display: none;

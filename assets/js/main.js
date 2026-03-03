@@ -250,6 +250,27 @@ function updateCompactTracker(current, total, id) {
 
 
 
+const confTourneyBtn = document.querySelector('.conf-tourney-btn');
+
+confTourneyBtn.addEventListener('click', function() {
+    // Toggles the 'active' class on each click
+    this.classList.toggle('active');
+
+    // Also update ARIA attribute for accessibility
+    const isPressed = this.classList.contains('active');
+    this.setAttribute('aria-pressed', isPressed);
+
+    if (isPressed) {
+      document.querySelector('.conf-tourney-table').style.display = 'flex';
+      document.querySelector('.Picks-Container').style.display = 'none';
+    } else {
+      document.querySelector('.conf-tourney-table').style.display = 'none';
+      document.querySelector('.Picks-Container').style.display = 'flex';
+    }
+});
+
+
+
 /* GLOBAL VARS */
 
 const currentDate = new Date();
@@ -446,6 +467,7 @@ let setActive;
     table.style.display = "flex";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    document.querySelector('.conf-tourney-table').style.display = 'none';
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -474,6 +496,7 @@ let setActive;
     save.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    document.querySelector('.conf-tourney-table').style.display = 'none';
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -501,7 +524,13 @@ let setActive;
     const save = document.querySelector(".Fab-Save");
     //save.style.display = "flex";
     const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "flex";
+    if (document.querySelector('.conf-tourney-btn').classList.contains('active')) {
+      document.querySelector('.conf-tourney-table').style.display = 'flex';
+      picks.style.display = "none";
+    } else {
+      document.querySelector('.conf-tourney-table').style.display = 'none';
+      picks.style.display = "flex";
+    }
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "flex";
     const ballot = document.querySelector(".Top25-Container");
@@ -530,6 +559,7 @@ let setActive;
     save.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    document.querySelector('.conf-tourney-table').style.display = 'none';
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     if (CURRENT_WEEK >= 11) {
@@ -559,6 +589,7 @@ let setActive;
     fab.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    document.querySelector('.conf-tourney-table').style.display = 'none';
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -585,6 +616,7 @@ function switchToBracket() {
     fab.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    document.querySelector('.conf-tourney-table').style.display = 'none';
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
