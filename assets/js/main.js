@@ -100,6 +100,7 @@ loginForm.addEventListener('submit', async function(event) {
   event.preventDefault();
   await handleLogin(usernameInput, passwordInput);
   authedUserDisplay(loginBtn, unauthedPicksContainer, menuContainer, userDisplay, userAvatar, deleteCommentBtns);
+  renderConfTourneyTable();
   closeLoginModal();
 });
 
@@ -279,6 +280,325 @@ var TEAMS;
 var FILTER = null;
 
 let showingAllPicks = false;
+let showingConfTourney = false;
+let activeSelectorSource = 'top25';
+let activeConfTourneyId = null;
+
+const confTourneyBtn = document.getElementById('confTourneyBtn');
+const confTourneySection = document.getElementById('confTourneySection');
+
+// Mock-only conference tourney picks state.
+const mockDB = {
+  status: 'draft',
+  currentUserId: 'ME',
+  users: [
+    { id: 'ME', label: 'My Picks' },
+    { id: 'FE', label: 'FearTheBeak' },
+    { id: 'GA', label: 'Gayson' },
+    { id: 'NO', label: 'NotFlorida' },
+  ],
+  tournaments: [
+    {
+      id: 'ohio-valley',
+      conf: 'Ohio Valley (Evansville, Ind.)',
+      tip: '3/4, 8 p.m. ET (ESPN2)',
+      options: [
+        { id: '2634', name: 'Tennessee St' },
+        { id: '2413', name: 'Morehead St' },
+      ],
+    },
+    {
+      id: 'big-south',
+      conf: 'Big South (Charlotte, N.C.)',
+      tip: '3/5, 1 p.m. ET (ESPN2)',
+      options: [
+        { id: '2344', name: 'Longwood' },
+        { id: '2427', name: 'UNC Asheville' },
+      ],
+    },
+    {
+      id: 'missouri-valley',
+      conf: 'Missouri Valley (St. Louis)',
+      tip: '3/5, 2 p.m. ET (CBS)',
+      options: [
+        { id: '2181', name: 'Drake' },
+        { id: '71', name: 'Bradley' },
+      ],
+    },
+    {
+      id: 'asun',
+      conf: 'ASUN (Campus)',
+      tip: '3/5, 3 p.m. ET (ESPN2)',
+      options: [
+        { id: '2335', name: 'Liberty' },
+        { id: '338', name: 'Kennesaw St.' },
+      ],
+    },
+    {
+      id: 'southern',
+      conf: 'Southern (Asheville, N.C.)',
+      tip: '3/6, 7 p.m. ET (ESPN)',
+      options: [
+        { id: '2430', name: 'UNC Greensboro' },
+        { id: '231', name: 'Furman' },
+      ],
+    },
+    {
+      id: 'sun-belt',
+      conf: 'Sun Belt (Pensacola, Fla.)',
+      tip: '3/6, 7 p.m. ET (ESPN2)',
+      options: [
+        { id: '6', name: 'South Alabama' },
+        { id: '276', name: 'Marshall' },
+      ],
+    },
+    {
+      id: 'west-coast',
+      conf: 'West Coast (Las Vegas)',
+      tip: '3/7, 9 p.m. ET (ESPN)',
+      options: [
+        { id: '2250', name: 'Gonzaga' },
+        { id: '2608', name: "Saint Mary's" },
+      ],
+    },
+    {
+      id: 'big-12',
+      conf: 'Big 12 (Kansas City, Mo.)',
+      tip: '3/11, 6 p.m. ET',
+      options: [
+        { id: '239', name: 'Baylor' },
+        { id: '2305', name: 'Kansas' },
+      ],
+    },
+    {
+      id: 'big-east',
+      conf: 'Big East (New York City)',
+      tip: '3/11, 6:30 p.m. ET (FOX)',
+      options: [
+        { id: '41', name: 'UConn' },
+        { id: '156', name: 'Creighton' },
+      ],
+    },
+    {
+      id: 'sec',
+      conf: 'SEC (Nashville)',
+      tip: '3/12, 1 p.m. ET (ESPN)',
+      options: [
+        { id: '333', name: 'Alabama' },
+        { id: '96', name: 'Kentucky' },
+      ],
+    },
+    {
+      id: 'big-ten',
+      conf: 'Big Ten (Chicago)',
+      tip: '3/12, 3:30 p.m. ET (CBS)',
+      options: [
+        { id: '2509', name: 'Purdue' },
+        { id: '84', name: 'Indiana' },
+      ],
+    },
+  ],
+  picks: {
+    ME: {
+      'ohio-valley': null,
+      'big-south': '2344',
+      'missouri-valley': null,
+      asun: '2335',
+      southern: '231',
+      'sun-belt': null,
+      'west-coast': '2608',
+      'big-12': null,
+      'big-east': '41',
+      sec: '333',
+      'big-ten': null,
+    },
+    FE: {
+      'ohio-valley': '2634',
+      'big-south': '2344',
+      'missouri-valley': '2181',
+      asun: '2335',
+      southern: '2430',
+      'sun-belt': '6',
+      'west-coast': '2250',
+      'big-12': '239',
+      'big-east': '41',
+      sec: '333',
+      'big-ten': '2509',
+    },
+    GA: {
+      'ohio-valley': '2413',
+      'big-south': '2427',
+      'missouri-valley': '71',
+      asun: '338',
+      southern: '231',
+      'sun-belt': '276',
+      'west-coast': '2608',
+      'big-12': '239',
+      'big-east': '156',
+      sec: '333',
+      'big-ten': '84',
+    },
+    NO: {
+      'ohio-valley': '2413',
+      'big-south': '2344',
+      'missouri-valley': '2181',
+      asun: '2335',
+      southern: '231',
+      'sun-belt': '276',
+      'west-coast': '2608',
+      'big-12': '2305',
+      'big-east': '41',
+      sec: '96',
+      'big-ten': '2509',
+    },
+  },
+};
+
+function getConfTourneyColumns() {
+  const currentLabel = getCurrentUser()?.username
+    ? `${getCurrentUser().username} (You)`
+    : 'My Picks';
+  const me = mockDB.users.find((user) => user.id === mockDB.currentUserId);
+  const others = mockDB.users.filter((user) => user.id !== mockDB.currentUserId);
+
+  if (!me) return others;
+  return [{ ...me, label: currentLabel }, ...others];
+}
+
+function renderConfPickCell(tourney, teamId, isMasked, isEditable) {
+  if (isMasked) {
+    return `
+      <div class="conf-tourney-pick is-masked">
+        <span class="conf-tourney-mask">?</span>
+      </div>
+    `;
+  }
+
+  if (!teamId) {
+    return `<div class="conf-tourney-pick is-empty">${isEditable ? 'Tap to choose' : '-'}</div>`;
+  }
+
+  const team = tourney.options.find((opt) => String(opt.id) === String(teamId));
+  if (!team) {
+    return '<div class="conf-tourney-pick is-empty">-</div>';
+  }
+
+  return `
+    <div class="conf-tourney-pick">
+      <img class="conf-tourney-pick-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200" alt="${team.name}">
+      <span class="conf-tourney-pick-name">${team.name}</span>
+    </div>
+  `;
+}
+
+function renderConfTourneyTable() {
+  const tableHead = document.getElementById('confTourneyHead');
+  const tableBody = document.getElementById('confTourneyBody');
+  const stateChip = document.getElementById('confTourneyStateChip');
+  const submitBtn = document.getElementById('confTourneySubmitBtn');
+  const resetBtn = document.getElementById('confTourneyResetBtn');
+
+  if (!tableHead || !tableBody) return;
+
+  const isSubmitted = mockDB.status === 'submitted';
+  const hideOtherUsers = !isSubmitted;
+  const columns = getConfTourneyColumns();
+
+  tableHead.innerHTML = `
+    <tr class="conf-tourney-row">
+      <th class="conf-tourney-head conf-tourney-head--meta">Conference</th>
+      ${columns.map((user) => `<th class="conf-tourney-head">${user.label}</th>`).join('')}
+    </tr>
+  `;
+
+  tableBody.innerHTML = mockDB.tournaments
+    .map((tourney) => {
+      const cells = columns
+        .map((user) => {
+          const isCurrentUser = user.id === mockDB.currentUserId;
+          const isEditable = isCurrentUser && !isSubmitted;
+          const pickId = mockDB.picks[user.id]?.[tourney.id] ?? null;
+          const masked = hideOtherUsers && !isCurrentUser;
+          const clickAction = isEditable ? `onclick="openConfTourneySelector('${tourney.id}')"` : '';
+          const pickableClass = isEditable ? 'is-pickable' : '';
+
+          return `
+            <td class="conf-tourney-cell ${pickableClass}" ${clickAction}>
+              ${renderConfPickCell(tourney, pickId, masked, isEditable)}
+            </td>
+          `;
+        })
+        .join('');
+
+      return `
+        <tr class="conf-tourney-row">
+          <td class="conf-tourney-cell conf-tourney-cell--meta">
+            <div class="conf-tourney-conf">${tourney.conf}</div>
+            <div class="conf-tourney-time">${tourney.tip}</div>
+          </td>
+          ${cells}
+        </tr>
+      `;
+    })
+    .join('');
+
+  if (stateChip) {
+    stateChip.textContent = isSubmitted ? 'Submitted' : 'Draft';
+    stateChip.classList.toggle('is-submitted', isSubmitted);
+  }
+  if (submitBtn) {
+    submitBtn.style.display = isSubmitted ? 'none' : 'inline-flex';
+  }
+  if (resetBtn) {
+    resetBtn.style.display = isSubmitted ? 'inline-flex' : 'none';
+  }
+}
+
+function setConfTourneyVisibility(shouldShow) {
+  showingConfTourney = shouldShow;
+
+  if (confTourneyBtn) {
+    confTourneyBtn.classList.toggle('active', shouldShow);
+    confTourneyBtn.setAttribute('aria-pressed', String(shouldShow));
+  }
+  if (confTourneySection) {
+    confTourneySection.classList.toggle('is-visible', shouldShow);
+  }
+
+  const picksContainer = document.querySelector('.Picks-Container');
+  if (picksContainer) {
+    picksContainer.style.display = shouldShow ? 'none' : 'flex';
+  }
+
+  if (shouldShow) {
+    renderConfTourneyTable();
+  }
+}
+
+function submitConfTourneyPicks() {
+  const myPicks = mockDB.picks[mockDB.currentUserId] ?? {};
+  const missing = mockDB.tournaments.filter((tourney) => !myPicks[tourney.id]);
+  if (missing.length > 0) {
+    return alert(`Select winners for all conferences before submitting (${missing.length} remaining).`);
+  }
+
+  mockDB.status = 'submitted';
+  renderConfTourneyTable();
+}
+window.submitConfTourneyPicks = submitConfTourneyPicks;
+
+function reopenConfTourneyDraft() {
+  mockDB.status = 'draft';
+  renderConfTourneyTable();
+}
+window.reopenConfTourneyDraft = reopenConfTourneyDraft;
+
+if (confTourneyBtn) {
+  confTourneyBtn.addEventListener('click', () => {
+    setConfTourneyVisibility(!showingConfTourney);
+  });
+}
+renderConfTourneyTable();
 
 function changeWeekView(week) {
   CURRENT_WEEK = week;
@@ -396,6 +716,7 @@ async function isUserSignedIn() {
   if (data?.session) {
     setCurrentUser(data.session.user?.user_metadata);
     authedUserDisplay(loginBtn, unauthedPicksContainer, menuContainer, userDisplay, userAvatar, deleteCommentBtns);
+    renderConfTourneyTable();
   }
   // TODO: move
   if (getCurrentUser()?.username === "fearthebeak") {
@@ -446,6 +767,7 @@ let setActive;
     table.style.display = "flex";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -474,6 +796,7 @@ let setActive;
     save.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -500,8 +823,7 @@ let setActive;
     fab.style.display = "none";
     const save = document.querySelector(".Fab-Save");
     //save.style.display = "flex";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "flex";
+    setConfTourneyVisibility(showingConfTourney);
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "flex";
     const ballot = document.querySelector(".Top25-Container");
@@ -530,6 +852,7 @@ let setActive;
     save.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     if (CURRENT_WEEK >= 11) {
@@ -559,6 +882,7 @@ let setActive;
     fab.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -585,6 +909,7 @@ function switchToBracket() {
     fab.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
@@ -781,6 +1106,7 @@ function switchToBracket() {
     if (getCurrentUser()) {
       authedUserDisplay(loginBtn, unauthedPicksContainer, menuContainer, userDisplay, userAvatar, deleteCommentBtns);
     }
+    renderConfTourneyTable();
   });
 
   isUserSignedIn();
@@ -2105,13 +2431,35 @@ window.switchView = switchView;
 // --- MODAL & SEARCH ---
 
 function openSelector(index) {
+    activeSelectorSource = 'top25';
+    activeConfTourneyId = null;
     activeRowIndex = index;
+    const modalHeader = document.getElementById('teamModalHeader');
+    if (modalHeader) modalHeader.textContent = 'Select Team';
     document.getElementById('teamSearch').value = ''; // Reset Search
     renderTeamGrid();
     modal1.classList.add('active');
     setTimeout(() => document.getElementById('teamSearch').focus(), 100);
 }
 window.openSelector = openSelector;
+
+function openConfTourneySelector(tourneyId) {
+    if (mockDB.status === 'submitted') return;
+    activeSelectorSource = 'conf-tourney';
+    activeConfTourneyId = tourneyId;
+
+    const modalHeader = document.getElementById('teamModalHeader');
+    const tourney = mockDB.tournaments.find((item) => item.id === tourneyId);
+    if (modalHeader) {
+      modalHeader.textContent = tourney ? `Pick Winner: ${tourney.conf}` : 'Select Team';
+    }
+
+    document.getElementById('teamSearch').value = '';
+    renderTeamGrid();
+    modal1.classList.add('active');
+    setTimeout(() => document.getElementById('teamSearch').focus(), 100);
+}
+window.openConfTourneySelector = openConfTourneySelector;
 
 function filterTeams() {
     const query = document.getElementById('teamSearch').value.toLowerCase();
@@ -2131,6 +2479,29 @@ window.filterTeams = filterTeams;
 function renderTeamGrid() {
     const grid = document.getElementById('teamGrid');
     grid.innerHTML = '';
+
+    if (activeSelectorSource === 'conf-tourney') {
+        const tourney = mockDB.tournaments.find((item) => item.id === activeConfTourneyId);
+        if (!tourney) return;
+
+        const selectedTeamId = mockDB.picks[mockDB.currentUserId]?.[tourney.id];
+        for (const team of tourney.options) {
+            const isSelected = String(selectedTeamId) === String(team.id);
+            const selectedStyle = isSelected ? 'border-color: #0984e3; background: #f0f8ff;' : '';
+            const html = `
+                <div class="Selectable-Team"
+                     style="${selectedStyle}"
+                     onclick="selectTeam('${team.id}')"
+                     data-name="${team.name}">
+                    <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200">
+                    <span>${team.name}</span>
+                    ${isSelected ? '<i class="fa-solid fa-check" style="margin-left:auto; color:#0984e3;"></i>' : ''}
+                </div>
+            `;
+            grid.insertAdjacentHTML('beforeend', html);
+        }
+        return;
+    }
 
     const usedTeams = draftBallot.filter(t => t != 0);
 
@@ -2155,6 +2526,17 @@ function renderTeamGrid() {
 }
 
 function selectTeam(teamKey) {
+    if (activeSelectorSource === 'conf-tourney') {
+        if (!activeConfTourneyId) return;
+        if (!mockDB.picks[mockDB.currentUserId]) {
+            mockDB.picks[mockDB.currentUserId] = {};
+        }
+        mockDB.picks[mockDB.currentUserId][activeConfTourneyId] = String(teamKey);
+        closeModal();
+        renderConfTourneyTable();
+        return;
+    }
+
     draftBallot[activeRowIndex] = teamKey;
     closeModal();
     renderBallot();

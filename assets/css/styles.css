@@ -1066,6 +1066,228 @@ opacity: 0.9;
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- CONF TOURNEY PICKS --- */
+.conf-tourney-btn {
+  font-family: var(--font-stack);
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--text-main);
+  background-color: var(--bg-track);
+  border: none;
+  border-radius: 30px;
+  padding: 0 16px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.conf-tourney-btn:hover {
+  background-color: #d1d8dd;
+}
+
+.conf-tourney-btn.active {
+  background: linear-gradient(135deg, #2d3436, #1f2527);
+  color: #ffffff;
+}
+
+.conference-tournaments {
+  display: none;
+  flex-direction: column;
+  width: 100vw;
+  min-width: 400px;
+  max-width: 600px;
+  margin: 0 auto 12px auto;
+  gap: 10px;
+  animation: fadeInDown 0.25s ease-out;
+}
+
+.conference-tournaments.is-visible {
+  display: flex;
+}
+
+.conf-tourney-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.conf-tourney-state-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: #8e8e93;
+  background: #f1f2f6;
+  border: 1px solid #dfe6e9;
+}
+
+.conf-tourney-state-chip.is-submitted {
+  color: #0f5132;
+  background: #d1fae5;
+  border-color: #a7f3d0;
+}
+
+.conf-tourney-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.conf-tourney-reset-btn {
+  display: none;
+  border: 1px solid #dfe6e9;
+  background: #ffffff;
+  color: #636e72;
+  border-radius: 20px;
+  height: 34px;
+  padding: 0 12px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.conf-tourney-reset-btn:hover {
+  background: #f7f8fa;
+}
+
+.conf-tourney-table-shell {
+  background: #ffffff;
+  border: 1px solid #e8ecef;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+  overflow-x: auto;
+}
+
+.conf-tourney-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #2d3436;
+  table-layout: fixed;
+}
+
+.conf-tourney-header .conf-tourney-head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #f8f9fb;
+  border-bottom: 1px solid #e8ecef;
+  padding: 10px 8px;
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  text-align: center;
+  color: #636e72;
+}
+
+.conf-tourney-head.conf-tourney-head--meta {
+  text-align: left;
+  min-width: 210px;
+  width: 210px;
+}
+
+.conf-tourney-row:nth-child(even) .conf-tourney-cell {
+  background: rgba(0, 0, 0, 0.015);
+}
+
+.conf-tourney-cell {
+  border-top: 1px solid #f1f2f6;
+  padding: 8px;
+  vertical-align: middle;
+}
+
+.conf-tourney-cell--meta {
+  min-width: 210px;
+  width: 210px;
+}
+
+.conf-tourney-conf {
+  font-family: 'Oswald', sans-serif;
+  font-size: 15px;
+  color: #2d3436;
+}
+
+.conf-tourney-time {
+  margin-top: 2px;
+  font-size: 12px;
+  color: #8e8e93;
+}
+
+.conf-tourney-cell.is-pickable {
+  cursor: pointer;
+}
+
+.conf-tourney-cell.is-pickable .conf-tourney-pick {
+  border-color: #cfd6dd;
+}
+
+.conf-tourney-cell.is-pickable:hover .conf-tourney-pick {
+  border-color: #6c8fb8;
+  background: #f7fbff;
+}
+
+.conf-tourney-pick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  border: 1px solid #e5e9ed;
+  border-radius: 10px;
+  background: #ffffff;
+  padding: 6px;
+  text-align: center;
+}
+
+.conf-tourney-pick-logo {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.conf-tourney-pick-name {
+  font-family: 'Oswald', sans-serif;
+  font-size: 13px;
+  color: #2d3436;
+  line-height: 1.2;
+}
+
+.conf-tourney-pick.is-empty {
+  color: #8e8e93;
+  font-family: 'Oswald', sans-serif;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.conf-tourney-pick.is-masked {
+  border-style: dashed;
+  border-color: #d5dbe1;
+  background: #f8f9fb;
+}
+
+.conf-tourney-mask {
+  font-family: 'Fugaz One', cursive;
+  font-size: 22px;
+  color: #8e8e93;
+  line-height: 1;
+}
+
 /* LIST */
 .list-container {
   display: none;

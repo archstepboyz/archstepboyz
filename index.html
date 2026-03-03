@@ -172,6 +172,9 @@
       </div>
     </div>
     <div class="Menu-Options" id="picksMenu">
+      <button id="confTourneyBtn" class="conf-tourney-btn" aria-pressed="false">
+        <i class="fa-solid fa-trophy"></i> Conference Tourney
+      </button>
       <div class="Filter-Dropdown-Container">
         <button class="Filter-Trigger-Btn" onclick=
         "toggleFilters()"><svg xmlns="http://www.w3.org/2000/svg"
@@ -790,6 +793,24 @@
 </div>
 
   <div class="Unauthed-Picks" style="display:none;">
+    <div class="conference-tournaments" id="confTourneySection">
+      <div class="conf-tourney-controls">
+        <div class="conf-tourney-state-chip" id="confTourneyStateChip">Draft</div>
+        <div class="conf-tourney-actions">
+          <button id="confTourneySubmitBtn" class="Btn-Submit" onclick=
+          "submitConfTourneyPicks()">Submit Picks <i class=
+          "fa-solid fa-paper-plane"></i></button> <button id=
+          "confTourneyResetBtn" class="conf-tourney-reset-btn" onclick=
+          "reopenConfTourneyDraft()">Edit Draft</button>
+        </div>
+      </div>
+      <div class="conf-tourney-table-shell">
+        <table id="confTourneyTable" class="conf-tourney-table">
+          <thead class="conf-tourney-header" id="confTourneyHead"></thead>
+          <tbody id="confTourneyBody"></tbody>
+        </table>
+      </div>
+    </div>
     <div class="Picks-Container">
         <div class="Legend-Wrapper">
         <button class="Legend-Toggle-Btn" onclick=
@@ -885,7 +906,7 @@
     <div class="Modal-Card">
       <button class="Modal-Close" onclick="closeModal()"><i class=
       "fa-solid fa-xmark"></i></button>
-      <div class="Modal-Header">
+      <div class="Modal-Header" id="teamModalHeader">
         Select Team
       </div>
       <div class="Search-Container">
