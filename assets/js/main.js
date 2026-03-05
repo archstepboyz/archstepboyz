@@ -100,7 +100,9 @@ loginForm.addEventListener('submit', async function(event) {
   event.preventDefault();
   await handleLogin(usernameInput, passwordInput);
   authedUserDisplay(loginBtn, unauthedPicksContainer, menuContainer, userDisplay, userAvatar, deleteCommentBtns);
-  renderConfTourneyTable();
+    fetchConfTourneyPicks().then(res=>
+      renderConfTourneyTable(res.data)
+    );
   closeLoginModal();
 });
 
@@ -169,7 +171,6 @@ function closeDropdownOnClickOutside(event) {
 userTrigger.addEventListener('click', function(event) { 
   toggleUserDropdown(event);
 });
-
 
 
 
@@ -266,6 +267,7 @@ const COMMENTS_ENDPOINT =
 const USERS_ENDPOINT = "https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Users";
 
 const ANON_API_KEY = "sb_publishable_mZVo1bfw-ChB9iCx1V5QwA_UUKrCx8o";
+TEAMS = await fetchD1();
 
 let CACHED_COMMENTS_DB = [];
 
@@ -290,18 +292,18 @@ const confTourneySection = document.getElementById('confTourneySection');
 // Mock-only conference tourney picks state.
 const mockDB = {
   status: 'draft',
-  currentUserId: 'ME',
+  currentUserId: 'FE',
   users: [
-    { id: 'ME', label: 'My Picks' },
-    { id: 'FE', label: 'FearTheBeak' },
-    { id: 'GA', label: 'Gayson' },
-    { id: 'NO', label: 'NotFlorida' },
+    { id: 'CO', label: 'CookedByCaptainJack', uuid: 'fa3d35cd-6495-4893-a704-cad39542533f' },
+    { id: 'FE', label: 'FearTheBeak', uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9' },
+    { id: 'GA', label: 'Gayson', uuid: 'c310b6e4-1827-4df6-a65d-42e6f7523f58' },
+    { id: 'NO', label: 'NotFlorida', uuid: '61e46342-e00e-4ed6-ab69-cd3b060e54cd' },
   ],
   tournaments: [
     {
       id: 'ohio-valley',
-      conf: 'Ohio Valley (Evansville, Ind.)',
-      tip: '3/4, 8 p.m. ET (ESPN2)',
+      conf: 'Ohio Valley (Evansville, IN)',
+      tip: '3/7, 9 p.m. ET (ESPN2)',
       options: [
         { id: '2634', name: 'Tennessee St' },
         { id: '2413', name: 'Morehead St' },
@@ -309,8 +311,8 @@ const mockDB = {
     },
     {
       id: 'big-south',
-      conf: 'Big South (Charlotte, N.C.)',
-      tip: '3/5, 1 p.m. ET (ESPN2)',
+      conf: 'Big South (Johnson City, TN)',
+      tip: '3/8, 12 p.m. ET (ESPN2)',
       options: [
         { id: '2344', name: 'Longwood' },
         { id: '2427', name: 'UNC Asheville' },
@@ -318,8 +320,8 @@ const mockDB = {
     },
     {
       id: 'missouri-valley',
-      conf: 'Missouri Valley (St. Louis)',
-      tip: '3/5, 2 p.m. ET (CBS)',
+      conf: 'Missouri Valley (St. Louis, MO)',
+      tip: '3/8, 12 p.m. ET (CBS)',
       options: [
         { id: '2181', name: 'Drake' },
         { id: '71', name: 'Bradley' },
@@ -327,17 +329,26 @@ const mockDB = {
     },
     {
       id: 'asun',
-      conf: 'ASUN (Campus)',
-      tip: '3/5, 3 p.m. ET (ESPN2)',
+      conf: 'ASUN (Jacksonville, FL)',
+      tip: '3/8, 2 p.m. ET (ESPN2)',
       options: [
         { id: '2335', name: 'Liberty' },
         { id: '338', name: 'Kennesaw St.' },
       ],
     },
     {
+      id: 'summit-league',
+      conf: 'Summit (Sioux Falls, SD)',
+      tip: '3/8, 9 p.m. ET (CBSSN)',
+      options: [
+        { id: '2430', name: 'UNC Greensboro' },
+        { id: '231', name: 'Furman' },
+      ],
+    },
+    {
       id: 'southern',
-      conf: 'Southern (Asheville, N.C.)',
-      tip: '3/6, 7 p.m. ET (ESPN)',
+      conf: 'Southern (Asheville, NC)',
+      tip: '3/9, 7 p.m. ET (ESPN)',
       options: [
         { id: '2430', name: 'UNC Greensboro' },
         { id: '231', name: 'Furman' },
@@ -345,8 +356,44 @@ const mockDB = {
     },
     {
       id: 'sun-belt',
-      conf: 'Sun Belt (Pensacola, Fla.)',
-      tip: '3/6, 7 p.m. ET (ESPN2)',
+      conf: 'Sun Belt (Pensacola, FL)',
+      tip: '3/9, 7 p.m. ET (ESPN2)',
+      options: [
+        { id: '6', name: 'South Alabama' },
+        { id: '276', name: 'Marshall' },
+      ],
+    },
+    {
+      id: 'coastal-athletic-association',
+      conf: 'CAA (Washington D.C.)',
+      tip: '3/10, 7 p.m. ET (CBSSN)',
+      options: [
+        { id: '6', name: 'South Alabama' },
+        { id: '276', name: 'Marshall' },
+      ],
+    },
+    {
+      id: 'horizon-league',
+      conf: 'Horizon (Indianapolis, IN)',
+      tip: '3/10, 7 p.m. ET (ESPN)',
+      options: [
+        { id: '6', name: 'South Alabama' },
+        { id: '276', name: 'Marshall' },
+      ],
+    },
+    {
+      id: 'northeast',
+      conf: 'NEC (Campus)',
+      tip: '3/10, 7 p.m. ET (ESPN2)',
+      options: [
+        { id: '6', name: 'South Alabama' },
+        { id: '276', name: 'Marshall' },
+      ],
+    },
+    {
+      id: 'metro-atlantic-athletic',
+      conf: 'MAAC (Atlantic City, NJ)',
+      tip: '3/10, 9 p.m. ET (ESPN2)',
       options: [
         { id: '6', name: 'South Alabama' },
         { id: '276', name: 'Marshall' },
@@ -354,8 +401,53 @@ const mockDB = {
     },
     {
       id: 'west-coast',
-      conf: 'West Coast (Las Vegas)',
-      tip: '3/7, 9 p.m. ET (ESPN)',
+      conf: 'West Coast (Paradise, NV)',
+      tip: '3/10, 9 p.m. ET (ESPN)',
+      options: [
+        { id: '2250', name: 'Gonzaga' },
+        { id: '2608', name: "Saint Mary's" },
+      ],
+    },
+    {
+      id: 'southland',
+      conf: 'Southland (Lake Charles, LA)',
+      tip: '3/11, 5 p.m. ET (ESPN2)',
+      options: [
+        { id: '2250', name: 'Gonzaga' },
+        { id: '2608', name: "Saint Mary's" },
+      ],
+    },
+    {
+      id: 'patriot-league',
+      conf: 'Patriot (Campus)',
+      tip: '3/11, 7 p.m. ET (CBSSN)',
+      options: [
+        { id: '2250', name: 'Gonzaga' },
+        { id: '2608', name: "Saint Mary's" },
+      ],
+    },
+    {
+      id: 'big-sky',
+      conf: 'Big Sky (Boise, ID)',
+      tip: '3/11, 11:30 p.m. ET (ESPN2)',
+      options: [
+        { id: '2250', name: 'Gonzaga' },
+        { id: '2608', name: "Saint Mary's" },
+      ],
+    },
+    {
+      id: 'america-east',
+      conf: 'America East (Campus)',
+      tip: '3/14, 11 a.m. ET (ESPN2)',
+      options: [
+        { id: '2250', name: 'Gonzaga' },
+        { id: '2608', name: "Saint Mary's" },
+      ],
+    },
+    {
+      id: 'mid-eastern-athletic',
+      conf: 'MEAC (Norfolk, VA)',
+      tip: '3/14, 1 p.m. ET (ESPN2)',
       options: [
         { id: '2250', name: 'Gonzaga' },
         { id: '2608', name: "Saint Mary's" },
@@ -363,8 +455,17 @@ const mockDB = {
     },
     {
       id: 'big-12',
-      conf: 'Big 12 (Kansas City, Mo.)',
-      tip: '3/11, 6 p.m. ET',
+      conf: 'Big 12 (Kansas City, MO)',
+      tip: '3/14, 6 p.m. ET (ESPN)',
+      options: [
+        { id: '239', name: 'Baylor' },
+        { id: '2305', name: 'Kansas' },
+      ],
+    },
+    {
+      id: 'mountain-west',
+      conf: 'Mountain West (Paradise, NV)',
+      tip: '3/14, 6 p.m. ET (CBS)',
       options: [
         { id: '239', name: 'Baylor' },
         { id: '2305', name: 'Kansas' },
@@ -372,26 +473,107 @@ const mockDB = {
     },
     {
       id: 'big-east',
-      conf: 'Big East (New York City)',
-      tip: '3/11, 6:30 p.m. ET (FOX)',
+      conf: 'Big East (New York, NY)',
+      tip: '3/14, 6:30 p.m. ET (FOX)',
       options: [
         { id: '41', name: 'UConn' },
         { id: '156', name: 'Creighton' },
       ],
     },
     {
-      id: 'sec',
-      conf: 'SEC (Nashville)',
-      tip: '3/12, 1 p.m. ET (ESPN)',
+      id: 'southwestern-athletic',
+      conf: 'SWAC (College Park, GA)',
+      tip: '3/14, 7:30 p.m. ET (ESPNU)',
+      options: [
+        { id: '41', name: 'UConn' },
+        { id: '156', name: 'Creighton' },
+      ],
+    },
+    {
+      id: 'mid-american',
+      conf: 'MAC (Cleveland, OH)',
+      tip: '3/14, 8 p.m. ET (ESPN2)',
+      options: [
+        { id: '41', name: 'UConn' },
+        { id: '156', name: 'Creighton' },
+      ],
+    },
+    {
+      id: 'atlantic-coast',
+      conf: 'ACC (Charlotte, NC)',
+      tip: '3/14, 8:30 p.m. ET (ESPN)',
+      options: [
+        { id: '41', name: 'UConn' },
+        { id: '156', name: 'Creighton' },
+      ],
+    },
+    {
+      id: 'conference-usa',
+      conf: 'Conference USA (Huntsville, AL)',
+      tip: '3/14, 8:30 p.m. ET (CBSSN)',
+      options: [
+        { id: '41', name: 'UConn' },
+        { id: '156', name: 'Creighton' },
+      ],
+    },
+    {
+      id: 'big-west',
+      conf: 'Big West (Henderson, NV)',
+      tip: '3/14, 10 p.m. ET (ESPN2)',
+      options: [
+        { id: '41', name: 'UConn' },
+        { id: '156', name: 'Creighton' },
+      ],
+    },
+    {
+      id: 'western-athletic',
+      conf: 'WAC (Paradise, NV)',
+      tip: '3/14, 11:59 p.m. ET (ESPN2)',
+      options: [
+        { id: '41', name: 'UConn' },
+        { id: '156', name: 'Creighton' },
+      ],
+    },
+    {
+      id: 'ivy-league',
+      conf: 'Ivy (Ithaca, NY)',
+      tip: '3/15, 12 p.m. ET (FOX)',
+      options: [
+        { id: '41', name: 'UConn' },
+        { id: '156', name: 'Creighton' },
+      ],
+    },
+    {
+      id: 'atlantic-10',
+      conf: 'Atlantic 10 (Pittsburgh, PA)',
+      tip: '3/15, 1 p.m. ET (CBS)',
+      options: [
+        { id: '41', name: 'UConn' },
+        { id: '156', name: 'Creighton' },
+      ],
+    },
+    {
+      id: 'southeastern',
+      conf: 'SEC (Nashville, TN)',
+      tip: '3/15, 1 p.m. ET (ESPN)',
       options: [
         { id: '333', name: 'Alabama' },
         { id: '96', name: 'Kentucky' },
       ],
     },
     {
+      id: 'american',
+      conf: 'American (Birmingham, AL)',
+      tip: '3/15, 3:15 p.m. ET (ESPN)',
+      options: [
+        { id: '41', name: 'UConn' },
+        { id: '156', name: 'Creighton' },
+      ],
+    },
+    {
       id: 'big-ten',
-      conf: 'Big Ten (Chicago)',
-      tip: '3/12, 3:30 p.m. ET (CBS)',
+      conf: 'Big Ten (Chicago, IL)',
+      tip: '3/15, 3:30 p.m. ET (CBS)',
       options: [
         { id: '2509', name: 'Purdue' },
         { id: '84', name: 'Indiana' },
@@ -454,9 +636,20 @@ const mockDB = {
   },
 };
 
+async function fetchConfTourneyPicks() {
+  return db_client.from("Conf_Tourneys").select("*");
+  console.log("there's a read");
+}
+
+async function updateConfTourneyPicks(user_id, data) {
+  console.log(user_id);
+  console.log(data);
+  return db_client.from("Conf_Tourneys").update(data).eq("uuid", user_id);
+}
+
 function getConfTourneyColumns() {
   const currentLabel = getCurrentUser()?.username
-    ? `${getCurrentUser().username} (You)`
+    ? `${getCurrentUser().username}`
     : 'My Picks';
   const me = mockDB.users.find((user) => user.id === mockDB.currentUserId);
   const others = mockDB.users.filter((user) => user.id !== mockDB.currentUserId);
@@ -465,7 +658,7 @@ function getConfTourneyColumns() {
   return [{ ...me, label: currentLabel }, ...others];
 }
 
-function renderConfPickCell(tourney, teamId, isMasked, isEditable) {
+function renderConfPickCell(tourney, teamId, teamName, isMasked, isEditable) {
   if (isMasked) {
     return `
       <div class="conf-tourney-pick is-masked">
@@ -478,20 +671,15 @@ function renderConfPickCell(tourney, teamId, isMasked, isEditable) {
     return `<div class="conf-tourney-pick is-empty">${isEditable ? 'Tap to choose' : '-'}</div>`;
   }
 
-  const team = tourney.options.find((opt) => String(opt.id) === String(teamId));
-  if (!team) {
-    return '<div class="conf-tourney-pick is-empty">-</div>';
-  }
-
   return `
     <div class="conf-tourney-pick">
-      <img class="conf-tourney-pick-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200" alt="${team.name}">
-      <span class="conf-tourney-pick-name">${team.name}</span>
+      <img class="conf-tourney-pick-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${teamId}.png&h=200&w=200" alt="${teamName}">
+      <!--<span class="conf-tourney-pick-name">${teamName}</span>-->
     </div>
   `;
 }
 
-function renderConfTourneyTable() {
+function renderConfTourneyTable(picks) {
   const tableHead = document.getElementById('confTourneyHead');
   const tableBody = document.getElementById('confTourneyBody');
   const stateChip = document.getElementById('confTourneyStateChip');
@@ -507,7 +695,11 @@ function renderConfTourneyTable() {
   tableHead.innerHTML = `
     <tr class="conf-tourney-row">
       <th class="conf-tourney-head conf-tourney-head--meta">Conference</th>
-      ${columns.map((user) => `<th class="conf-tourney-head">${user.label}</th>`).join('')}
+      ${columns.map((user) => `<th class="conf-tourney-head">
+
+<div class="Avatar" style="background-color: ${getPickerObj(user.id).color};">${user.id}</div>
+
+      </th>`).join('')}
     </tr>
   `;
 
@@ -517,14 +709,16 @@ function renderConfTourneyTable() {
         .map((user) => {
           const isCurrentUser = user.id === mockDB.currentUserId;
           const isEditable = isCurrentUser && !isSubmitted;
-          const pickId = mockDB.picks[user.id]?.[tourney.id] ?? null;
+          const pickId = picks.find((pick) => pick.uuid === user.uuid)?.[tourney.id] ?? null;
+          const pickName = TEAMS?.find(t => t.id === pickId)?.name ?? null;
+          if (!pickName) console.log(pickId);
           const masked = hideOtherUsers && !isCurrentUser;
           const clickAction = isEditable ? `onclick="openConfTourneySelector('${tourney.id}')"` : '';
           const pickableClass = isEditable ? 'is-pickable' : '';
 
           return `
             <td class="conf-tourney-cell ${pickableClass}" ${clickAction}>
-              ${renderConfPickCell(tourney, pickId, masked, isEditable)}
+              ${renderConfPickCell(tourney, pickId, pickName, masked, isEditable)}
             </td>
           `;
         })
@@ -571,7 +765,9 @@ function setConfTourneyVisibility(shouldShow) {
   }
 
   if (shouldShow) {
-    renderConfTourneyTable();
+    fetchConfTourneyPicks().then(res=>
+      renderConfTourneyTable(res.data)
+    );
   }
 }
 
@@ -583,13 +779,17 @@ function submitConfTourneyPicks() {
   }
 
   mockDB.status = 'submitted';
-  renderConfTourneyTable();
+    fetchConfTourneyPicks().then(res=>
+      renderConfTourneyTable(res.data)
+    );
 }
 window.submitConfTourneyPicks = submitConfTourneyPicks;
 
 function reopenConfTourneyDraft() {
   mockDB.status = 'draft';
-  renderConfTourneyTable();
+    fetchConfTourneyPicks().then(res=>
+      renderConfTourneyTable(res.data)
+    );
 }
 window.reopenConfTourneyDraft = reopenConfTourneyDraft;
 
@@ -598,7 +798,9 @@ if (confTourneyBtn) {
     setConfTourneyVisibility(!showingConfTourney);
   });
 }
-renderConfTourneyTable();
+fetchConfTourneyPicks().then(res=>
+  renderConfTourneyTable(res.data)
+);
 
 function changeWeekView(week) {
   CURRENT_WEEK = week;
@@ -700,6 +902,7 @@ async function fetchTeams() {
 async function fetchD1() {
   return apiReq(D1_ENDPOINT, "GET");
 }
+TEAMS = await fetchD1();
 
 async function fetchTop25() {
   return db_client.from("Top25").select('*');
@@ -716,7 +919,9 @@ async function isUserSignedIn() {
   if (data?.session) {
     setCurrentUser(data.session.user?.user_metadata);
     authedUserDisplay(loginBtn, unauthedPicksContainer, menuContainer, userDisplay, userAvatar, deleteCommentBtns);
-    renderConfTourneyTable();
+    fetchConfTourneyPicks().then(res=>
+      renderConfTourneyTable(res.data)
+    );
   }
   // TODO: move
   if (getCurrentUser()?.username === "fearthebeak") {
@@ -770,6 +975,8 @@ let setActive;
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
+    const confTourneyToggle = document.getElementById("confTourneyMenu");
+    confTourneyToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -799,6 +1006,8 @@ let setActive;
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
+    const confTourneyToggle = document.getElementById("confTourneyMenu");
+    confTourneyToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -826,6 +1035,8 @@ let setActive;
     setConfTourneyVisibility(showingConfTourney);
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "flex";
+    const confTourneyToggle = document.getElementById("confTourneyMenu");
+    confTourneyToggle.style.display = "flex";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -855,6 +1066,8 @@ let setActive;
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
+    const confTourneyToggle = document.getElementById("confTourneyMenu");
+    confTourneyToggle.style.display = "none";
     if (CURRENT_WEEK >= 11) {
       const ballot = document.querySelector(".Top25-Container");
       ballot.style.display = "flex";
@@ -885,6 +1098,8 @@ let setActive;
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
+    const confTourneyToggle = document.getElementById("confTourneyMenu");
+    confTourneyToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -912,6 +1127,8 @@ function switchToBracket() {
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
+    const confTourneyToggle = document.getElementById("confTourneyMenu");
+    confTourneyToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -1106,7 +1323,9 @@ function switchToBracket() {
     if (getCurrentUser()) {
       authedUserDisplay(loginBtn, unauthedPicksContainer, menuContainer, userDisplay, userAvatar, deleteCommentBtns);
     }
-    renderConfTourneyTable();
+    fetchConfTourneyPicks().then(res=>
+      renderConfTourneyTable(res.data)
+    );
   });
 
   isUserSignedIn();
@@ -2476,16 +2695,20 @@ function filterTeams() {
 }
 window.filterTeams = filterTeams;
 
-function renderTeamGrid() {
+async function renderTeamGrid() {
     const grid = document.getElementById('teamGrid');
     grid.innerHTML = '';
+
+    if (!TEAMS) {
+      TEAMS = await fetchD1();
+    }
 
     if (activeSelectorSource === 'conf-tourney') {
         const tourney = mockDB.tournaments.find((item) => item.id === activeConfTourneyId);
         if (!tourney) return;
 
         const selectedTeamId = mockDB.picks[mockDB.currentUserId]?.[tourney.id];
-        for (const team of tourney.options) {
+        for (const team of TEAMS.filter(t => t.conf === activeConfTourneyId)) {
             const isSelected = String(selectedTeamId) === String(team.id);
             const selectedStyle = isSelected ? 'border-color: #0984e3; background: #f0f8ff;' : '';
             const html = `
@@ -2532,8 +2755,12 @@ function selectTeam(teamKey) {
             mockDB.picks[mockDB.currentUserId] = {};
         }
         mockDB.picks[mockDB.currentUserId][activeConfTourneyId] = String(teamKey);
+        updateConfTourneyPicks(getCurrentUser().sub,{[activeConfTourneyId]: String(teamKey)});
+        console.log('test');
         closeModal();
-        renderConfTourneyTable();
+        fetchConfTourneyPicks().then(res=>
+          renderConfTourneyTable(res.data)
+        );
         return;
     }
 

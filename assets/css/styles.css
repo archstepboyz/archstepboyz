@@ -1190,8 +1190,9 @@ opacity: 0.9;
   font-size: 12px;
   letter-spacing: 0.6px;
   text-transform: uppercase;
-  text-align: center;
   color: #636e72;
+  display: table-cell;
+  place-items: center;
 }
 
 .conf-tourney-head.conf-tourney-head--meta {
