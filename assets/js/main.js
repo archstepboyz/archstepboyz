@@ -185,6 +185,7 @@ userTrigger.addEventListener('click', function(event) {
 
 
 
+
 /* QUICK DATE HELPER */
 function dateFromTimestamp(ts, opt = 'text') {
   const d = new Date(ts);
@@ -290,7 +291,6 @@ const confTourneySection = document.getElementById('confTourneySection');
 
 // Mock-only conference tourney picks state.
 const mockDB = {
-  status: 'draft',
   users: [
     { id: 'CO', label: 'CookedByCaptainJack', uuid: 'fa3d35cd-6495-4893-a704-cad39542533f' },
     { id: 'FE', label: 'FearTheBeak', uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9' },
@@ -465,14 +465,7 @@ async function updateConfTourneyPicks(user_id, data) {
 }
 
 function getConfTourneyColumns() {
-  const currentLabel = getCurrentUser()?.username
-    ? `${getCurrentUser().username}`
-    : 'My Picks';
-  const me = mockDB.users.find((user) => user.uuid === getCurrentUser()?.sub);
-  const others = mockDB.users.filter((user) => user.uuid !== getCurrentUser()?.sub);
-
-  if (!me) return others;
-  return [{ ...me, label: currentLabel }, ...others];
+  return mockDB.users;
 }
 
 function renderConfPickCell(tourney, teamId, teamName, isMasked, isEditable) {
@@ -505,7 +498,7 @@ function renderConfTourneyTable(picks) {
 
   if (!tableHead || !tableBody) return;
 
-  const isSubmitted = mockDB.status === 'submitted';
+  const isSubmitted = CONF_TOURNEY_PICKS?.find(pick => pick.uuid === getCurrentUser()?.sub)?.submitted;
   const hideOtherUsers = !isSubmitted;
   const columns = getConfTourneyColumns();
 
@@ -576,8 +569,12 @@ function setConfTourneyVisibility(shouldShow) {
   }
 
   const picksContainer = document.querySelector('.Picks-Container');
-  if (picksContainer) {
+  const picksMenu = document.getElementById('picksMenu');
+  const weekSelector = document.querySelector('.Week-Select-Input');
+  if (picksContainer && picksMenu && weekSelector) {
     picksContainer.style.display = shouldShow ? 'none' : 'flex';
+    picksMenu.style.display = shouldShow ? 'none' : 'grid';
+    weekSelector.disabled = shouldShow;
   }
 
   if (shouldShow) {
@@ -595,19 +592,21 @@ function submitConfTourneyPicks() {
     return alert(`Select winners for all conferences before submitting (${missing.length} remaining).`);
   }
 
-  mockDB.status = 'submitted';
+    updateConfTourneyPicks(getCurrentUser().sub,{submitted: true}).then(res1 => {
     fetchConfTourneyPicks().then(res=> {
       CONF_TOURNEY_PICKS = res.data;
       renderConfTourneyTable(res.data);
+    });
     });
 }
 window.submitConfTourneyPicks = submitConfTourneyPicks;
 
 function reopenConfTourneyDraft() {
-  mockDB.status = 'draft';
+    updateConfTourneyPicks(getCurrentUser().sub,{submitted: false}).then(res1 => {
     fetchConfTourneyPicks().then(res=> {
       CONF_TOURNEY_PICKS = res.data;
       renderConfTourneyTable(res.data);
+    });
     });
 }
 window.reopenConfTourneyDraft = reopenConfTourneyDraft;
@@ -2485,7 +2484,7 @@ function openSelector(index) {
 window.openSelector = openSelector;
 
 function openConfTourneySelector(tourneyId) {
-    if (mockDB.status === 'submitted') return;
+    if (CONF_TOURNEY_PICKS?.find(pick => pick.uuid === getCurrentUser()?.sub)?.submitted) return;
     activeSelectorSource = 'conf-tourney';
     activeConfTourneyId = tourneyId;
 
