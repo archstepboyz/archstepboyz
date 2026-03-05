@@ -252,6 +252,8 @@ function updateCompactTracker(current, total, id) {
 
 /* GLOBAL VARS */
 
+var CONF_TOURNEY_PICKS;
+
 const currentDate = new Date();
 // should make this const and introduce SELECTED_WEEK
 let CURRENT_WEEK = 18;
@@ -265,6 +267,7 @@ const COMMENTS_ENDPOINT =
 const USERS_ENDPOINT = "https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Users";
 
 const ANON_API_KEY = "sb_publishable_mZVo1bfw-ChB9iCx1V5QwA_UUKrCx8o";
+TEAMS = await fetchD1();
 
 let CACHED_COMMENTS_DB = [];
 
@@ -279,6 +282,344 @@ var TEAMS;
 var FILTER = null;
 
 let showingAllPicks = false;
+let showingConfTourney = false;
+let activeSelectorSource = 'top25';
+let activeConfTourneyId = null;
+
+const confTourneyBtn = document.getElementById('confTourneyBtn');
+const confTourneySection = document.getElementById('confTourneySection');
+
+// Mock-only conference tourney picks state.
+const mockDB = {
+  users: [
+    { id: 'CO', label: 'CookedByCaptainJack', uuid: 'fa3d35cd-6495-4893-a704-cad39542533f' },
+    { id: 'FE', label: 'FearTheBeak', uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9' },
+    { id: 'GA', label: 'Gayson', uuid: 'c310b6e4-1827-4df6-a65d-42e6f7523f58' },
+    { id: 'NO', label: 'NotFlorida', uuid: '61e46342-e00e-4ed6-ab69-cd3b060e54cd' },
+  ],
+  tournaments: [
+    {
+      id: 'ohio-valley',
+      conf: 'Ohio Valley (Evansville, IN)',
+      tip: '3/7, 9 p.m. ET (ESPN2)',
+    },
+    {
+      id: 'big-south',
+      conf: 'Big South (Johnson City, TN)',
+      tip: '3/8, 12 p.m. ET (ESPN2)',
+    },
+    {
+      id: 'missouri-valley',
+      conf: 'Missouri Valley (St. Louis, MO)',
+      tip: '3/8, 12 p.m. ET (CBS)',
+    },
+    {
+      id: 'asun',
+      conf: 'ASUN (Jacksonville, FL)',
+      tip: '3/8, 2 p.m. ET (ESPN2)',
+    },
+    {
+      id: 'summit-league',
+      conf: 'Summit (Sioux Falls, SD)',
+      tip: '3/8, 9 p.m. ET (CBSSN)',
+    },
+    {
+      id: 'southern',
+      conf: 'Southern (Asheville, NC)',
+      tip: '3/9, 7 p.m. ET (ESPN)',
+    },
+    {
+      id: 'sun-belt',
+      conf: 'Sun Belt (Pensacola, FL)',
+      tip: '3/9, 7 p.m. ET (ESPN2)',
+    },
+    {
+      id: 'coastal-athletic-association',
+      conf: 'CAA (Washington D.C.)',
+      tip: '3/10, 7 p.m. ET (CBSSN)',
+    },
+    {
+      id: 'horizon-league',
+      conf: 'Horizon (Indianapolis, IN)',
+      tip: '3/10, 7 p.m. ET (ESPN)',
+    },
+    {
+      id: 'northeast',
+      conf: 'NEC (Campus)',
+      tip: '3/10, 7 p.m. ET (ESPN2)',
+    },
+    {
+      id: 'metro-atlantic-athletic',
+      conf: 'MAAC (Atlantic City, NJ)',
+      tip: '3/10, 9 p.m. ET (ESPN2)',
+    },
+    {
+      id: 'west-coast',
+      conf: 'West Coast (Paradise, NV)',
+      tip: '3/10, 9 p.m. ET (ESPN)',
+    },
+    {
+      id: 'southland',
+      conf: 'Southland (Lake Charles, LA)',
+      tip: '3/11, 5 p.m. ET (ESPN2)',
+    },
+    {
+      id: 'patriot-league',
+      conf: 'Patriot (Campus)',
+      tip: '3/11, 7 p.m. ET (CBSSN)',
+    },
+    {
+      id: 'big-sky',
+      conf: 'Big Sky (Boise, ID)',
+      tip: '3/11, 11:30 p.m. ET (ESPN2)',
+    },
+    {
+      id: 'america-east',
+      conf: 'America East (Campus)',
+      tip: '3/14, 11 a.m. ET (ESPN2)',
+    },
+    {
+      id: 'mid-eastern-athletic',
+      conf: 'MEAC (Norfolk, VA)',
+      tip: '3/14, 1 p.m. ET (ESPN2)',
+    },
+    {
+      id: 'big-12',
+      conf: 'Big 12 (Kansas City, MO)',
+      tip: '3/14, 6 p.m. ET (ESPN)',
+    },
+    {
+      id: 'mountain-west',
+      conf: 'Mountain West (Paradise, NV)',
+      tip: '3/14, 6 p.m. ET (CBS)',
+    },
+    {
+      id: 'big-east',
+      conf: 'Big East (New York, NY)',
+      tip: '3/14, 6:30 p.m. ET (FOX)',
+    },
+    {
+      id: 'southwestern-athletic',
+      conf: 'SWAC (College Park, GA)',
+      tip: '3/14, 7:30 p.m. ET (ESPNU)',
+    },
+    {
+      id: 'mid-american',
+      conf: 'MAC (Cleveland, OH)',
+      tip: '3/14, 8 p.m. ET (ESPN2)',
+    },
+    {
+      id: 'atlantic-coast',
+      conf: 'ACC (Charlotte, NC)',
+      tip: '3/14, 8:30 p.m. ET (ESPN)',
+    },
+    {
+      id: 'conference-usa',
+      conf: 'Conference USA (Huntsville, AL)',
+      tip: '3/14, 8:30 p.m. ET (CBSSN)',
+    },
+    {
+      id: 'big-west',
+      conf: 'Big West (Henderson, NV)',
+      tip: '3/14, 10 p.m. ET (ESPN2)',
+    },
+    {
+      id: 'western-athletic',
+      conf: 'WAC (Paradise, NV)',
+      tip: '3/14, 11:59 p.m. ET (ESPN2)',
+    },
+    {
+      id: 'ivy-league',
+      conf: 'Ivy (Ithaca, NY)',
+      tip: '3/15, 12 p.m. ET (FOX)',
+    },
+    {
+      id: 'atlantic-10',
+      conf: 'Atlantic 10 (Pittsburgh, PA)',
+      tip: '3/15, 1 p.m. ET (CBS)',
+    },
+    {
+      id: 'southeastern',
+      conf: 'SEC (Nashville, TN)',
+      tip: '3/15, 1 p.m. ET (ESPN)',
+    },
+    {
+      id: 'american',
+      conf: 'American (Birmingham, AL)',
+      tip: '3/15, 3:15 p.m. ET (ESPN)',
+    },
+    {
+      id: 'big-ten',
+      conf: 'Big Ten (Chicago, IL)',
+      tip: '3/15, 3:30 p.m. ET (CBS)',
+    },
+  ],
+};
+
+async function fetchConfTourneyPicks() {
+  return db_client.from("Conf_Tourneys").select("*");
+}
+
+async function updateConfTourneyPicks(user_id, data) {
+  return db_client.from("Conf_Tourneys").update(data).eq("uuid", user_id);
+}
+
+function getConfTourneyColumns() {
+  return mockDB.users;
+}
+
+function renderConfPickCell(tourney, teamId, teamName, isMasked, isEditable) {
+  if (isMasked) {
+    return `
+      <div class="conf-tourney-pick is-masked">
+        <span class="conf-tourney-mask">?</span>
+      </div>
+    `;
+  }
+
+  if (!teamId) {
+    return `<div class="conf-tourney-pick is-empty">${isEditable ? 'Tap to choose' : '-'}</div>`;
+  }
+
+  return `
+    <div class="conf-tourney-pick">
+      <img class="conf-tourney-pick-logo" src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${teamId}.png&h=200&w=200" alt="${teamName}">
+      <!--<span class="conf-tourney-pick-name">${teamName}</span>-->
+    </div>
+  `;
+}
+
+function renderConfTourneyTable(picks) {
+  const tableHead = document.getElementById('confTourneyHead');
+  const tableBody = document.getElementById('confTourneyBody');
+  const stateChip = document.getElementById('confTourneyStateChip');
+  const submitBtn = document.getElementById('confTourneySubmitBtn');
+  const resetBtn = document.getElementById('confTourneyResetBtn');
+
+  if (!tableHead || !tableBody) return;
+
+  const isSubmitted = CONF_TOURNEY_PICKS?.find(pick => pick.uuid === getCurrentUser()?.sub)?.submitted;
+  const hideOtherUsers = !isSubmitted;
+  const columns = getConfTourneyColumns();
+
+  tableHead.innerHTML = `
+    <tr class="conf-tourney-row">
+      <th class="conf-tourney-head conf-tourney-head--meta">Conference</th>
+      ${columns.map((user) => `<th class="conf-tourney-head">
+
+<div class="Avatar" style="background-color: ${getPickerObj(user.id).color};">${user.id}</div>
+
+      </th>`).join('')}
+    </tr>
+  `;
+
+  tableBody.innerHTML = mockDB.tournaments
+    .map((tourney) => {
+      const cells = columns
+        .map((user) => {
+          const isCurrentUser = user.uuid === getCurrentUser()?.sub;
+          const isEditable = isCurrentUser && !isSubmitted;
+          const pickId = picks.find((pick) => pick.uuid === user.uuid)?.[tourney.id] ?? null;
+          const pickName = TEAMS?.find(t => t.id === pickId)?.name ?? null;
+          const masked = hideOtherUsers && !isCurrentUser;
+          const clickAction = isEditable ? `onclick="openConfTourneySelector('${tourney.id}')"` : '';
+          const pickableClass = isEditable ? 'is-pickable' : '';
+
+          return `
+            <td class="conf-tourney-cell ${pickableClass}" ${clickAction}>
+              ${renderConfPickCell(tourney, pickId, pickName, masked, isEditable)}
+            </td>
+          `;
+        })
+        .join('');
+
+      return `
+        <tr class="conf-tourney-row">
+          <td class="conf-tourney-cell conf-tourney-cell--meta">
+            <div class="conf-tourney-conf">${tourney.conf}</div>
+            <div class="conf-tourney-time">${tourney.tip}</div>
+          </td>
+          ${cells}
+        </tr>
+      `;
+    })
+    .join('');
+
+  if (stateChip) {
+    stateChip.textContent = isSubmitted ? 'Submitted' : 'Draft';
+    stateChip.classList.toggle('is-submitted', isSubmitted);
+  }
+  if (submitBtn) {
+    submitBtn.style.display = isSubmitted ? 'none' : 'inline-flex';
+  }
+  if (resetBtn) {
+    resetBtn.style.display = isSubmitted ? 'inline-flex' : 'none';
+  }
+}
+
+function setConfTourneyVisibility(shouldShow) {
+  showingConfTourney = shouldShow;
+
+  if (confTourneyBtn) {
+    confTourneyBtn.classList.toggle('active', shouldShow);
+    confTourneyBtn.setAttribute('aria-pressed', String(shouldShow));
+  }
+  if (confTourneySection) {
+    confTourneySection.classList.toggle('is-visible', shouldShow);
+  }
+
+  const picksContainer = document.querySelector('.Picks-Container');
+  const picksMenu = document.getElementById('picksMenu');
+  const weekSelector = document.querySelector('.Week-Select-Input');
+  if (picksContainer && picksMenu && weekSelector) {
+    picksContainer.style.display = shouldShow ? 'none' : 'flex';
+    picksMenu.style.display = shouldShow ? 'none' : 'grid';
+    weekSelector.disabled = shouldShow;
+  }
+
+  if (shouldShow) {
+    fetchConfTourneyPicks().then(res=> {
+      CONF_TOURNEY_PICKS = res.data;
+      renderConfTourneyTable(res.data);
+    });
+  }
+}
+
+function submitConfTourneyPicks() {
+  const myPicks = CONF_TOURNEY_PICKS?.find(pick => pick.uuid === getCurrentUser()?.sub) ?? {};
+  const missing = mockDB.tournaments.filter((tourney) => !myPicks[tourney.id]);
+  if (missing.length > 0) {
+    return alert(`Select winners for all conferences before submitting (${missing.length} remaining).`);
+  }
+
+    updateConfTourneyPicks(getCurrentUser().sub,{submitted: true}).then(res1 => {
+    fetchConfTourneyPicks().then(res=> {
+      CONF_TOURNEY_PICKS = res.data;
+      renderConfTourneyTable(res.data);
+    });
+    });
+}
+window.submitConfTourneyPicks = submitConfTourneyPicks;
+
+function reopenConfTourneyDraft() {
+    updateConfTourneyPicks(getCurrentUser().sub,{submitted: false}).then(res1 => {
+    fetchConfTourneyPicks().then(res=> {
+      CONF_TOURNEY_PICKS = res.data;
+      renderConfTourneyTable(res.data);
+    });
+    });
+}
+window.reopenConfTourneyDraft = reopenConfTourneyDraft;
+
+if (confTourneyBtn) {
+  confTourneyBtn.addEventListener('click', () => {
+    setConfTourneyVisibility(!showingConfTourney);
+  });
+}
+fetchConfTourneyPicks().then(res=> {
+  CONF_TOURNEY_PICKS = res.data;
+  renderConfTourneyTable(res.data)
+});
 
 function changeWeekView(week) {
   CURRENT_WEEK = week;
@@ -380,6 +721,7 @@ async function fetchTeams() {
 async function fetchD1() {
   return apiReq(D1_ENDPOINT, "GET");
 }
+TEAMS = await fetchD1();
 
 async function fetchTop25() {
   return db_client.from("Top25").select('*');
@@ -396,6 +738,10 @@ async function isUserSignedIn() {
   if (data?.session) {
     setCurrentUser(data.session.user?.user_metadata);
     authedUserDisplay(loginBtn, unauthedPicksContainer, menuContainer, userDisplay, userAvatar, deleteCommentBtns);
+    fetchConfTourneyPicks().then(res=> {
+      CONF_TOURNEY_PICKS = res.data;
+      renderConfTourneyTable(res.data);
+    });
   }
   // TODO: move
   if (getCurrentUser()?.username === "fearthebeak") {
@@ -446,8 +792,11 @@ let setActive;
     table.style.display = "flex";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
+    const confTourneyToggle = document.getElementById("confTourneyMenu");
+    confTourneyToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -474,8 +823,11 @@ let setActive;
     save.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
+    const confTourneyToggle = document.getElementById("confTourneyMenu");
+    confTourneyToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -500,10 +852,11 @@ let setActive;
     fab.style.display = "none";
     const save = document.querySelector(".Fab-Save");
     //save.style.display = "flex";
-    const picks = document.querySelector(".Picks-Container");
-    picks.style.display = "flex";
+    setConfTourneyVisibility(showingConfTourney);
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "flex";
+    const confTourneyToggle = document.getElementById("confTourneyMenu");
+    confTourneyToggle.style.display = "flex";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -530,8 +883,11 @@ let setActive;
     save.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
+    const confTourneyToggle = document.getElementById("confTourneyMenu");
+    confTourneyToggle.style.display = "none";
     if (CURRENT_WEEK >= 11) {
       const ballot = document.querySelector(".Top25-Container");
       ballot.style.display = "flex";
@@ -559,8 +915,11 @@ let setActive;
     fab.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
+    const confTourneyToggle = document.getElementById("confTourneyMenu");
+    confTourneyToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -585,8 +944,11 @@ function switchToBracket() {
     fab.style.display = "none";
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
+    if (confTourneySection) confTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
+    const confTourneyToggle = document.getElementById("confTourneyMenu");
+    confTourneyToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -781,6 +1143,10 @@ function switchToBracket() {
     if (getCurrentUser()) {
       authedUserDisplay(loginBtn, unauthedPicksContainer, menuContainer, userDisplay, userAvatar, deleteCommentBtns);
     }
+    fetchConfTourneyPicks().then(res=> {
+      CONF_TOURNEY_PICKS = res.data;
+      renderConfTourneyTable(res.data);
+    });
   });
 
   isUserSignedIn();
@@ -2105,13 +2471,35 @@ window.switchView = switchView;
 // --- MODAL & SEARCH ---
 
 function openSelector(index) {
+    activeSelectorSource = 'top25';
+    activeConfTourneyId = null;
     activeRowIndex = index;
+    const modalHeader = document.getElementById('teamModalHeader');
+    if (modalHeader) modalHeader.textContent = 'Select Team';
     document.getElementById('teamSearch').value = ''; // Reset Search
     renderTeamGrid();
     modal1.classList.add('active');
     setTimeout(() => document.getElementById('teamSearch').focus(), 100);
 }
 window.openSelector = openSelector;
+
+function openConfTourneySelector(tourneyId) {
+    if (CONF_TOURNEY_PICKS?.find(pick => pick.uuid === getCurrentUser()?.sub)?.submitted) return;
+    activeSelectorSource = 'conf-tourney';
+    activeConfTourneyId = tourneyId;
+
+    const modalHeader = document.getElementById('teamModalHeader');
+    const tourney = mockDB.tournaments.find((item) => item.id === tourneyId);
+    if (modalHeader) {
+      modalHeader.textContent = tourney ? `Pick Winner: ${tourney.conf}` : 'Select Team';
+    }
+
+    document.getElementById('teamSearch').value = '';
+    renderTeamGrid();
+    modal1.classList.add('active');
+    setTimeout(() => document.getElementById('teamSearch').focus(), 100);
+}
+window.openConfTourneySelector = openConfTourneySelector;
 
 function filterTeams() {
     const query = document.getElementById('teamSearch').value.toLowerCase();
@@ -2128,9 +2516,36 @@ function filterTeams() {
 }
 window.filterTeams = filterTeams;
 
-function renderTeamGrid() {
+async function renderTeamGrid() {
     const grid = document.getElementById('teamGrid');
     grid.innerHTML = '';
+
+    if (!TEAMS) {
+      TEAMS = await fetchD1();
+    }
+
+    if (activeSelectorSource === 'conf-tourney') {
+        const tourney = mockDB.tournaments.find((item) => item.id === activeConfTourneyId);
+        if (!tourney) return;
+
+        const selectedTeamId = CONF_TOURNEY_PICKS?.find(pick => pick.uuid === getCurrentUser().sub)?.[tourney.id];
+        for (const team of TEAMS.filter(t => t.conf === activeConfTourneyId)) {
+            const isSelected = String(selectedTeamId) === String(team.id);
+            const selectedStyle = isSelected ? 'border-color: #0984e3; background: #f0f8ff;' : '';
+            const html = `
+                <div class="Selectable-Team"
+                     style="${selectedStyle}"
+                     onclick="selectTeam('${team.id}')"
+                     data-name="${team.name}">
+                    <img src="https://a.espncdn.com/combiner/i?img=/i/teamlogos/ncaa/500/${team.id}.png&h=200&w=200">
+                    <span>${team.name}</span>
+                    ${isSelected ? '<i class="fa-solid fa-check" style="margin-left:auto; color:#0984e3;"></i>' : ''}
+                </div>
+            `;
+            grid.insertAdjacentHTML('beforeend', html);
+        }
+        return;
+    }
 
     const usedTeams = draftBallot.filter(t => t != 0);
 
@@ -2155,6 +2570,19 @@ function renderTeamGrid() {
 }
 
 function selectTeam(teamKey) {
+    if (activeSelectorSource === 'conf-tourney') {
+        if (!activeConfTourneyId) return;
+        updateConfTourneyPicks(getCurrentUser().sub,{[activeConfTourneyId]: String(teamKey)}).then(res1 => {
+        fetchConfTourneyPicks().then(res=> {
+          CONF_TOURNEY_PICKS = res.data;
+          renderConfTourneyTable(res.data);
+        });
+        });
+        console.log('test');
+        closeModal();
+        return;
+    }
+
     draftBallot[activeRowIndex] = teamKey;
     closeModal();
     renderBallot();
