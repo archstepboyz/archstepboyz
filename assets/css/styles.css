@@ -1158,6 +1158,7 @@ opacity: 0.9;
   letter-spacing: 0.5px;
   text-transform: uppercase;
   cursor: pointer;
+  align-items: center;
 }
 
 .conf-tourney-reset-btn:hover {
