@@ -4055,7 +4055,8 @@ max-height: 100px;
         width: 880px;
         max-width: 880px;
         min-width: 880px;
-        overflow: hidden; /* Ensures full screen fit */
+        overflow-x: hidden;
+        overflow-y: auto;
         background-color: var(--light-bg);
         font-family: 'Roboto', sans-serif;
         display: flex;
@@ -4265,6 +4266,206 @@ max-height: 100px;
     .bubble-safe { background-color: var(--bubble-bye); }
     .bubble-edge { background-color: var(--bubble-in); }
     .bubble-danger { background-color: var(--bubble-out); }
+
+    .selection-bracket-section {
+        margin: 0 12px 12px;
+        padding: 12px;
+        border-radius: 10px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid #e6ebf2;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .selection-bracket-header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+
+    .selection-bracket-header h2 {
+        margin: 0;
+        font-family: 'Oswald', sans-serif;
+        font-size: 1.05rem;
+        color: #1f2937;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+    }
+
+    .selection-bracket-subtitle {
+        margin: 0;
+        font-size: 0.68rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+        text-align: right;
+    }
+
+    .selection-bracket-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 180px minmax(0, 1fr);
+        gap: 10px;
+        align-items: stretch;
+    }
+
+    .selection-side-block {
+        min-width: 0;
+    }
+
+    .selection-side-title {
+        margin-bottom: 6px;
+        font-size: 0.65rem;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.7px;
+        font-weight: 700;
+    }
+
+    .selection-side {
+        display: grid;
+        grid-template-columns: 2fr 1.35fr 1.15fr 1fr;
+        gap: 8px;
+        min-height: 100%;
+    }
+
+    .selection-side.is-right {
+        grid-template-columns: 1fr 1.15fr 1.35fr 2fr;
+    }
+
+    .selection-round {
+        background: #fff;
+        border: 1px solid #e9edf3;
+        border-radius: 8px;
+        padding: 6px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+    }
+
+    .selection-side.is-left .selection-round {
+        border-left: 3px solid rgba(30, 58, 138, 0.16);
+    }
+
+    .selection-side.is-right .selection-round {
+        border-right: 3px solid rgba(30, 58, 138, 0.16);
+    }
+
+    .selection-round-title {
+        font-family: 'Oswald', sans-serif;
+        font-size: 0.65rem;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: #475569;
+        text-align: center;
+        border-bottom: 1px solid #eef2f7;
+        padding-bottom: 4px;
+    }
+
+    .selection-round-games {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+        justify-content: space-evenly;
+    }
+
+    .selection-game-card {
+        border: 1px solid #eef2f7;
+        border-radius: 6px;
+        overflow: hidden;
+        background: #fcfdff;
+    }
+
+    .selection-game-team {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px;
+        border-bottom: 1px solid #eef2f7;
+        font-size: 0.64rem;
+        color: #334155;
+        min-width: 0;
+    }
+
+    .selection-game-team:last-child {
+        border-bottom: none;
+    }
+
+    .selection-game-team.is-picked {
+        background: rgba(16, 185, 129, 0.14);
+        color: #065f46;
+        font-weight: 700;
+    }
+
+    .selection-game-team.is-right {
+        flex-direction: row-reverse;
+        text-align: right;
+    }
+
+    .selection-seed {
+        width: 12px;
+        text-align: center;
+        font-weight: 700;
+        color: #64748b;
+        flex: 0 0 auto;
+    }
+
+    .selection-logo {
+        width: 14px;
+        height: 14px;
+        object-fit: cover;
+        flex: 0 0 auto;
+    }
+
+    .selection-team-text {
+        line-height: 1.05;
+        word-break: break-word;
+    }
+
+    .selection-center-column {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .selection-champion-card {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        background: linear-gradient(90deg, #f59e0b, #ef4444);
+        color: white;
+        font-family: 'Oswald', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        font-size: 0.78rem;
+        box-shadow: 0 6px 14px rgba(239, 68, 68, 0.25);
+    }
+
+    .selection-champion-card i {
+        color: #fff7d6;
+        font-size: 0.78rem;
+    }
+
+    @media (max-width: 950px) {
+        .selection-bracket-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .selection-bracket-subtitle {
+            text-align: left;
+        }
+
+        .selection-center-column {
+            max-width: 260px;
+        }
+    }
 
 
 
