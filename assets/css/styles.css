@@ -1210,11 +1210,33 @@ opacity: 0.9;
   border-top: 1px solid #f1f2f6;
   padding: 8px;
   vertical-align: middle;
+  transition: background-color 0.2s ease; 
 }
 
 .conf-tourney-cell--meta {
   min-width: 210px;
   width: 210px;
+}
+
+.conf-tourney-cell.correct {
+    background-color: #e6f4ea !important; /* Soft green background */
+    border-top: 1px solid #ceead6;
+}
+
+.conf-tourney-cell.incorrect {
+    background-color: #fce8e6 !important; /* Soft red background */
+    border-top: 1px solid #fad2cf;
+}
+
+/* Optional: Add styling to the inner div to make it stand out more */
+.conf-tourney-cell.correct .conf-tourney-pick {
+    border-left: 4px solid #188038; /* Strong green accent line */
+    padding-left: 8px;
+}
+
+.conf-tourney-cell.incorrect .conf-tourney-pick {
+    border-left: 4px solid #d93025; /* Strong red accent line */
+    padding-left: 8px;
 }
 
 .conf-tourney-conf {

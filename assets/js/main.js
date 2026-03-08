@@ -520,13 +520,16 @@ function renderConfTourneyTable(picks) {
           const isCurrentUser = user.uuid === getCurrentUser()?.sub;
           const isEditable = isCurrentUser && !isSubmitted;
           const pickId = picks.find((pick) => pick.uuid === user.uuid)?.[tourney.id] ?? null;
+          const winnerId = picks.find((pick) => pick.uuid === '00000000-0000-0000-0000-000000000000')?.[tourney.id] ?? null;
+          const winner = pickId === winnerId;
           const pickName = TEAMS?.find(t => t.id === pickId)?.name ?? null;
           const masked = hideOtherUsers && !isCurrentUser;
           const clickAction = isEditable ? `onclick="openConfTourneySelector('${tourney.id}')"` : '';
           const pickableClass = isEditable ? 'is-pickable' : '';
+          const winnerClass = winnerId != null ? (winner ? 'correct' : 'incorrect') : '';
 
           return `
-            <td class="conf-tourney-cell ${pickableClass}" ${clickAction}>
+            <td class="conf-tourney-cell ${pickableClass} ${winnerClass}" ${clickAction}>
               ${renderConfPickCell(tourney, pickId, pickName, masked, isEditable)}
             </td>
           `;
@@ -602,6 +605,7 @@ function submitConfTourneyPicks() {
 window.submitConfTourneyPicks = submitConfTourneyPicks;
 
 function reopenConfTourneyDraft() {
+    return;
     updateConfTourneyPicks(getCurrentUser().sub,{submitted: false}).then(res1 => {
     fetchConfTourneyPicks().then(res=> {
       CONF_TOURNEY_PICKS = res.data;
