@@ -256,7 +256,7 @@ var CONF_TOURNEY_PICKS;
 
 const currentDate = new Date();
 // should make this const and introduce SELECTED_WEEK
-let CURRENT_WEEK = 18;
+let CURRENT_WEEK = 19;
 
 const TEAMS_ENDPOINT =
   "https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Teams?order=conf.asc,conf_pos.asc";
