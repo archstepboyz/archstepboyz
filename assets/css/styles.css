@@ -3626,8 +3626,298 @@ max-height: 100px;
 
     /* --- DASHBOARD GRID --- */
     .Dashboard-Container {
-        max-width: 800px; margin: 0 auto; padding: 20px;
-        display: grid; gap: 20px; flex-direction: column;
+        max-width: 900px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+        display: grid;
+        gap: 20px;
+        flex-direction: column;
+    }
+
+    .Stats-Kpi-Grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        grid-column: 1 / -1;
+    }
+
+    .Kpi-Card {
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 14px 12px;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .Kpi-Label {
+        font-size: 11px;
+        font-family: 'Oswald', sans-serif;
+        letter-spacing: 0.7px;
+        text-transform: uppercase;
+        color: #64748b;
+    }
+
+    .Kpi-Value {
+        margin-top: 4px;
+        font-family: 'Fugaz One', cursive;
+        font-size: 26px;
+        line-height: 1;
+        color: #2d3436;
+    }
+
+    .Kpi-Subtext {
+        margin-top: 6px;
+        font-size: 11px;
+        color: #64748b;
+    }
+
+    .Insight-Grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        grid-column: 1 / -1;
+    }
+
+    .Picker-Pulse-List,
+    .Daily-Pulse-List {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .Pulse-Row,
+    .Day-Pulse-Row {
+        display: grid;
+        align-items: center;
+        gap: 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        background: #f8fafc;
+        padding: 10px 12px;
+    }
+
+    .Pulse-Row {
+        grid-template-columns: auto 1fr auto auto;
+    }
+
+    .Day-Pulse-Row {
+        grid-template-columns: 1fr auto auto;
+    }
+
+    .Pulse-Rank {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Oswald', sans-serif;
+        font-size: 12px;
+        color: white;
+        background: #1d9bf0;
+    }
+
+    .Pulse-User {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .Pulse-Avatar {
+        width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 11px;
+        font-family: 'Oswald', sans-serif;
+    }
+
+    .Pulse-Name {
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .Pulse-Record,
+    .Pulse-Rate,
+    .Day-Pulse-Date,
+    .Day-Pulse-Volume,
+    .Day-Pulse-Rate {
+        font-size: 12px;
+        color: #475569;
+        font-family: 'Oswald', sans-serif;
+        letter-spacing: 0.2px;
+    }
+
+    .Day-Pulse-Date {
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .Pulse-Empty {
+        border: 1px dashed #cbd5e1;
+        border-radius: 10px;
+        padding: 14px;
+        text-align: center;
+        color: #64748b;
+        font-size: 13px;
+        background: #f8fafc;
+    }
+
+    /* Home vs Away Stats */
+    .Home-Away-Stats {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    .Home-Away-Row {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+    }
+
+    .Home-Away-Label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e293b;
+    }
+
+    .Home-Away-Value {
+        font-size: 13px;
+        color: #64748b;
+        font-family: 'Oswald', sans-serif;
+    }
+
+    .Home-Away-Rate {
+        font-size: 18px;
+        font-family: 'Fugaz One', cursive;
+        color: #1d9bf0;
+    }
+
+    /* Torvik Stats */
+    .Torvik-Stats {
+        margin-top: 12px;
+    }
+
+    .Torvik-Summary {
+        text-align: center;
+        padding: 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        margin-bottom: 12px;
+    }
+
+    .Torvik-Big-Value {
+        font-family: 'Fugaz One', cursive;
+        font-size: 36px;
+        color: white;
+        line-height: 1;
+    }
+
+    .Torvik-Big-Label {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.9);
+        margin-top: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: 'Oswald', sans-serif;
+    }
+
+    .Torvik-Details {
+        text-align: center;
+        font-size: 12px;
+        color: #64748b;
+        font-family: 'Oswald', sans-serif;
+        padding: 8px;
+        background: #f8fafc;
+        border-radius: 6px;
+    }
+
+    .Torvik-Details span span {
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    /* Favorite Teams */
+    .Favorite-Teams-Grid {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    .Favorite-Team-Card {
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+    }
+
+    .Favorite-Team-Header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .Favorite-Team-Picker {
+        font-size: 13px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .Favorite-Team-Info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        padding: 8px;
+        background: #f8fafc;
+        border-radius: 6px;
+    }
+
+    .Favorite-Team-Logo {
+        width: 32px;
+        height: 32px;
+        object-fit: contain;
+    }
+
+    .Favorite-Team-Name {
+        flex: 1;
+        font-size: 14px;
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .Favorite-Team-Record {
+        font-size: 12px;
+        font-family: 'Oswald', sans-serif;
+        color: #64748b;
+    }
+
+    .Favorite-Team-Reason {
+        font-size: 11px;
+        color: #64748b;
+        font-style: italic;
+        line-height: 1.4;
+    }
+
+    .Card-Subtitle {
+        font-size: 12px;
+        color: #64748b;
+        margin-top: -4px;
+        margin-bottom: 8px;
     }
 
     /* --- CARDS (Base Style) --- */
@@ -3757,8 +4047,20 @@ max-height: 100px;
     .Big-Stat-Value { font-family: 'Fugaz One'; font-size: 28px; color: var(--husker-blue); }
 
     /* Responsive */
+    @media (max-width: 760px) {
+        .Stats-Kpi-Grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
     @media (max-width: 600px) {
-        .Split-Grid { grid-template-columns: 1fr; }
+        .Split-Grid,
+        .Insight-Grid,
+        .Stats-Kpi-Grid {
+            grid-template-columns: 1fr;
+        }
+
+        .Pulse-Row {
+            grid-template-columns: auto 1fr;
+        }
     }
 
 /* --- FULL WIDTH CHART ROW --- */
@@ -3798,8 +4100,8 @@ max-height: 100px;
 /* Responsive Container */
 .Chart-Wrapper-Large {
     position: relative;
-    height: 500px; /* Desktop Height */
-    width: 500px;
+    height: 420px;
+    width: 100%;
 }
 
         .chart-box { height: 250px; width: 100%; position: relative; }
