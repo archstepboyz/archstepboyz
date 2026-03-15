@@ -184,7 +184,7 @@ userTrigger.addEventListener('click', function(event) {
 
 
 
-
+var firstRender = true;
 
 /* QUICK DATE HELPER */
 function dateFromTimestamp(ts, opt = 'text') {
@@ -292,10 +292,10 @@ const confTourneySection = document.getElementById('confTourneySection');
 // Mock-only conference tourney picks state.
 const mockDB = {
   users: [
-    { id: 'CO', label: 'CookedByCaptainJack', uuid: 'fa3d35cd-6495-4893-a704-cad39542533f' },
-    { id: 'FE', label: 'FearTheBeak', uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9' },
-    { id: 'GA', label: 'Gayson', uuid: 'c310b6e4-1827-4df6-a65d-42e6f7523f58' },
-    { id: 'NO', label: 'NotFlorida', uuid: '61e46342-e00e-4ed6-ab69-cd3b060e54cd' },
+    { id: 'CO', label: 'CookedByCaptainJack', uuid: 'fa3d35cd-6495-4893-a704-cad39542533f', total: 0 },
+    { id: 'FE', label: 'FearTheBeak', uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9', total: 0 },
+    { id: 'GA', label: 'Gayson', uuid: 'c310b6e4-1827-4df6-a65d-42e6f7523f58', total: 0 },
+    { id: 'NO', label: 'NotFlorida', uuid: '61e46342-e00e-4ed6-ab69-cd3b060e54cd', total: 0 },
   ],
   tournaments: [
     {
@@ -453,6 +453,11 @@ const mockDB = {
       conf: 'Big Ten (Chicago, IL)',
       tip: '3/15, 3:30 p.m. ET (CBS)',
     },
+    {
+      id: 'total',
+      conf: 'Total',
+      tip: '',
+    },
   ],
 };
 
@@ -517,6 +522,14 @@ function renderConfTourneyTable(picks) {
     .map((tourney) => {
       const cells = columns
         .map((user) => {
+          if (tourney.id === 'total') {
+            return `
+              <td class="conf-tourney-cell">
+                ${user.total}
+              </td>
+            `;
+          }
+
           const isCurrentUser = user.uuid === getCurrentUser()?.sub;
           const isEditable = isCurrentUser && !isSubmitted;
           const pickId = picks.find((pick) => pick.uuid === user.uuid)?.[tourney.id] ?? null;
@@ -527,6 +540,9 @@ function renderConfTourneyTable(picks) {
           const clickAction = isEditable ? `onclick="openConfTourneySelector('${tourney.id}')"` : '';
           const pickableClass = isEditable ? 'is-pickable' : '';
           const winnerClass = winnerId != null ? (winner ? 'correct' : 'incorrect') : '';
+          if (winner && firstRender) {
+              columns.find(u => u.id === user.id).total += 1;
+          }
 
           return `
             <td class="conf-tourney-cell ${pickableClass} ${winnerClass}" ${clickAction}>
@@ -545,8 +561,7 @@ function renderConfTourneyTable(picks) {
           ${cells}
         </tr>
       `;
-    })
-    .join('');
+    }).join('');
 
   if (stateChip) {
     stateChip.textContent = isSubmitted ? 'Submitted' : 'Draft';
@@ -558,6 +573,7 @@ function renderConfTourneyTable(picks) {
   if (resetBtn) {
     resetBtn.style.display = isSubmitted ? 'inline-flex' : 'none';
   }
+  firstRender = false;
 }
 
 function setConfTourneyVisibility(shouldShow) {
