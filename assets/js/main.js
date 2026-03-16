@@ -256,7 +256,7 @@ var CONF_TOURNEY_PICKS;
 
 const currentDate = new Date();
 // should make this const and introduce SELECTED_WEEK
-let CURRENT_WEEK = 19;
+let CURRENT_WEEK = 20;
 
 const TEAMS_ENDPOINT =
   "https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Teams?order=conf.asc,conf_pos.asc";
@@ -2037,8 +2037,8 @@ window.switchPick = switchPick;
             const awayScore = game.away_score ? `<div class="Score-Badge">${game.away_score}</div>` : '';
             const homeScore = game.home_score ? `<div class="Score-Badge">${game.home_score}</div>` : '';
 
-            const awayRecord = game.away_torvik ? `${game.away_record} | Torvik: ${game.away_torvik}` : `${game.away_record}`;
-            const homeRecord = game.home_torvik ? `${game.home_record} | Torvik: ${game.home_torvik}` : `${game.home_record}`;
+            const awayRecord = game.away_torvik ? `${game.away_record ?? '0-0'} | Torvik: ${game.away_torvik}` : `${game.away_record ?? '0-0'}`;
+            const homeRecord = game.home_torvik ? `${game.home_record ?? '0-0'} | Torvik: ${game.home_torvik}` : `${game.home_record ?? '0-0'}`;
 
             const tv = game.tv ? `<div class="Broadcast-Badge"><i class="fa-solid fa-tv"></i> <span>${game.tv}</span></div>` : '';  
 
