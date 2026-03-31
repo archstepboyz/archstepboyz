@@ -253,6 +253,7 @@ function updateCompactTracker(current, total, id) {
 /* GLOBAL VARS */
 
 var CONF_TOURNEY_PICKS;
+var CROWN_TOURNEY_PICKS;
 
 const currentDate = new Date();
 // should make this const and introduce SELECTED_WEEK
@@ -283,11 +284,14 @@ var FILTER = null;
 
 let showingAllPicks = false;
 let showingConfTourney = false;
+let showingCrownTourney = false;
 let activeSelectorSource = 'top25';
 let activeConfTourneyId = null;
 
 const confTourneyBtn = document.getElementById('confTourneyBtn');
 const confTourneySection = document.getElementById('confTourneySection');
+const crownTourneyBtn = document.getElementById('crownTourneyBtn');
+const crownTourneySection = document.getElementById('crownTourneyTable');
 
 // Mock-only conference tourney picks state.
 const mockDB = {
@@ -461,6 +465,14 @@ const mockDB = {
   ],
 };
 
+async function fetchCrownTourneyPicks() {
+  return db_client.from("Crown_Tourney").select("*");
+}
+
+async function updateCrownTourneyPicks(user_id, data) {
+  return db_client.from("Crown_Tourney").update(data).eq("uuid", user_id);
+}
+
 async function fetchConfTourneyPicks() {
   return db_client.from("Conf_Tourneys").select("*");
 }
@@ -492,6 +504,51 @@ function renderConfPickCell(tourney, teamId, teamName, isMasked, isEditable) {
       <!--<span class="conf-tourney-pick-name">${teamName}</span>-->
     </div>
   `;
+}
+
+        var matchups = [
+            { top: 'qf-l-1-top', bot: 'qf-l-1-bot', target: 'sf-l-top' },   // Game 1: Left QF 1
+            { top: 'qf-l-2-top', bot: 'qf-l-2-bot', target: 'sf-l-bot' },   // Game 2: Left QF 2
+            { top: 'qf-r-1-top', bot: 'qf-r-1-bot', target: 'sf-r-top' },   // Game 3: Right QF 1
+            { top: 'qf-r-2-top', bot: 'qf-r-2-bot', target: 'sf-r-bot' },   // Game 4: Right QF 2
+            { top: 'sf-l-top',   bot: 'sf-l-bot',   target: 'champ-l' },    // Game 5: Left SF
+            { top: 'sf-r-top',   bot: 'sf-r-bot',   target: 'champ-r' },    // Game 6: Right SF
+            { top: 'champ-l',    bot: 'champ-r',    target: 'ultimate-champion' } // Game 7: Championship
+        ];
+
+function renderCrownTourneyTable(picks) {
+    const userCrownBracket = picks.find( p => p.uuid === getCurrentUser()?.sub )?.picks;
+    console.log(userCrownBracket);
+
+    function loadSelections(selections) {
+        // Map out the source elements and target destinations for each of the 7 games sequentially
+
+        if (!Array.isArray(selections) || selections.length !== 7) {
+            console.error("Invalid selections array. Must provide exactly 7 choices.");
+            return;
+        }
+
+        // Process sequentially so earlier rounds populate the source DOM elements for later rounds
+        for (let i = 0; i < selections.length; i++) {
+            const choice = selections[i];
+            const match = matchups[i];
+            const targetElement = document.getElementById(match.target);
+
+            if (choice === 1) {
+                const sourceElement = document.getElementById(match.top);
+                advanceTournamentTeam(sourceElement, match.target);
+            } else if (choice === 2) {
+                const sourceElement = document.getElementById(match.bot);
+                advanceTournamentTeam(sourceElement, match.target);
+            } else {
+                // 0 or invalid: Ensure the target is cleared out
+                if (targetElement) {
+                    targetElement.innerHTML = match.target === 'ultimate-champion' ? 'CHAMPION' : '';
+                }
+            }
+        }
+    }
+    loadSelections(userCrownBracket);
 }
 
 function renderConfTourneyTable(picks) {
@@ -576,6 +633,34 @@ function renderConfTourneyTable(picks) {
   firstRender = false;
 }
 
+function setCrownTourneyVisibility(shouldShow) {
+  showingCrownTourney = shouldShow;
+
+  if (crownTourneyBtn) {
+    crownTourneyBtn.classList.toggle('active', shouldShow);
+    crownTourneyBtn.setAttribute('aria-pressed', String(shouldShow));
+  }
+  if (crownTourneySection) {
+    crownTourneySection.classList.toggle('is-visible', shouldShow);
+  }
+
+  const picksContainer = document.querySelector('.Picks-Container');
+  const picksMenu = document.getElementById('picksMenu');
+  const weekSelector = document.querySelector('.Week-Select-Input');
+  if (picksContainer && picksMenu && weekSelector) {
+    picksContainer.style.display = shouldShow ? 'none' : 'flex';
+    picksMenu.style.display = shouldShow ? 'none' : 'grid';
+    weekSelector.disabled = shouldShow;
+  }
+
+  if (shouldShow) {
+    fetchCrownTourneyPicks().then(res=> {
+      CROWN_TOURNEY_PICKS = res.data;
+      renderCrownTourneyTable(res.data);
+    });
+  }
+}
+
 function setConfTourneyVisibility(shouldShow) {
   showingConfTourney = shouldShow;
 
@@ -630,6 +715,12 @@ function reopenConfTourneyDraft() {
     });
 }
 window.reopenConfTourneyDraft = reopenConfTourneyDraft;
+
+if (crownTourneyBtn) {
+  crownTourneyBtn.addEventListener('click', () => {
+    setCrownTourneyVisibility(!showingCrownTourney);
+  });
+}
 
 if (confTourneyBtn) {
   confTourneyBtn.addEventListener('click', () => {
@@ -813,10 +904,13 @@ let setActive;
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
+    if (crownTourneySection) crownTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const confTourneyToggle = document.getElementById("confTourneyMenu");
     confTourneyToggle.style.display = "none";
+    const crownTourneyToggle = document.getElementById("crownTourneyMenu");
+    crownTourneyToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -844,10 +938,13 @@ let setActive;
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
+    if (crownTourneySection) crownTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const confTourneyToggle = document.getElementById("confTourneyMenu");
     confTourneyToggle.style.display = "none";
+    const crownTourneyToggle = document.getElementById("crownTourneyMenu");
+    crownTourneyToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -877,6 +974,8 @@ let setActive;
     picksToggle.style.display = "flex";
     const confTourneyToggle = document.getElementById("confTourneyMenu");
     confTourneyToggle.style.display = "flex";
+    const crownTourneyToggle = document.getElementById("crownTourneyMenu");
+    crownTourneyToggle.style.display = "flex";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -904,10 +1003,13 @@ let setActive;
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
+    if (crownTourneySection) crownTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const confTourneyToggle = document.getElementById("confTourneyMenu");
     confTourneyToggle.style.display = "none";
+    const crownTourneyToggle = document.getElementById("crownTourneyMenu");
+    crownTourneyToggle.style.display = "none";
     if (CURRENT_WEEK >= 11) {
       const ballot = document.querySelector(".Top25-Container");
       ballot.style.display = "flex";
@@ -936,10 +1038,13 @@ let setActive;
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
+    if (crownTourneySection) crownTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const confTourneyToggle = document.getElementById("confTourneyMenu");
     confTourneyToggle.style.display = "none";
+    const crownTourneyToggle = document.getElementById("crownTourneyMenu");
+    crownTourneyToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -965,10 +1070,13 @@ function switchToBracket() {
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
+    if (crownTourneySection) crownTourneySection.classList.remove('is-visible');
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const confTourneyToggle = document.getElementById("confTourneyMenu");
     confTourneyToggle.style.display = "none";
+    const crownTourneyToggle = document.getElementById("crownTourneyMenu");
+    crownTourneyToggle.style.display = "none";
     const ballot = document.querySelector(".Top25-Container");
     ballot.style.display = "none";
     const dash = document.getElementById("statsDash");
@@ -2520,6 +2628,100 @@ function openConfTourneySelector(tourneyId) {
     setTimeout(() => document.getElementById('teamSearch').focus(), 100);
 }
 window.openConfTourneySelector = openConfTourneySelector;
+
+var currentSelections = [0, 0, 0, 0, 0, 0, 0];
+
+/**
+     * Determines which teams have advanced by comparing image sources
+     * and updates the global currentSelections array.
+     */
+    function saveSelections() {
+        for (let i = 0; i < matchups.length; i++) {
+            const match = matchups[i];
+            const targetElement = document.getElementById(match.target);
+            const targetImg = targetElement ? targetElement.querySelector('img') : null;
+
+            if (targetImg) {
+                const targetSrc = targetImg.src;
+                const topElement = document.getElementById(match.top);
+                const botElement = document.getElementById(match.bot);
+                const topImg = topElement ? topElement.querySelector('img') : null;
+                const botImg = botElement ? botElement.querySelector('img') : null;
+
+                if (topImg && topImg.src === targetSrc) {
+                    currentSelections[i] = 1;
+                } else if (botImg && botImg.src === targetSrc) {
+                    currentSelections[i] = 2;
+                } else {
+                    currentSelections[i] = 0;
+                }
+            } else {
+                currentSelections[i] = 0;
+            }
+        }
+        
+        // Log to console for debugging/verification
+        console.log("Selections saved:", currentSelections);
+
+        updateCrownTourneyPicks(getCurrentUser().sub,{picks: currentSelections});
+    }
+
+/**
+     * Recursively checks downstream target elements and removes the old team's logo
+     * if they had previously advanced further into the bracket.
+     */
+    function clearDownstream(elementId, srcToClear) {
+        const el = document.getElementById(elementId);
+        if (!el) return;
+
+        const img = el.querySelector('img');
+        
+        if (img && img.src === srcToClear) {
+            // Restore default text for the final box, otherwise clear the slot
+            el.innerHTML = elementId === 'ultimate-champion' ? 'CHAMPION' : '';
+            
+            // Look for the next element in the chain via the onclick attribute
+            const onclickStr = el.getAttribute('onclick');
+            if (onclickStr) {
+                const match = onclickStr.match(/'([^']+)'/);
+                if (match && match[1]) {
+                    clearDownstream(match[1], srcToClear);
+                }
+            }
+        }
+    }
+
+    /**
+     * Reads the wrapper and image inside the clicked bracket slot and duplicates 
+     * the exact HTML structure into the target slot to preserve all custom classes and attributes.
+     */
+    function advanceTournamentTeam(sourceElement, targetElementId) {
+        const sourceWrapper = sourceElement.querySelector('.image-wrapper');
+        const imageElement = sourceElement.querySelector('img');
+        const targetElement = document.getElementById(targetElementId);
+        
+        if (sourceWrapper && imageElement && targetElement) {
+            const newSrc = imageElement.src;
+            const existingImg = targetElement.querySelector('img');
+            
+            // If the target slot already contains a different team, clear them from subsequent rounds
+            if (existingImg && existingImg.src !== newSrc) {
+                const onclickStr = targetElement.getAttribute('onclick');
+                if (onclickStr) {
+                    const match = onclickStr.match(/'([^']+)'/);
+                    if (match && match[1]) {
+                        clearDownstream(match[1], existingImg.src);
+                    }
+                }
+            }
+            
+            // Copy the entire outer HTML of the wrapper to preserve specific team classes and image attributes
+            targetElement.innerHTML = sourceWrapper.outerHTML;
+
+            saveSelections();
+        }
+    }
+    window.advanceTournamentTeam = advanceTournamentTeam;
 
 function filterTeams() {
     const query = document.getElementById('teamSearch').value.toLowerCase();

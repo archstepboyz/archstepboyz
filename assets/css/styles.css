@@ -1066,6 +1066,272 @@ opacity: 0.9;
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* --- CROWN TOURNEY PICKS --- */
+.crown-tourney-btn {
+  font-family: var(--font-stack);
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  color: var(--text-main);
+  background-color: var(--bg-track);
+  border: none;
+  border-radius: 30px;
+  padding: 0 16px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.crown-tourney-btn:hover {
+  background-color: #d1d8dd;
+}
+
+.crown-tourney-btn.active {
+  background: linear-gradient(135deg, #2d3436, #1f2527);
+  color: #ffffff;
+}
+
+
+        /* Base page setup */
+        .crown-tournament {
+            background-color: #333333; /* Dark backdrop to frame the bracket */
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            font-family: 'Roboto', sans-serif;
+            display: none;
+        }
+.crown-tournament.is-visible {
+  display: flex;
+}
+
+        /* The main interactive bracket canvas */
+        .interactive-tournament-bracket-canvas-container {
+            position: relative;
+            width: 1200px;
+            height: 900px; /* Extended to fit the extra boxes */
+            background-color: #f2efe9;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-radius: 12px;
+            overflow: hidden;
+            color: #1a1a1a;
+        }
+
+        /* Typography & Headers */
+        .bracket-header-main-title-text {
+            position: absolute;
+            top: 25px;
+            width: 100%;
+            text-align: center;
+            font-family: 'Oswald', sans-serif;
+            font-size: 68px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin: 0;
+            line-height: 1;
+        }
+
+        .bracket-header-presented-by-text {
+            position: absolute;
+            top: 95px;
+            width: 100%;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 4px;
+            color: #4a4a4a;
+        }
+
+        .bracket-sponsor-ghost-logo-placeholder {
+            position: absolute;
+            top: 120px;
+            left: 540px;
+            width: 120px;
+            text-align: center;
+            font-family: 'Oswald', sans-serif;
+            font-size: 24px;
+            font-style: italic;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        .bracket-round-column-header-title {
+            position: absolute;
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            color: #eeb633;
+            text-align: center;
+            letter-spacing: 1px;
+            width: 140px;
+        }
+
+        /* Match Info Labels */
+        .bracket-matchup-datetime-network-label {
+            position: absolute;
+            width: 140px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 700;
+            line-height: 1.4;
+        }
+        .bracket-matchup-datetime-network-label strong {
+            font-size: 16px;
+            font-family: 'Oswald', sans-serif;
+        }
+
+        /* Footers */
+        .bracket-footer-las-vegas-headline {
+            position: absolute;
+            top: 750px;
+            width: 100%;
+            text-align: center;
+            font-family: 'Oswald', sans-serif;
+            font-size: 64px;
+            color: #eeb633;
+            font-weight: 700;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+
+        .bracket-footer-location-subtext {
+            position: absolute;
+            top: 820px;
+            font-size: 13px;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 2px;
+            color: #333;
+        }
+        .bracket-footer-location-subtext.left-arena-loc { left: 250px; width: 250px; }
+        .bracket-footer-location-subtext.right-arena-loc { left: 700px; width: 300px; }
+
+        /* Team Logo Slots */
+        .bracket-team-interactive-logo-slot {
+            position: absolute;
+            width: 140px;
+            height: 70px;
+            background-color: white;
+            border: 2px solid #1a1a1a;
+            border-radius: 10px;
+            box-sizing: border-box;
+            cursor: pointer;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s, transform 0.1s;
+        }
+        .bracket-team-interactive-logo-slot:hover {
+            border-color: #eeb633;
+            transform: scale(1.02);
+        }
+        .bracket-team-interactive-logo-slot img {
+            width: 70%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none; /* Let click event hit the container */
+        }
+
+        /* Championship specific vertical slots */
+        .bracket-team-interactive-logo-slot.championship-vertical-slot {
+            width: 90px;
+            height: 160px;
+        }
+        .bracket-team-interactive-logo-slot.championship-vertical-slot img {
+            width: 100%;
+            height: 70%;
+            object-fit: cover;
+        }
+
+        /* Form / Prediction & Champion Boxes */
+        .bracket-score-prediction-input-container {
+            position: absolute;
+            top: 560px;
+            left: 510px;
+            width: 180px;
+            text-align: center;
+        }
+        .bracket-score-prediction-input-field {
+            width: 100%;
+            padding: 8px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+            font-size: 14px;
+            text-align: center;
+            border: 2px dashed #1a1a1a;
+            border-radius: 6px;
+            background-color: transparent;
+            box-sizing: border-box;
+            outline: none;
+        }
+        .bracket-score-prediction-input-field:focus {
+            border-style: solid;
+            border-color: #eeb633;
+        }
+
+        .bracket-ultimate-champion-display-box {
+            position: absolute;
+            top: 610px;
+            left: 535px;
+            width: 130px;
+            height: 130px;
+            background-color: white;
+            border: 3px solid #eeb633;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(238, 182, 51, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            color: #aaa;
+            font-weight: bold;
+            text-align: center;
+            font-size: 14px;
+        }
+        .bracket-ultimate-champion-display-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        /* --- Connecting Lines Canvas Objects --- */
+        .bracket-visual-line-connector-segment {
+            position: absolute;
+            box-sizing: border-box;
+        }
+        /* Color and thickness for all lines */
+        .bracket-visual-line-connector-segment { border-color: #1a1a1a; border-style: solid; border-width: 0; }
+        
+        /* Utility line classes based on borders */
+        .line-border-top { border-top-width: 1px; }
+        .line-border-bottom { border-bottom-width: 1px; }
+        .line-border-left { border-left-width: 1px; }
+        .line-border-right { border-right-width: 1px; }
+
+        /* Add this new class for the wrapper */
+        .image-wrapper {
+            background: black;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none; /* Ensures the click event still hits the parent slot */
+        }
+
+        .oklahoma-sooners { background: rgb( 164, 31, 53); }
+        .colorado-buffaloes { background: rgb( 217, 199, 146); }
+        .baylor-bears { background: rgb( 20, 71, 51); }
+        .minnesota-golden-gophers { background: rgb( 117, 22, 37); }
+        .stanford-cardinal { background: rgb( 169, 5, 51); }
+        .west-virginia-mountaineers { background: rgb( 0, 40, 86); }
+        .rutgers-scarlet-knights { background: rgb( 227, 24, 55); }
+        .creighton-bluejays { background: rgb( 0, 93, 170); }
+
 /* --- CONF TOURNEY PICKS --- */
 .conf-tourney-btn {
   font-family: var(--font-stack);
