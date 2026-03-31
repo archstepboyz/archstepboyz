@@ -518,7 +518,7 @@ function renderConfPickCell(tourney, teamId, teamName, isMasked, isEditable) {
 
 function renderCrownTourneyTable(picks) {
     const userCrownBracket = picks.find( p => p.uuid === getCurrentUser()?.sub )?.picks;
-    console.log(userCrownBracket);
+    const userTotalPoints = picks.find( p => p.uuid === getCurrentUser()?.sub )?.predicted_total;
 
     function loadSelections(selections) {
         // Map out the source elements and target destinations for each of the 7 games sequentially
@@ -536,10 +536,10 @@ function renderCrownTourneyTable(picks) {
 
             if (choice === 1) {
                 const sourceElement = document.getElementById(match.top);
-                advanceTournamentTeam(sourceElement, match.target);
+                advanceTournamentTeam(sourceElement, match.target, true);
             } else if (choice === 2) {
                 const sourceElement = document.getElementById(match.bot);
-                advanceTournamentTeam(sourceElement, match.target);
+                advanceTournamentTeam(sourceElement, match.target, true);
             } else {
                 // 0 or invalid: Ensure the target is cleared out
                 if (targetElement) {
@@ -547,6 +547,9 @@ function renderCrownTourneyTable(picks) {
                 }
             }
         }
+
+        const scoreInput = document.querySelector('.bracket-score-prediction-input-field');
+        scoreInput.value = userTotalPoints;
     }
     loadSelections(userCrownBracket);
 }
@@ -2635,7 +2638,7 @@ var currentSelections = [0, 0, 0, 0, 0, 0, 0];
      * Determines which teams have advanced by comparing image sources
      * and updates the global currentSelections array.
      */
-    function saveSelections() {
+    function saveSelections(is_loading = false) {
         for (let i = 0; i < matchups.length; i++) {
             const match = matchups[i];
             const targetElement = document.getElementById(match.target);
@@ -2661,9 +2664,9 @@ var currentSelections = [0, 0, 0, 0, 0, 0, 0];
         }
         
         // Log to console for debugging/verification
-        console.log("Selections saved:", currentSelections);
+        !is_loading && console.log("Selections saved:", currentSelections);
 
-        updateCrownTourneyPicks(getCurrentUser().sub,{picks: currentSelections});
+        !is_loading && updateCrownTourneyPicks(getCurrentUser().sub,{picks: currentSelections});
     }
 
 /**
@@ -2695,7 +2698,7 @@ var currentSelections = [0, 0, 0, 0, 0, 0, 0];
      * Reads the wrapper and image inside the clicked bracket slot and duplicates 
      * the exact HTML structure into the target slot to preserve all custom classes and attributes.
      */
-    function advanceTournamentTeam(sourceElement, targetElementId) {
+    function advanceTournamentTeam(sourceElement, targetElementId, is_loading = false) {
         const sourceWrapper = sourceElement.querySelector('.image-wrapper');
         const imageElement = sourceElement.querySelector('img');
         const targetElement = document.getElementById(targetElementId);
@@ -2718,10 +2721,42 @@ var currentSelections = [0, 0, 0, 0, 0, 0, 0];
             // Copy the entire outer HTML of the wrapper to preserve specific team classes and image attributes
             targetElement.innerHTML = sourceWrapper.outerHTML;
 
-            saveSelections();
+            saveSelections(is_loading);
         }
     }
     window.advanceTournamentTeam = advanceTournamentTeam;
+
+var predictedScore = -1;
+
+    const scoreInput = document.querySelector('.bracket-score-prediction-input-field');
+    
+    if (scoreInput) {
+        scoreInput.addEventListener('change', (event) => {
+            console.log('hey');
+            const inputValue = event.target.value.trim();
+            
+            // Allow clearing the field manually without triggering an error
+            if (inputValue === "") {
+                predictedScore = -1;
+                return;
+            }
+
+            // Attempt to convert to a strict number
+            const numericValue = Number(inputValue);
+
+            // Check if it's a valid integer (fails on text, decimals, etc.)
+            if (!Number.isInteger(numericValue)) {
+                event.target.value = "";
+                predictedScore = -1;
+                return;
+            }
+            
+            predictedScore = numericValue;
+            console.log("Predicted score saved:", predictedScore);
+            updateCrownTourneyPicks(getCurrentUser().sub,{predicted_total: predictedScore});
+
+        });
+    }
 
 function filterTeams() {
     const query = document.getElementById('teamSearch').value.toLowerCase();
