@@ -1094,32 +1094,32 @@ opacity: 0.9;
   color: #ffffff;
 }
 
+.crown-tournament {
+    font-family: 'Roboto', sans-serif;
+    overflow-x: hidden;
+    display: none;
 
-        /* Base page setup */
-        .crown-tournament {
-            background-color: #333333; /* Dark backdrop to frame the bracket */
-            margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            justify-content: center;
-            font-family: 'Roboto', sans-serif;
-            display: none;
-        }
+    width: 690px;
+}
 .crown-tournament.is-visible {
   display: flex;
 }
 
-        /* The main interactive bracket canvas */
-        .interactive-tournament-bracket-canvas-container {
-            position: relative;
-            width: 1200px;
-            height: 900px; /* Extended to fit the extra boxes */
-            background-color: #f2efe9;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border-radius: 12px;
-            overflow: hidden;
-            color: #1a1a1a;
-        }
+.interactive-tournament-bracket-canvas-container {
+    position: relative;
+    width: 1200px;
+    min-width: 1200px; /* Prevents the container from shrinking */
+    height: 900px;
+    background-color: #f2efe9;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-radius: 12px;
+    overflow: hidden;
+    color: #1a1a1a;
+    margin: 0 auto; /* Centers the container when the screen is wide enough */
+
+    transform: scale(0.575);
+    transform-origin: top left;
+}
 
         /* Typography & Headers */
         .bracket-header-main-title-text {
