@@ -1092,80 +1092,244 @@
   </div>
 
     <div class="Dashboard-Container" id="statsDash">
+      <div class="Stats-Kpi-Grid">
+        <div class="Kpi-Card">
+          <div class="Kpi-Label">Resolved Games</div>
+          <div class="Kpi-Value" id="kpiResolvedGames">--</div>
+          <div class="Kpi-Subtext" id="kpiResolvedSub">--</div>
+        </div>
+        <div class="Kpi-Card">
+          <div class="Kpi-Label">Total Picks</div>
+          <div class="Kpi-Value" id="kpiTotalPicks">--</div>
+          <div class="Kpi-Subtext" id="kpiPendingPicks">--</div>
+        </div>
+        <div class="Kpi-Card">
+          <div class="Kpi-Label">Hit Rate</div>
+          <div class="Kpi-Value" id="kpiHitRate">--</div>
+          <div class="Kpi-Subtext">Across all resolved picks</div>
+        </div>
+        <div class="Kpi-Card">
+          <div class="Kpi-Label">Consensus Accuracy</div>
+          <div class="Kpi-Value" id="kpiConsensusRate">--</div>
+          <div class="Kpi-Subtext" id="kpiConsensusSub">--</div>
+        </div>
+        <div class="Kpi-Card">
+          <div class="Kpi-Label">Active Pickers</div>
+          <div class="Kpi-Value" id="kpiActivePickers">--</div>
+          <div class="Kpi-Subtext" id="kpiProfilesSeen">--</div>
+        </div>
+      </div>
 
-        <div class="Split-Grid">
-            
-            <div class="Stat-Card is-hot">
-                <div class="Card-Title">
-                    <i class="fa-solid fa-fire Icon-Hot"></i> Hot
-                </div>
-                <div id="hotList">
-                    </div>
-            </div>
-
-            <div class="Stat-Card is-cold">
-                <div class="Card-Title">
-                    <i class="fa-solid fa-snowflake Icon-Cold"></i> Cold
-                </div>
-                <div id="coldList">
-                    </div>
-            </div>
+      <div class="Insight-Grid">
+        <div class="Stat-Card">
+          <div class="Card-Title">
+            <i class="fa-solid fa-ranking-star"></i> Picker Pulse
+          </div>
+          <div id="pickerPulseList" class="Picker-Pulse-List"></div>
         </div>
 
-<div class="Chart-Row">
-    <div class="Chart-Header">
-        <div class="Chart-Title"><i class="fa-solid fa-flag-checkered"></i> Leaderboard</div>
-        <div class="Chart-Subtitle">Cumulative Win % (Weeks 9-11)</div>
-    </div>
-    <div class="Chart-Wrapper-Large">
-        <canvas id="raceChart"></canvas>
-    </div>
-</div>
+        <div class="Stat-Card">
+          <div class="Card-Title">
+            <i class="fa-solid fa-calendar-days"></i> Daily Pulse
+          </div>
+          <div id="dailyPulseList" class="Daily-Pulse-List"></div>
+        </div>
+      </div>
 
-        <div class="Stat-Card" style="display:none;">
-            <div class="Card-Title">
-                <i class="fa-solid fa-crosshairs"></i> League Proficiency
-            </div>
-            <div class="Chart-Wrapper Tall">
-                <canvas id="radarChart"></canvas>
-            </div>
-            <div class="Stat-Row">
-                <div>
-                    <div class="Big-Stat-Label">Total Picks</div>
-                    <div class="Big-Stat-Value">412</div>
-                </div>
-                <div>
-                    <div class="Big-Stat-Label">Global Win %</div>
-                    <div class="Big-Stat-Value">54.2%</div>
-                </div>
-            </div>
+      <div class="Split-Grid">
+        <div class="Stat-Card is-hot">
+          <div class="Card-Title">
+            <i class="fa-solid fa-fire Icon-Hot"></i> Hot
+          </div>
+          <div id="hotList"></div>
         </div>
 
-    <div class="card" style="grid-column: 1 / -1;">
-            <div class="card-title"><i class="fas fa-chart-bar" style="color: gray"></i> Popularly Picked Teams</div>
-            <p class="card-desc">Showing most frequently picked teams. Green = Team Won, Red = Team Lost.</p>
-            <div class="chart-box-tall">
-                <canvas id="popularityChart"></canvas>
+        <div class="Stat-Card is-cold">
+          <div class="Card-Title">
+            <i class="fa-solid fa-snowflake Icon-Cold"></i> Cold
+          </div>
+          <div id="coldList"></div>
+        </div>
+      </div>
+
+      <div class="Chart-Row">
+        <div class="Chart-Header">
+          <div class="Chart-Title"><i class="fa-solid fa-chart-line"></i> Weekly Win Trend</div>
+          <div class="Chart-Subtitle" id="trendChartSubtitle">From loaded game data</div>
+        </div>
+        <div class="Chart-Wrapper-Large">
+          <canvas id="raceChart"></canvas>
+        </div>
+      </div>
+
+      <div class="Insight-Grid">
+        <div class="card">
+          <div class="card-title"><i class="fas fa-chart-pie" style="color: gray"></i> Pick Volume by League</div>
+          <p class="card-desc">Distribution of all picks by league/conference.</p>
+          <div class="chart-box">
+            <canvas id="leagueMixChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="fas fa-bullseye" style="color: gray"></i> Consensus Strength</div>
+          <p class="card-desc">How accurate picks are based on how many users align on one side.</p>
+          <div class="chart-box">
+            <canvas id="consensusStrengthChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="Insight-Grid">
+        <div class="Stat-Card">
+          <div class="Card-Title">
+            <i class="fa-solid fa-home"></i> Home vs Away Performance
+          </div>
+          <div class="Home-Away-Stats">
+            <div class="Home-Away-Row">
+              <div class="Home-Away-Label">🏠 Home Teams</div>
+              <div class="Home-Away-Value"><span id="homeWins">--</span> wins</div>
+              <div class="Home-Away-Rate" id="homeWinRate">--%</div>
             </div>
-            <div class="pagination-container">
-                <button class="page-btn" id="prevBtn" onclick="changePage(-1)">
-                    <i class="fas fa-chevron-left"></i> Prev
-                </button>
-                <span class="page-info" id="pageIndicator">Page 1</span>
-                <button class="page-btn" id="nextBtn" onclick="changePage(1)">
-                    Next <i class="fas fa-chevron-right"></i>
-                </button>
+            <div class="Home-Away-Row">
+              <div class="Home-Away-Label">✈️ Away Teams</div>
+              <div class="Home-Away-Value"><span id="awayWins">--</span> wins</div>
+              <div class="Home-Away-Rate" id="awayWinRate">--%</div>
             </div>
+          </div>
         </div>
 
-        <div class="Wolf-Box" id="wolfBox">
+        <div class="Stat-Card">
+          <div class="Card-Title">
+            <i class="fa-solid fa-ranking-star"></i> Torvik Rating Accuracy
+          </div>
+          <div class="Torvik-Stats">
+            <div class="Torvik-Summary">
+              <div class="Torvik-Big-Value" id="torvikAccuracy">--%</div>
+              <div class="Torvik-Big-Label">Better team wins</div>
+            </div>
+            <div class="Torvik-Details">
+              <span><span id="torvikBetterWins">--</span> better wins</span> • 
+              <span><span id="torvikWorseWins">--</span> upsets</span> • 
+              <span><span id="torvikGamesTotal">--</span> with ratings</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="Insight-Grid">
+        <div class="Stat-Card">
+          <div class="Card-Title">
+            <i class="fa-solid fa-trophy"></i> Torvik Picker Performance
+          </div>
+          <div class="Card-Subtitle">Who picks the better Torvik team most often?</div>
+          <div id="pickerTorvikList" class="Picker-Pulse-List"></div>
         </div>
 
-    <div class="chart-container">
+        <div class="Stat-Card">
+          <div class="Card-Title">
+            <i class="fa-solid fa-heart"></i> Favorite Teams
+          </div>
+          <div class="Card-Subtitle">Each picker's most devoted team</div>
+          <div id="favoriteTeamsList" class="Favorite-Teams-Grid"></div>
+        </div>
+      </div>
+
+      <div class="Chart-Row">
+        <div class="Chart-Header">
+          <div class="Chart-Title"><i class="fa-solid fa-user-ninja"></i> Contrarian Index</div>
+          <div class="Chart-Subtitle">How often pickers go against the crowd and their success rate</div>
+        </div>
+        <div class="Chart-Wrapper-Large">
+          <canvas id="contrarianChart"></canvas>
+        </div>
+      </div>
+
+      <div class="Insight-Grid">
+        <div class="card">
+          <div class="card-title"><i class="fas fa-radar" style="color: gray"></i> Conference Mastery</div>
+          <p class="card-desc">Win rate by conference/league for top pickers</p>
+          <div class="chart-box">
+            <canvas id="conferenceMasteryChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="fas fa-chart-scatter" style="color: gray"></i> Risk Profile</div>
+          <p class="card-desc">Boldness vs Accuracy (bubble size = pick volume)</p>
+          <div class="chart-box">
+            <canvas id="riskProfileChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="Chart-Row">
+        <div class="Chart-Header">
+          <div class="Chart-Title"><i class="fa-solid fa-clock"></i> Clock Watchers</div>
+          <div class="Chart-Subtitle">Picker success rate by game time of day</div>
+        </div>
+        <div class="Chart-Wrapper-Large">
+          <canvas id="clockWatcherChart"></canvas>
+        </div>
+      </div>
+
+      <div class="Insight-Grid">
+        <div class="card">
+          <div class="card-title"><i class="fas fa-calendar-week" style="color: gray"></i> Weekend Warriors</div>
+          <p class="card-desc">Weekday vs Weekend performance comparison</p>
+          <div class="chart-box">
+            <canvas id="weekendWarriorChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="fas fa-trophy" style="color: gray"></i> Torvik Upset Kings</div>
+          <p class="card-desc">Top 10 teams that win as Torvik underdogs</p>
+          <div class="chart-box">
+            <canvas id="torvikUnderdogChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="grid-column: 1 / -1;">
+        <div class="card-title"><i class="fas fa-chart-bar" style="color: gray"></i> Popularly Picked Teams</div>
+        <p class="card-desc">Showing most frequently picked teams. Green = Team Won, Red = Team Lost.</p>
+        <div class="chart-box-tall">
+          <canvas id="popularityChart"></canvas>
+        </div>
+        <div class="pagination-container">
+          <button class="page-btn" id="prevBtn" onclick="changePage(-1)">
+            <i class="fas fa-chevron-left"></i> Prev
+          </button>
+          <span class="page-info" id="pageIndicator">Page 1</span>
+          <button class="page-btn" id="nextBtn" onclick="changePage(1)">
+            Next <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="Wolf-Box" id="wolfBox"></div>
+
+      <div class="chart-container">
         <canvas id="leaderboardChart"></canvas>
-    </div>
+      </div>
 
-</div>
+      <div class="Stat-Card" style="display:none;">
+        <div class="Card-Title">
+          <i class="fa-solid fa-crosshairs"></i> League Proficiency
+        </div>
+        <div class="Chart-Wrapper Tall">
+          <canvas id="radarChart"></canvas>
+        </div>
+        <div class="Stat-Row">
+          <div>
+            <div class="Big-Stat-Label">Total Picks</div>
+            <div class="Big-Stat-Value">412</div>
+          </div>
+          <div>
+            <div class="Big-Stat-Label">Global Win %</div>
+            <div class="Big-Stat-Value">54.2%</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
 <div class="Bracket-Container">
 </div>
