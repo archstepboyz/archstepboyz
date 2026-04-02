@@ -281,6 +281,8 @@ var ALL_GAMES = [];
 var GAMES = [];
 var TEAMS;
 var FILTER = null;
+const POWER_FIVE_CONFS = new Set([0, 1, 2, 3, 4]);
+let TEAM_CONF_BY_ID = new Map();
 
 let showingAllPicks = false;
 let showingConfTourney = false;
@@ -1303,6 +1305,129 @@ function switchToBracket() {
   const allCheckbox = document.querySelector('.filter-all');
   const otherCheckboxes = document.querySelectorAll('.filter-other');
   const confCheckboxes = document.querySelectorAll('.filter-conf');
+  const power5Checkbox = document.getElementById('Power5Filter');
+  const midMajorCheckbox = document.getElementById('MidMajorFilter');
+
+  function getActiveOtherFilterId() {
+    return Array.from(otherCheckboxes).find(box => box.checked)?.id ?? 'all';
+  }
+
+  function getTeamConf(teamId) {
+    return TEAM_CONF_BY_ID.get(String(teamId));
+  }
+
+  function isPower5Team(teamId) {
+    const conf = Number(getTeamConf(teamId));
+    return POWER_FIVE_CONFS.has(conf);
+  }
+
+  function isMidMajorTeam(teamId) {
+    const conf = Number(getTeamConf(teamId));
+    return Number.isFinite(conf) && !POWER_FIVE_CONFS.has(conf) && conf !== 999;
+  }
+
+  function matchesConferenceSelection(game) {
+    if (!power5Checkbox || !midMajorCheckbox) {
+      return true;
+    }
+
+    if (power5Checkbox.disabled || midMajorCheckbox.disabled) {
+      return true;
+    }
+
+    const includePower5 = power5Checkbox.checked;
+    const includeMidMajor = midMajorCheckbox.checked;
+
+    if (includePower5 && includeMidMajor) {
+      return true;
+    }
+
+    if (!includePower5 && !includeMidMajor) {
+      return false;
+    }
+
+    if (TEAM_CONF_BY_ID.size === 0) {
+      return true;
+    }
+
+    if (includePower5) {
+      return isPower5Team(game.home_id) || isPower5Team(game.away_id);
+    }
+
+    return isMidMajorTeam(game.home_id) || isMidMajorTeam(game.away_id);
+  }
+
+  function getCompletedWinnerSide(game) {
+    if (game.winner === 'home' || game.winner === 'away') {
+      return game.winner;
+    }
+
+    const homeScore = Number(game.home_score);
+    const awayScore = Number(game.away_score);
+    if (Number.isFinite(homeScore) && Number.isFinite(awayScore) && homeScore !== awayScore) {
+      return homeScore > awayScore ? 'home' : 'away';
+    }
+
+    return null;
+  }
+
+  function parseTorvikValue(value) {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+
+    const numericValue = Number(value);
+    return Number.isFinite(numericValue) ? numericValue : null;
+  }
+
+  function isTorvikUpset(game) {
+    const winnerSide = getCompletedWinnerSide(game);
+    if (!winnerSide) {
+      return false;
+    }
+
+    const homeTorvik = parseTorvikValue(game.home_torvik);
+    const awayTorvik = parseTorvikValue(game.away_torvik);
+    if (homeTorvik == null || awayTorvik == null) {
+      return false;
+    }
+
+    return winnerSide === 'home' ? homeTorvik > awayTorvik : awayTorvik > homeTorvik;
+  }
+
+  function applyGameFilters(sourceGames, filterId = getActiveOtherFilterId()) {
+    const sojrTweet = document.getElementById('sojrTweet');
+    let filteredGames = [...sourceGames];
+
+    FILTER = null;
+    if (sojrTweet) {
+      sojrTweet.style.display = 'none';
+    }
+
+    switch (filterId) {
+      case 'SOJRFilter':
+        FILTER = 'SOJR';
+        filteredGames = filteredGames.filter(game => game.rothstein);
+        if (sojrTweet) {
+          sojrTweet.style.display = 'block';
+        }
+        break;
+      case 'TorvikFilter':
+        FILTER = 'Torvik';
+        filteredGames = filteredGames.filter(game => {
+          return !game.away_torvik || game.away_torvik <= 150 || !game.home_torvik || game.home_torvik <= 150;
+        });
+        break;
+      case 'TorvikUpsetFilter':
+        FILTER = 'TorvikUpset';
+        filteredGames = filteredGames.filter(game => isTorvikUpset(game));
+        break;
+      default:
+        break;
+    }
+
+    return filteredGames.filter(game => matchesConferenceSelection(game));
+  }
 
   // Helper: Enable or Disable Conference Options
   function setConferenceState(shouldDisable) {
@@ -1337,27 +1462,34 @@ function switchToBracket() {
       }
     }
 
-    // 2. "OTHER" (SOJR / Close Lines) CLICKED
+    // 2. "OTHER" (SOJR / Torvik / Completed) CLICKED
     else if (target.classList.contains('filter-other')) {
       if (target.checked) {
+        otherCheckboxes.forEach(box => {
+          if (box !== target) {
+            box.checked = false;
+          }
+        });
+
         // If specific view selected, uncheck "All" and DISABLE conferences
         allCheckbox.checked = false;
         setConferenceState(true);
         filterGames(target.id);
       } else {
-        // If unchecking an "Other", we must check if ANY others are still active
-        const isAnyOtherActive = Array.from(otherCheckboxes).some(box => box.checked);
-        
-        if (!isAnyOtherActive) {
-          // If no others are active, RE-ENABLE conferences
-          setConferenceState(false);
-          
-          // Check if we effectively returned to "All" state
-          if (areAllConfsChecked()) {
-            allCheckbox.checked = true;
-            filterGames('all');
-          }
+        const activeOtherFilter = getActiveOtherFilterId();
+        if (activeOtherFilter !== 'all') {
+          filterGames(activeOtherFilter);
+          return;
         }
+
+        // If no others are active, RE-ENABLE conferences
+        setConferenceState(false);
+
+        // Check if we effectively returned to "All" state
+        if (areAllConfsChecked()) {
+          allCheckbox.checked = true;
+        }
+        filterGames('all');
       }
     }
 
@@ -1370,6 +1502,7 @@ function switchToBracket() {
           allCheckbox.checked = true;
         }
       }
+      filterGames('all');
     }
   }
 
@@ -1378,6 +1511,7 @@ function switchToBracket() {
 
   /* POPULATE TABLE */
   fetchTeams().then((res) => {
+    TEAM_CONF_BY_ID = new Map(res.map(team => [String(team.id), Number(team.conf)]));
     fetchComments().then((comments) => {
       CACHED_COMMENTS_DB = comments.data;
       appendTeamCells(res);
@@ -1449,29 +1583,8 @@ window.onclick = function(event) {
 }
 
 function filterGames(filterId) {
-  switch (filterId) {
-    case 'SOJRFilter':
-      FILTER = 'SOJR';
-      GAMES = ALL_GAMES;
-      GAMES = GAMES.filter(game => game.rothstein);//.sort((a, b) => -1 * a.rothstein.localeCompare(b.rothstein));
-      document.getElementById('sojrTweet').style.display = 'block';
-      renderAll();
-      break;
-    case 'TorvikFilter':
-      FILTER = 'Torvik';
-      GAMES = ALL_GAMES;
-      GAMES = GAMES.filter(game => {
-        return !game.away_torvik || game.away_torvik <= 150 || !game.home_torvik || game.home_torvik <= 150;
-      });
-      renderAll();
-      break;
-    default:
-      FILTER = null;
-      GAMES = ALL_GAMES;
-      document.getElementById('sojrTweet').style.display = 'none';
-      renderAll();
-      break;
-  }
+  GAMES = applyGameFilters(ALL_GAMES, filterId);
+  renderAll();
   return;
 }
 
@@ -2386,6 +2499,8 @@ window.switchPick = switchPick;
               showLoneWolfDisplay(getLoneWolfStats(GAMES));
               showLeaderboardBar(GAMES);
             }
+
+            GAMES = applyGameFilters(ALL_GAMES);
 
             let lastDate = '';
             let days = 0;
