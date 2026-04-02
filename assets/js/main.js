@@ -517,8 +517,9 @@ function renderConfPickCell(tourney, teamId, teamName, isMasked, isEditable) {
         ];
 
 function renderCrownTourneyTable(picks) {
-    const userCrownBracket = picks.find( p => p.uuid === getCurrentUser()?.sub )?.picks;
-    const userTotalPoints = picks.find( p => p.uuid === getCurrentUser()?.sub )?.predicted_total;
+    var viewSelectorUUID = viewSelectorCrown.value === 'MINE' ? getCurrentUser()?.sub : viewSelectorCrown.value;
+    const userCrownBracket = picks.find( p => p.uuid === viewSelectorUUID )?.picks;
+    const userTotalPoints = picks.find( p => p.uuid === viewSelectorUUID )?.predicted_total;
 
     function loadSelections(selections) {
         // Map out the source elements and target destinations for each of the 7 games sequentially
@@ -552,6 +553,130 @@ function renderCrownTourneyTable(picks) {
         scoreInput.value = userTotalPoints;
     }
     loadSelections(userCrownBracket);
+
+    const correctBracket = picks.find(p=>p.uuid==='00000000-0000-0000-0000-000000000000')?.picks;
+
+/**
+ * Helper function that translates an array of 7 choices (0, 1, or 2) 
+ * into an array of absolute Team IDs (1 through 8) that won each game.
+ * @param {number[]} picks - Array of 7 choices
+ * @returns {number[]} Array of 7 Team IDs representing the winners
+ */
+function resolveTeams(picks) {
+    let teams = [0, 0, 0, 0, 0, 0, 0];
+    
+    // Round 1 (Quarterfinals): Determine which of the 8 starting teams won
+    teams[0] = picks[0] === 1 ? 1 : (picks[0] === 2 ? 2 : 0); // Left QF1 (Team 1 vs 2)
+    teams[1] = picks[1] === 1 ? 3 : (picks[1] === 2 ? 4 : 0); // Left QF2 (Team 3 vs 4)
+    teams[2] = picks[2] === 1 ? 5 : (picks[2] === 2 ? 6 : 0); // Right QF1 (Team 5 vs 6)
+    teams[3] = picks[3] === 1 ? 7 : (picks[3] === 2 ? 8 : 0); // Right QF2 (Team 7 vs 8)
+    
+    // Round 2 (Semifinals): Pass the winners of R1 forward based on R2 picks
+    teams[4] = picks[4] === 1 ? teams[0] : (picks[4] === 2 ? teams[1] : 0); // Left SF
+    teams[5] = picks[5] === 1 ? teams[2] : (picks[5] === 2 ? teams[3] : 0); // Right SF
+    
+    // Round 3 (Championship): Pass the winner of R2 forward based on R3 pick
+    teams[6] = picks[6] === 1 ? teams[4] : (picks[6] === 2 ? teams[5] : 0);
+    
+    return teams;
+}
+
+/**
+ * Compares user picks against actual results by tracing absolute teams, ensuring
+ * that a team must have actually reached that round to earn points.
+ * @param {number[]} src - The user's picks (array of 7 ints: 0, 1, or 2)
+ * @param {number[]} tgt - The actual game results (array of 7 ints: 0, 1, or 2)
+ * @returns {number[]} Array of 3 integers: [QuarterfinalsScore, SemifinalsScore, ChampionshipScore]
+ */
+function calculateScores(src, tgt) {
+    let scores = [0, 0, 0]; // [QF, SF, Champ]
+
+    // Validate arrays
+    if (!src || !tgt || src.length !== 7 || tgt.length !== 7) {
+        console.error("Both arrays must contain exactly 7 integers.");
+        return scores;
+    }
+
+    // Convert both arrays of relative picks into absolute Team IDs
+    const userTeams = resolveTeams(src);
+    const actualTeams = resolveTeams(tgt);
+
+    // Round 1 (Quarterfinals): Indices 0-3, 10 pts each
+    for (let i = 0; i < 4; i++) {
+        if (userTeams[i] !== 0 && userTeams[i] === actualTeams[i]) {
+            scores[0] += 10;
+        }
+    }
+
+    // Round 2 (Semifinals): Indices 4-5, 20 pts each
+    for (let i = 4; i < 6; i++) {
+        if (userTeams[i] !== 0 && userTeams[i] === actualTeams[i]) {
+            scores[1] += 20;
+        }
+    }
+
+    // Round 3 (Championship): Index 6, 40 pts
+    if (userTeams[6] !== 0 && userTeams[6] === actualTeams[6]) {
+        scores[2] += 40;
+    }
+
+    return scores;
+}
+
+function sum(a) {
+  return a.reduce((accumulator, current) => accumulator + current, 0);
+}
+
+// Example usage:
+// const userPicks = [1, 2, 1, 1, 1, 2, 1];
+// const actualResults = [1, 2, 0, 1, 1, 0, 0]; // 0s mean games haven't finished yet
+// console.log(calculateScores(userPicks, actualResults)); 
+// Output: [30, 20, 0]
+
+    /**
+     * Calculates the total score, sorts the database descending, 
+     * and renders the rows into the DOM.
+     */
+    function renderStandingsTable() {
+        const tableBody = document.getElementById('standings-table-body');
+        
+        // Calculate total scores and attach them to the objects
+        const processedData = picks.map(user => {
+            return [user.uuid, calculateScores(user.picks,correctBracket)];
+        });
+
+        // Sort by total score (highest first)
+        processedData.sort((a, b) => sum(b[1]) - sum(a[1]));
+
+        // Build HTML string for all rows
+        let rowsHtml = '';
+        
+        processedData.filter(p => p[0] !== '00000000-0000-0000-0000-000000000000').forEach((p, index) => {
+            const u = PICKERS.find(u => u.uuid === p[0]);
+            const rank = index + 1;
+            // Add specific rank classes to the top 3 for styling highlights
+            const rankClass = rank <= 3 ? `rank-${rank}` : '';
+
+            rowsHtml += `
+                <tr class="standings-table-row ${rankClass}">
+                    <td class="standings-table-cell align-left">
+                        <div class="standings-user-profile-wrapper">
+                            <img src="${u.avatarUrl}" alt="${u.username} Avatar" class="standings-user-avatar">
+                            <span class="standings-username-text">${u.username}</span>
+                        </div>
+                    </td>
+                    <td class="standings-table-cell total-score-cell">${sum(p[1])}</td>
+                    <td class="standings-table-cell">${p[1][0]}</td>
+                    <td class="standings-table-cell">${p[1][1]}</td>
+                    <td class="standings-table-cell">${p[1][2]}</td>
+                </tr>
+            `;
+        });
+
+        // Inject the rows into the table body
+        tableBody.innerHTML = rowsHtml;
+    }
+    renderStandingsTable();
 }
 
 function renderConfTourneyTable(picks) {
@@ -754,6 +879,8 @@ let activeRowIndex = null;
 let sortableInstance = null; // Store the sortable object
 let MOCK_DB = {};
 
+let currentViewCrown = 'MINE';
+
 function populateMockDB(ballots) {
   if (CURRENT_WEEK < 11) return; // should say no data for selected week
   const submittedBallots = ballots.filter(ballot => ballot[`submitted${CURRENT_WEEK}`]);
@@ -907,7 +1034,11 @@ let setActive;
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
-    if (crownTourneySection) crownTourneySection.classList.remove('is-visible');
+    if (crownTourneySection) {
+        crownTourneySection.classList.remove('is-visible');
+        crownTourneyBtn.classList.toggle('active', false);
+        crownTourneyBtn.setAttribute('aria-pressed', false);
+    }
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const confTourneyToggle = document.getElementById("confTourneyMenu");
@@ -941,7 +1072,11 @@ let setActive;
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
-    if (crownTourneySection) crownTourneySection.classList.remove('is-visible');
+    if (crownTourneySection) {
+        crownTourneySection.classList.remove('is-visible');
+        crownTourneyBtn.classList.toggle('active', false);
+        crownTourneyBtn.setAttribute('aria-pressed', false);
+    }
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const confTourneyToggle = document.getElementById("confTourneyMenu");
@@ -1006,7 +1141,11 @@ let setActive;
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
-    if (crownTourneySection) crownTourneySection.classList.remove('is-visible');
+    if (crownTourneySection) {
+        crownTourneySection.classList.remove('is-visible');
+        crownTourneyBtn.classList.toggle('active', false);
+        crownTourneyBtn.setAttribute('aria-pressed', false);
+    }
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const confTourneyToggle = document.getElementById("confTourneyMenu");
@@ -1041,7 +1180,11 @@ let setActive;
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
-    if (crownTourneySection) crownTourneySection.classList.remove('is-visible');
+    if (crownTourneySection) {
+        crownTourneySection.classList.remove('is-visible');
+        crownTourneyBtn.classList.toggle('active', false);
+        crownTourneyBtn.setAttribute('aria-pressed', false);
+    }
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const confTourneyToggle = document.getElementById("confTourneyMenu");
@@ -1073,7 +1216,11 @@ function switchToBracket() {
     const picks = document.querySelector(".Picks-Container");
     picks.style.display = "none";
     if (confTourneySection) confTourneySection.classList.remove('is-visible');
-    if (crownTourneySection) crownTourneySection.classList.remove('is-visible');
+    if (crownTourneySection) {
+        crownTourneySection.classList.remove('is-visible');
+        crownTourneyBtn.classList.toggle('active', false);
+        crownTourneyBtn.setAttribute('aria-pressed', false);
+    }
     const picksToggle = document.getElementById("picksMenu");
     picksToggle.style.display = "none";
     const confTourneyToggle = document.getElementById("confTourneyMenu");
@@ -1636,6 +1783,8 @@ const MOCK_USERS2 = db_client
   .select("username, email, id")
   .then((res) => {
     MOCK_USERS = res.data;
+    var viewSelectorCrown = document.getElementById('viewSelectorCrown');
+    MOCK_USERS.filter(u => u.id !== getCurrentUser()?.sub).forEach( u => viewSelectorCrown.options.add(new Option(u.username,u.id)));
     renderAll();
   });
 
@@ -2599,6 +2748,12 @@ function switchView(newView) {
 }
 window.switchView = switchView;
 
+function switchViewCrown(newView) {
+    currentViewCrown = newView;
+    renderCrownTourneyTable(CROWN_TOURNEY_PICKS);
+}
+window.switchViewCrown = switchViewCrown;
+
 // --- MODAL & SEARCH ---
 
 function openSelector(index) {
@@ -2699,6 +2854,7 @@ var currentSelections = [0, 0, 0, 0, 0, 0, 0];
      * the exact HTML structure into the target slot to preserve all custom classes and attributes.
      */
     function advanceTournamentTeam(sourceElement, targetElementId, is_loading = false) {
+        if (!is_loading) return;
         const sourceWrapper = sourceElement.querySelector('.image-wrapper');
         const imageElement = sourceElement.querySelector('img');
         const targetElement = document.getElementById(targetElementId);
@@ -2732,7 +2888,6 @@ var predictedScore = -1;
     
     if (scoreInput) {
         scoreInput.addEventListener('change', (event) => {
-            console.log('hey');
             const inputValue = event.target.value.trim();
             
             // Allow clearing the field manually without triggering an error
@@ -2835,7 +2990,6 @@ function selectTeam(teamKey) {
           renderConfTourneyTable(res.data);
         });
         });
-        console.log('test');
         closeModal();
         return;
     }

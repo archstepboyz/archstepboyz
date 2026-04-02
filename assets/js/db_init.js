@@ -5,14 +5,14 @@ export const db_client = supabase.createClient(DB_URL, ANON_API_KEY);
 
 /* TODO: Remove existing MOCK_DB */
 export const PICKERS = [
-  { uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9', id: 'FE', username: 'fearthebeak', color: '#6c5ce7' }, // Purple
-  { uuid: 'c310b6e4-1827-4df6-a65d-42e6f7523f58', id: 'GA', username: 'Gayson Tatum', color: '#00cec9' }, // Teal
-  { uuid: '61e46342-e00e-4ed6-ab69-cd3b060e54cd', id: 'NO', username: 'notflorida', color: '#fab1a0' }, // Peach
-  { uuid: '0372871d-2f06-444b-835b-599383550980', id: 'BI', username: 'bigkalk', color: '#fdcb6e' }, // Yellow
-  { uuid: 'fa3d35cd-6495-4893-a704-cad39542533f', id: 'CO', username: 'cookedbycapjack', color: '#d63031' },  // Red
-  { uuid: '1bca9cd2-5e27-4942-97d7-29c2e0bc70cc', id: 'CB', username: 'cbusbrando', color: '#0984e3' },  // Blue
-  { uuid: '72cee94c-8f10-4005-94df-c21995d44bae', id: 'JO', username: 'joshbrows', color: '#00b894' },  // Green
+  { uuid: 'a6a59bf1-97d5-4a9b-b1df-f4439bc9c4e9', id: 'FE', username: 'fearthebeak', color: '#6c5ce7',avatarUrl: "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=Jessica" }, // Purple
+  { uuid: 'c310b6e4-1827-4df6-a65d-42e6f7523f58', id: 'GA', username: 'Gayson Tatum', color: '#00cec9' , avatarUrl: "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=Jack"}, // Teal
+  { uuid: '61e46342-e00e-4ed6-ab69-cd3b060e54cd', id: 'NO', username: 'notflorida', color: '#fab1a0' , avatarUrl: "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=Wyatt"}, // Peach
+  { uuid: '0372871d-2f06-444b-835b-599383550980', id: 'BI', username: 'bigkalk', color: '#fdcb6e' , avatarUrl: "https://api.dicebear.com/9.x/avataaars-neutral/svg?seed=Brooklynn"}, // Yellow
+  { uuid: 'fa3d35cd-6495-4893-a704-cad39542533f', id: 'CO', username: 'cookedbycapjack', color: '#d63031' , avatarUrl: "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=Eliza"},  // Red
+  { uuid: '1bca9cd2-5e27-4942-97d7-29c2e0bc70cc', id: 'CB', username: 'cbusbrando', color: '#0984e3' , avatarUrl: "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=Easton"},  // Blue
+  { uuid: '72cee94c-8f10-4005-94df-c21995d44bae', id: 'JO', username: 'joshbrows', color: '#00b894' , avatarUrl: "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=Amaya"},  // Green
   /* unused */
-  { uuid: 'f5d64492-737d-48a7-939a-d75449e21ca2', id: 'CR', color: '#e17055', }, //icon: 'fa-solid fa-user-astronaut' },  // Orange
-  { uuid: '', id: 'BOOTS', username: 'Boots Radford', color: '#e84393', icon: 'fa-solid fa-shoe-prints' },  // Pink
+  { uuid: 'f5d64492-737d-48a7-939a-d75449e21ca2', id: 'CR', username: 'cranberrytom', color: '#e17055', avatarUrl: "https://api.dicebear.com/9.x/bottts-neutral/svg?seed=George"}, //icon: 'fa-solid fa-user-astronaut' },  // Orange
+  { uuid: '', id: 'BOOTS', username: 'Boots Radford', color: '#e84393', icon: 'fa-solid fa-shoe-prints' , avatarUrl: "https://api.dicebear.com/9.x/bottts/svg?seed=Andrea"},  // Pink
 ];

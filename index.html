@@ -825,6 +825,36 @@
       </div>
     </div>
     <div class="crown-tournament" id="crownTourneyTable">
+
+<div class="standings-board-container">
+    <div class="standings-header-section">
+        <h1 class="standings-main-title">Standings</h1>
+    </div>
+
+    <table class="standings-data-table">
+        <thead class="standings-table-head">
+            <tr>
+                <th class="standings-table-header-cell align-left">Participant</th>
+                <th class="standings-table-header-cell">Total Score</th>
+                <th class="standings-table-header-cell">Quarterfinals (R1)</th>
+                <th class="standings-table-header-cell">Semifinals (R2)</th>
+                <th class="standings-table-header-cell">Champion (R3)</th>
+            </tr>
+        </thead>
+        <tbody id="standings-table-body">
+            </tbody>
+    </table>
+</div>
+
+    <div class="View-Selector-Wrapper">
+      <select id="viewSelectorCrown" class="View-Selector" onchange=
+      "switchViewCrown(this.value)">
+        <option value="MINE" selected>
+          My Bracket
+        </option>
+      </select> <i class=
+      "fa-solid fa-chevron-down View-Selector-Icon"></i>
+    </div>
 <div class="interactive-tournament-bracket-canvas-container">
     
     <h1 class="bracket-header-main-title-text">COLLEGE BASKETBALL CROWN</h1>
@@ -914,7 +944,7 @@
     </div>
 
     <div class="bracket-score-prediction-input-container">
-        <input type="text" class="bracket-score-prediction-input-field" placeholder="Total Points" inputmode="numeric" pattern="[0-9]*">
+        <input type="text" disabled=true class="bracket-score-prediction-input-field" placeholder="Total Points" inputmode="numeric" pattern="[0-9]*">
     </div>
 
     <div class="bracket-ultimate-champion-display-box" id="ultimate-champion">
@@ -951,6 +981,8 @@
     <div class="bracket-visual-line-connector-segment line-border-top" style="top: 397px; left: 595px; width: 10px; height: 1px;"></div>
 
 </div>
+
+
     </div>
     <div class="Picks-Container">
         <div class="Legend-Wrapper">

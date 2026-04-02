@@ -1098,6 +1098,7 @@ opacity: 0.9;
     font-family: 'Roboto', sans-serif;
     overflow-x: hidden;
     display: none;
+    flex-direction: column;
 
     width: 690px;
 }
@@ -1331,6 +1332,128 @@ opacity: 0.9;
         .west-virginia-mountaineers { background: rgb( 0, 40, 86); }
         .rutgers-scarlet-knights { background: rgb( 227, 24, 55); }
         .creighton-bluejays { background: rgb( 0, 93, 170); }
+
+        .crown-standings {
+            background-color: #333333;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+            font-family: 'Roboto', sans-serif;
+            color: #f2efe9;
+        }
+
+        /* Main Container */
+        .standings-board-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid #4a4a4a;
+            margin-bottom: 100px;
+        }
+
+        /* Header Section */
+        .standings-header-section {
+            background-color: #f2efe9;
+            padding: 24px;
+            text-align: center;
+            border-bottom: 4px solid #b8860b;
+        }
+
+        .standings-main-title {
+            font-family: 'Oswald', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Table Styles */
+        .standings-data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        .standings-table-head {
+            background-color: #2a2a2a;
+            font-family: 'Oswald', sans-serif;
+            font-size: 16px;
+            letter-spacing: 1px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .standings-table-header-cell {
+            padding: 16px;
+            font-weight: 700;
+            border-bottom: 2px solid #4a4a4a;
+        }
+
+        .standings-table-header-cell.align-left {
+            text-align: left;
+            padding-left: 24px;
+        }
+
+        /* Row Styles */
+        .standings-table-row {
+            border-bottom: 1px solid #333;
+            transition: background-color 0.2s ease;
+        }
+
+        .standings-table-row:hover {
+            background-color: #2c2c2c;
+        }
+
+        .standings-table-row:last-child {
+            border-bottom: none;
+        }
+
+        /* Cell Styles */
+        .standings-table-cell {
+            padding: 16px;
+            font-size: 15px;
+            vertical-align: middle;
+        }
+
+        .standings-table-cell.total-score-cell {
+            font-family: 'Oswald', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: #eeb633;
+        }
+
+        /* User Profile Cell (Icon + Name) */
+        .standings-user-profile-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-left: 8px;
+        }
+
+        .standings-user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #4a4a4a;
+            border: 2px solid #eeb633;
+            object-fit: cover;
+        }
+
+        .standings-username-text {
+            font-weight: 700;
+            font-size: 16px;
+            color: #ffffff;
+        }
+
+        /* Top 3 Highlighting */
+        .standings-table-row.rank-1 .standings-user-avatar { border-color: #FFD700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.6); }
+        .standings-table-row.rank-2 .standings-user-avatar { border-color: #C0C0C0; }
+        .standings-table-row.rank-3 .standings-user-avatar { border-color: #CD7F32; }
 
 /* --- CONF TOURNEY PICKS --- */
 .conf-tourney-btn {
