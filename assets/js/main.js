@@ -257,7 +257,7 @@ var CROWN_TOURNEY_PICKS;
 
 const currentDate = new Date();
 // should make this const and introduce SELECTED_WEEK
-let CURRENT_WEEK = 20;
+let CURRENT_WEEK = 21;
 
 const TEAMS_ENDPOINT =
   "https://qeuvposbesblckyuflbd.supabase.co/rest/v1/Teams?order=conf.asc,conf_pos.asc";
@@ -1461,7 +1461,7 @@ function filterGames(filterId) {
       FILTER = 'Torvik';
       GAMES = ALL_GAMES;
       GAMES = GAMES.filter(game => {
-        return !game.away_torvik || game.away_torvik <= 150 || !game.home_torvik || game.home_torvik <= 150;
+        const at = game.away_torvik ? game.away_torvik : 151; const ht = game.home_torvik ? game.home_torvik : 151; console.log(at); console.log(ht); return at <= 150 && ht <= 150;
       });
       renderAll();
       break;
