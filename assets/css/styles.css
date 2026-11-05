@@ -4678,6 +4678,232 @@ max-height: 100px;
     .bubble-danger { background-color: var(--bubble-out); }
 
 
+    .Trivia-Container {
+        max-width: 600px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+        padding-bottom: 80px;
+
+        color: #333;
+        color: var(--text-main);
+        font-family: 'Merriweather', serif;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        min-height: 100vh;
+        overflow-x: hidden;
+    }
+
+        /* 3D Flashcard Stage */
+        .scene {
+            width: 100%;
+            height: 450px;
+            perspective: 1000px;
+            margin-bottom: 2rem;
+            z-index: 10;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transition: transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .flashcard.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        /* Card Faces & Glass/Surface Treatment */
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        .flashcard-face-back {
+            transform: rotateY(180deg);
+            /* Add a subtle highlight to the back */
+            border-top: 4px solid var(--primary); 
+        }
+
+        /* Text Spill & Alignment Fixes */
+        .flashcard-content {
+            width: 100%;
+            max-height: 100%;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            /* Hide scrollbars for clean UI while maintaining scrollability */
+            -ms-overflow-style: none; 
+            scrollbar-width: none;  
+        }
+        
+        .flashcard-content::-webkit-scrollbar {
+            display: none;
+        }
+
+        .flashcard-image {
+            max-width: 100%;
+            max-height: 160px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 2px solid #fff;
+        }
+
+        .flashcard-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .flashcard-label {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #636e72;
+            position: absolute;
+            top: 1.5rem;
+            left: 1.5rem;
+        }
+        
+        .flashcard-face-back .card-label {
+            color: var(--primary);
+        }
+
+        /* Controls Tray */
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+            padding: 0.5rem;
+            background: #ffffff;
+            border-radius: 40px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02), 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .btn {
+            font-family: 'Oswald', sans-serif;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+        }
+
+        .btn-nav {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: #f1f2f6;
+            color: var(--text-main);
+            font-size: 1.25rem;
+        }
+
+        .btn-nav:hover {
+            transform: translateY(-2px);
+            background: #ffffff;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .btn-nav:active {
+            transform: scale(0.95);
+        }
+
+        /* Contrast-Fixed Shuffle Button */
+        .btn-shuffle {
+            padding: 0.75rem 1.5rem;
+            border-radius: 30px;
+            background: #f1f2f6;
+            color: #636e72;
+            gap: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .btn-shuffle.active {
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            color: #ffffff;
+            box-shadow: 0 8px 20px rgba(229, 46, 113, 0.3);
+        }
+
+        .btn-shuffle:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-shuffle:active {
+            transform: scale(0.95);
+        }
+
+        /* Hand-drawn Sketch-Box Motif for Progress */
+        .progress-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sketch-box {
+            width: 280px;
+            height: 12px;
+            background: #ffffff;
+            border: 2px solid var(--text-main);
+            /* Complex border radius to simulate organic, wobbly drawn lines */
+            border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 2px 2px 0px rgba(0,0,0,0.1);
+        }
+
+        .sketch-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff8a00, #e52e71);
+            transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);;
+            /* Repeating striped gradient for that athletic/construction vibe */
+            background-image: repeating-linear-gradient(
+                -45deg,
+                rgba(255, 255, 255, 0.2),
+                rgba(255, 255, 255, 0.2) 10px,
+                transparent 10px,
+                transparent 20px
+            );
+        }
+
+        .progress-text {
+            font-family: 'Oswald', sans-serif;
+            font-size: 0.85rem;
+            color: #636e72;
+            font-weight: 500;
+        }
+
+
 
 
 /* Gatekeeper styles (kept compact for display) add position: fixed; */

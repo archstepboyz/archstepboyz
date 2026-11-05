@@ -1013,6 +1013,7 @@ let setActive;
   const top25Btn = document.getElementById("top25ViewBtn");
   const statsBtn = document.getElementById("statsViewBtn");
   const bracketBtn = document.getElementById("bracketViewBtn");
+  const triviaBtn = document.getElementById("triviaViewBtn");
   const mainContent = document.getElementById("MainContent");
 
   function switchToGrid() {
@@ -1022,6 +1023,7 @@ let setActive;
     top25Btn.classList.remove("active");
     statsBtn.classList.remove("active");
     bracketBtn.classList.remove("active");
+    triviaBtn.classList.remove("active"); 
 
     const list = document.querySelector(".list-container");
     list.style.display = "none";
@@ -1051,6 +1053,8 @@ let setActive;
     dash.style.display = "none";
     const bracket = document.querySelector(".Bracket-Container");
     bracket.style.display = "none";
+    const trivia = document.querySelector(".Trivia-Container");
+    trivia.style.display = "none";
   }
 
   function switchToList() {
@@ -1060,6 +1064,7 @@ let setActive;
     top25Btn.classList.remove("active");
     statsBtn.classList.remove("active");
     bracketBtn.classList.remove("active");
+    triviaBtn.classList.remove("active"); 
 
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -1089,6 +1094,8 @@ let setActive;
     dash.style.display = "none";
     const bracket = document.querySelector(".Bracket-Container");
     bracket.style.display = "none";
+    const trivia = document.querySelector(".Trivia-Container");
+    trivia.style.display = "none";
   }
 
   function switchToPicks() {
@@ -1098,6 +1105,7 @@ let setActive;
     top25Btn.classList.remove("active");
     statsBtn.classList.remove("active");
     bracketBtn.classList.remove("active");
+    triviaBtn.classList.remove("active"); 
 
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -1120,6 +1128,8 @@ let setActive;
     dash.style.display = "none";
     const bracket = document.querySelector(".Bracket-Container");
     bracket.style.display = "none";
+    const trivia = document.querySelector(".Trivia-Container");
+    trivia.style.display = "none";
   }
 
   function switchToTop25() {
@@ -1129,6 +1139,7 @@ let setActive;
     top25Btn.classList.add("active");
     statsBtn.classList.remove("active");
     bracketBtn.classList.remove("active");
+    triviaBtn.classList.remove("active"); 
     
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -1161,6 +1172,8 @@ let setActive;
     dash.style.display = "none";
     const bracket = document.querySelector(".Bracket-Container");
     bracket.style.display = "none";
+    const trivia = document.querySelector(".Trivia-Container");
+    trivia.style.display = "none";
   }
 
   function switchToStats() {
@@ -1170,6 +1183,7 @@ let setActive;
     top25Btn.classList.remove("active");
     statsBtn.classList.add("active");
     bracketBtn.classList.remove("active");
+    triviaBtn.classList.remove("active"); 
 
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -1197,15 +1211,18 @@ let setActive;
     dash.style.display = "flex";
     const bracket = document.querySelector(".Bracket-Container");
     bracket.style.display = "none";
+    const trivia = document.querySelector(".Trivia-Container");
+    trivia.style.display = "none";
   }
   
-function switchToBracket() {
+  function switchToBracket() {
     listBtn.classList.remove("active");
     gridBtn.classList.remove("active");
     picksBtn.classList.remove("active");
     top25Btn.classList.remove("active");
     statsBtn.classList.remove("active");
     bracketBtn.classList.add("active");
+    triviaBtn.classList.remove("active"); 
 
     const table = document.querySelector(".table-container");
     table.style.display = "none";
@@ -1234,6 +1251,47 @@ function switchToBracket() {
     const bracket = document.querySelector(".Bracket-Container");
     bracket.style.display = "flex";
     renderBracket(`week${CURRENT_WEEK}`);
+    const trivia = document.querySelector(".Trivia-Container");
+    trivia.style.display = "none";
+  }
+
+  function switchToTrivia() {
+    listBtn.classList.remove("active");
+    gridBtn.classList.remove("active");
+    picksBtn.classList.remove("active");
+    top25Btn.classList.remove("active");
+    statsBtn.classList.remove("active");
+    bracketBtn.classList.remove("active");
+    triviaBtn.classList.add("active"); 
+
+    const table = document.querySelector(".table-container");
+    table.style.display = "none";
+    const list = document.querySelector(".list-container");
+    list.style.display = "none";
+    const fab = document.querySelector(".Fab-Wrapper");
+    fab.style.display = "none";
+    const picks = document.querySelector(".Picks-Container");
+    picks.style.display = "none";
+    if (confTourneySection) confTourneySection.classList.remove('is-visible');
+    if (crownTourneySection) {
+        crownTourneySection.classList.remove('is-visible');
+        crownTourneyBtn.classList.toggle('active', false);
+        crownTourneyBtn.setAttribute('aria-pressed', false);
+    }
+    const picksToggle = document.getElementById("picksMenu");
+    picksToggle.style.display = "none";
+    const confTourneyToggle = document.getElementById("confTourneyMenu");
+    confTourneyToggle.style.display = "none";
+    const crownTourneyToggle = document.getElementById("crownTourneyMenu");
+    crownTourneyToggle.style.display = "none";
+    const ballot = document.querySelector(".Top25-Container");
+    ballot.style.display = "none";
+    const dash = document.getElementById("statsDash");
+    dash.style.display = "none";
+    const bracket = document.querySelector(".Bracket-Container");
+    bracket.style.display = "none";
+    const trivia = document.querySelector(".Trivia-Container");
+    trivia.style.display = "flex";
   }
 
   gridBtn.addEventListener("click", switchToGrid);
@@ -1265,6 +1323,9 @@ function switchToBracket() {
         break;
       case "bracketViewBtn":
         switchToBracket();
+        break;
+      case "triviaViewBtn":
+        switchToTrivia();
         break;
       default:
         switchToGrid();
@@ -1461,7 +1522,9 @@ function filterGames(filterId) {
       FILTER = 'Torvik';
       GAMES = ALL_GAMES;
       GAMES = GAMES.filter(game => {
-        const at = game.away_torvik ? game.away_torvik : 151; const ht = game.home_torvik ? game.home_torvik : 151; console.log(at); console.log(ht); return at <= 150 && ht <= 150;
+        const at = game.away_torvik ? game.away_torvik : 500; const ht = game.home_torvik ? game.home_torvik : 500; return at <= 200 && ht <= 200;
+        // const at = game.away_torvik ? game.away_torvik : 500; const ht = game.home_torvik ? game.home_torvik : 500; if (game.winner === 'home') return at < ht; else return ht < at;
+        // const at = game.away_score ? game.away_score : 500; const ht = game.home_score ? game.home_score : 500; if (game.winner === 'home') return ht - at < 4; else return at - ht < 4;
       });
       renderAll();
       break;
@@ -3833,6 +3896,118 @@ function showLoneWolfDisplay(wolfStats) {
     }
 }
 window.showLoneWolfDisplay = showLoneWolfDisplay;
+
+
+        // JSON Array Data Store
+        const flashcards = [
+            {
+                question: "UConn #23",
+                answer: "Jay.",
+                image: "https://a.espncdn.com/combiner/i?img=/i/headshots/mens-college-basketball/players/full/4895753.png&amp;w=350&amp;h=254",
+            },
+        ];
+
+        // App State
+        let currentIndex = 0;
+        let isShuffle = false;
+        let isFlipped = false;
+
+        // DOM Nodes
+        const cardElement = document.getElementById('flashcard');
+        const questionEl = document.getElementById('flashcard-q');
+        const answerEl = document.getElementById('flashcard-a');
+        const imageEl = document.getElementById('flashcard-img');
+        const prevBtn = document.getElementById('btn-prev');
+        const nextBtn = document.getElementById('btn-next');
+        const shuffleBtn = document.getElementById('btn-shuffle');
+        const progressFill = document.getElementById('progress');
+        const progressText = document.getElementById('progress-text');
+
+        // Render Card Content
+        function loadCard(index) {
+            const card = flashcards[index];
+            questionEl.textContent = card.question;
+            answerEl.textContent = card.answer;
+            
+            if (card.image) {
+                imageEl.src = card.image;
+                imageEl.style.display = 'block';
+            } else {
+                imageEl.style.display = 'none';
+                imageEl.src = '';
+            }
+
+            // Sync Sketch-Box Progress
+            const percentage = ((index + 1) / flashcards.length) * 100;
+            progressFill.style.width = percentage + '%';
+            progressText.textContent = `${index + 1} / ${flashcards.length}`;
+        }
+
+        // Animation Triggers
+        function flipCard() {
+            isFlipped = !isFlipped;
+            cardElement.classList.toggle('is-flipped', isFlipped);
+        }
+
+        function resetFlip() {
+            if (isFlipped) {
+                isFlipped = false;
+                cardElement.classList.remove('is-flipped');
+                // Allow card to physically flip closed before updating text
+                return new Promise(resolve => setTimeout(resolve, 350));
+            }
+            return Promise.resolve();
+        }
+
+        // Navigation Logic
+        function getRandomIndex(excludeIndex) {
+            if (flashcards.length <= 1) return 0;
+            let newIdx = excludeIndex;
+            while (newIdx === excludeIndex) {
+                newIdx = Math.floor(Math.random() * flashcards.length);
+            }
+            return newIdx;
+        }
+
+        async function navigate(direction) {
+            // Prevent fast double-clicks breaking the flip animation state
+            cardElement.style.pointerEvents = 'none';
+            
+            await resetFlip();
+            
+            if (isShuffle) {
+                currentIndex = getRandomIndex(currentIndex);
+            } else {
+                if (direction === 'next') {
+                    currentIndex = (currentIndex + 1) % flashcards.length;
+                } else {
+                    currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+                }
+            }
+            
+            loadCard(currentIndex);
+            cardElement.style.pointerEvents = 'auto';
+        }
+
+        // Bindings
+        cardElement.addEventListener('click', flipCard);
+        nextBtn.addEventListener('click', () => navigate('next'));
+        prevBtn.addEventListener('click', () => navigate('prev'));
+        
+        shuffleBtn.addEventListener('click', () => {
+            isShuffle = !isShuffle;
+            shuffleBtn.classList.toggle('active', isShuffle);
+        });
+
+        // Keyboard Accessibility
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') navigate('next');
+            if (e.key === 'ArrowLeft') navigate('prev');
+            if (e.key === ' ' || e.key === 'Enter') flipCard();
+        });
+
+        // Bootstrap App
+        loadCard(currentIndex);
 
 function getPlayerStats(games) {
   const stats = {};

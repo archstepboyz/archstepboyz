@@ -28,6 +28,12 @@
   <link rel="stylesheet" href=
   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Phosphor Icons for crisp, scalable SVGs -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- UnoCSS Runtime for scalable utility styling (if preferred, though custom CSS handles the complex styling here) -->
+    <script src="https://cdn.jsdelivr.net/npm/@unocss/runtime"></script>
+
   <script src=
   "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="assets/js/main.js" type="module"></script>
@@ -99,6 +105,14 @@
           <path d="M4 3h3v2H4zm0 6h3v2H4zm3-6h2v8H7zm2 3h3v2H9zm-5 7h3v2H4zm0 6h3v2H4zm3-6h2v8H7zm2 3h3v2H9zm3-10h2v12h-2zm2 5h6v2h-6z"/>
         </svg>
         Bracketology</button>
+        <button class="Grid-Btn" id=
+        "triviaViewBtn" onclick="setActive(this)">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .6 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
+          <path d="M9 18h6" />
+          <path d="M10 22h4" />
+        </svg>
+        Trivia</button>
       </div>
     </div>
     <!--test comment-->
@@ -702,7 +716,7 @@
         No comments yet.<br>
         Start the discussion!
       </div>
-    </div>
+    </div
     <div class="Drawer__Footer" style="position: relative;">
       <div id="mentionList" class="Mention-List"></div>
       <div class="Input-Group">
@@ -1171,6 +1185,50 @@
 </div>
 
 <div class="Bracket-Container">
+</div>
+
+<div class="Trivia-Container">
+    <!-- Flashcard Container -->
+    <div class="scene">
+        <div class="flashcard" id="flashcard">
+            <!-- Front: Question -->
+            <div class="flashcard-face flashcard-face-front">
+                <span class="flashcard-label">Q.</span>
+                <div class="flashcard-content">
+                    <img id="flashcard-img" class="flashcard-image" style="display: none;" src="" alt="Card Context">
+                    <div id="flashcard-q" class="flashcard-text">Loading...</div>
+                </div>
+            </div>
+            <!-- Back: Answer -->
+            <div class="flashcard-face flashcard-face-back">
+                <span class="flashcard-label">A.</span>
+                <div class="flashcard-content">
+                    <div id="flashcard-a" class="flashcard-text">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive Navigation Tray -->
+    <div class="controls">
+        <button class="btn btn-nav" id="btn-prev" aria-label="Previous">
+            <i class="ph-bold ph-caret-left"></i>
+        </button>
+        <button class="btn btn-shuffle" id="btn-shuffle" aria-label="Shuffle">
+            <i class="ph-bold ph-shuffle"></i> Shuffle
+        </button>
+        <button class="btn btn-nav" id="btn-next" aria-label="Next">
+            <i class="ph-bold ph-caret-right"></i>
+        </button>
+    </div>
+
+    <!-- Aesthetic Progress Tracker -->
+    <div class="progress-wrapper">
+        <div class="sketch-box">
+            <div class="sketch-fill" id="progress"></div>
+        </div>
+        <div class="progress-text" id="progress-text">1 / 3</div>
+    </div>
 </div>
 
 </body>
